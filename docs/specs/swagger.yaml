@@ -1,0 +1,1 @@
+{"openapi":"3.0.1","info":{"title":"flow-control-tool","description":"@project.description@","contact":{"name":"franco tagliero","email":"franco.tagliero@mercadolibre.com"},"version":"@project.version@"},"servers":[{"url":"http://localhost:8080","description":"Scope local"}],"paths":{},"components":{}}

@@ -1,0 +1,2 @@
+# "stage" suffix properties file. Scopes name samples: "stage", "web-stage", "api-stage", etc.
+# Overrides application.yml default properties
