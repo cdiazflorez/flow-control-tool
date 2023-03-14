@@ -1,0 +1,482 @@
+{
+  "taken_on": "2023-03-06T10:00:00Z",
+  "groups": [
+    {
+      "key": {
+        "area": "N/A",
+        "path": "GLOBAL",
+        "step": "PENDING"
+      },
+      "total": 415,
+      "accumulated_total": 919
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "NON_TOT_MONO",
+        "step": "PACKING"
+      },
+      "total": 1,
+      "accumulated_total": 7
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "NON_TOT_MONO",
+        "step": "PENDING"
+      },
+      "total": 2113,
+      "accumulated_total": 26403
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "NON_TOT_MONO",
+        "step": "PICKED"
+      },
+      "total": 4,
+      "accumulated_total": 8
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "NON_TOT_MONO",
+        "step": "TO_DISPATCH"
+      },
+      "total": 458,
+      "accumulated_total": 1853
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "NON_TOT_MONO",
+        "step": "TO_OUT"
+      },
+      "total": 1030,
+      "accumulated_total": 1748
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "NON_TOT_MONO",
+        "step": "TO_PACK"
+      },
+      "total": 698,
+      "accumulated_total": 3461
+    },
+    {
+      "key": {
+        "area": "RS",
+        "path": "NON_TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 117,
+      "accumulated_total": 3651
+    },
+    {
+      "key": {
+        "area": "MZ",
+        "path": "NON_TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 71,
+      "accumulated_total": 2586
+    },
+    {
+      "key": {
+        "area": "RK",
+        "path": "NON_TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 262,
+      "accumulated_total": 3897
+    },
+    {
+      "key": {
+        "area": "HV",
+        "path": "NON_TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 0,
+      "accumulated_total": 59
+    },
+    {
+      "key": {
+        "area": "BL",
+        "path": "NON_TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 0,
+      "accumulated_total": 6
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "PENDING"
+      },
+      "total": 1790,
+      "accumulated_total": 7735
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "PICKED"
+      },
+      "total": 502,
+      "accumulated_total": 751
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_DISPATCH"
+      },
+      "total": 315,
+      "accumulated_total": 406
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_OUT"
+      },
+      "total": 164,
+      "accumulated_total": 268
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_PACK"
+      },
+      "total": 126,
+      "accumulated_total": 1204
+    },
+    {
+      "key": {
+        "area": "MZ",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_PICK"
+      },
+      "total": 126,
+      "accumulated_total": 5404
+    },
+    {
+      "key": {
+        "area": "RS",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_PICK"
+      },
+      "total": 105,
+      "accumulated_total": 1658
+    },
+    {
+      "key": {
+        "area": "HV",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_PICK"
+      },
+      "total": 0,
+      "accumulated_total": 64
+    },
+    {
+      "key": {
+        "area": "RK",
+        "path": "NON_TOT_MULTI_ORDER",
+        "step": "TO_PICK"
+      },
+      "total": 63,
+      "accumulated_total": 521
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MONO",
+        "step": "PACKED"
+      },
+      "total": 1,
+      "accumulated_total": 2
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MONO",
+        "step": "PACKING"
+      },
+      "total": 0,
+      "accumulated_total": 222
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MONO",
+        "step": "PENDING"
+      },
+      "total": 8635,
+      "accumulated_total": 108939
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MONO",
+        "step": "PICKED"
+      },
+      "total": 327,
+      "accumulated_total": 705
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MONO",
+        "step": "TO_DISPATCH"
+      },
+      "total": 3729,
+      "accumulated_total": 11831
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MONO",
+        "step": "TO_OUT"
+      },
+      "total": 5460,
+      "accumulated_total": 8285
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MONO",
+        "step": "TO_PACK"
+      },
+      "total": 773,
+      "accumulated_total": 13189
+    },
+    {
+      "key": {
+        "area": "RK",
+        "path": "TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 16,
+      "accumulated_total": 194
+    },
+    {
+      "key": {
+        "area": "MZ",
+        "path": "TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 991,
+      "accumulated_total": 28564
+    },
+    {
+      "key": {
+        "area": "HV",
+        "path": "TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 112,
+      "accumulated_total": 3846
+    },
+    {
+      "key": {
+        "area": "RS",
+        "path": "TOT_MONO",
+        "step": "TO_PICK"
+      },
+      "total": 64,
+      "accumulated_total": 402
+    },
+    {
+      "key": {
+        "area": "PW",
+        "path": "TOT_MULTI_BATCH",
+        "step": "GROUPING"
+      },
+      "total": 234,
+      "accumulated_total": 738
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MULTI_BATCH",
+        "step": "PENDING"
+      },
+      "total": 16758,
+      "accumulated_total": 199154
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_BATCH",
+        "step": "PICKED"
+      },
+      "total": 621,
+      "accumulated_total": 2490
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_BATCH",
+        "step": "SORTED"
+      },
+      "total": 3092,
+      "accumulated_total": 10092
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_DISPATCH"
+      },
+      "total": 4177,
+      "accumulated_total": 12054
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_GROUP"
+      },
+      "total": 1701,
+      "accumulated_total": 17600
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_OUT"
+      },
+      "total": 4387,
+      "accumulated_total": 7888
+    },
+    {
+      "key": {
+        "area": "PW",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_PACK"
+      },
+      "total": 579,
+      "accumulated_total": 15656
+    },
+    {
+      "key": {
+        "area": "MZ",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_PICK"
+      },
+      "total": 1415,
+      "accumulated_total": 46342
+    },
+    {
+      "key": {
+        "area": "HV",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_PICK"
+      },
+      "total": 0,
+      "accumulated_total": 2363
+    },
+    {
+      "key": {
+        "area": "RS",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_PICK"
+      },
+      "total": 0,
+      "accumulated_total": 243
+    },
+    {
+      "key": {
+        "area": "RK",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_PICK"
+      },
+      "total": 2,
+      "accumulated_total": 48
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_BATCH",
+        "step": "TO_SORT"
+      },
+      "total": 685,
+      "accumulated_total": 3567
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_ORDER",
+        "step": "PACKED"
+      },
+      "total": 24,
+      "accumulated_total": 24
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MULTI_ORDER",
+        "step": "PENDING"
+      },
+      "total": 2917,
+      "accumulated_total": 10151
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_ORDER",
+        "step": "PICKED"
+      },
+      "total": 176,
+      "accumulated_total": 318
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MULTI_ORDER",
+        "step": "TO_DISPATCH"
+      },
+      "total": 603,
+      "accumulated_total": 843
+    },
+    {
+      "key": {
+        "area": "N/A",
+        "path": "TOT_MULTI_ORDER",
+        "step": "TO_OUT"
+      },
+      "total": 417,
+      "accumulated_total": 881
+    },
+    {
+      "key": {
+        "area": "MU",
+        "path": "TOT_MULTI_ORDER",
+        "step": "TO_PACK"
+      },
+      "total": 240,
+      "accumulated_total": 2723
+    },
+    {
+      "key": {
+        "area": "MZ",
+        "path": "TOT_MULTI_ORDER",
+        "step": "TO_PICK"
+      },
+      "total": 165,
+      "accumulated_total": 9001
+    },
+    {
+      "key": {
+        "area": "RS",
+        "path": "TOT_MULTI_ORDER",
+        "step": "TO_PICK"
+      },
+      "total": 0,
+      "accumulated_total": 16
+    }
+  ]
+}

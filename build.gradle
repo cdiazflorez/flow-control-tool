@@ -1,8 +1,9 @@
 plugins {
-  id 'org.springframework.boot' version '2.7.2'
-  id 'io.spring.dependency-management' version '1.0.13.RELEASE'
-  id 'java'
-  id 'jacoco'
+    id 'org.springframework.boot' version '2.7.2'
+    id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+    id 'java'
+    id 'jacoco'
+    id 'io.freefair.lombok' version '6.0.0-m2'
 }
 
 group = 'com.mercadolibre'
@@ -12,59 +13,63 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 repositories {
-  maven { url "https://maven.artifacts.furycloud.io/repository/all" }
+    maven { url "https://maven.artifacts.furycloud.io/repository/all" }
 }
 
 bootJar {
-  archiveFileName = 'application.jar'
+    archiveFileName = 'application.jar'
 }
 
 dependencies {
-  // Internal application dependencies
-  implementation platform('com.mercadolibre.library:java-melitk-bom:0.2.1')
-  implementation('com.mercadolibre.metrics:metrics-core')
-  implementation('com.mercadolibre.metrics:datadog-metric-wrapper') {
-    exclude module: 'org.apache.commons.io'
-  }
-  implementation('com.mercadolibre:threading')
-  implementation('com.mercadolibre.json_jackson:json-jackson')
+    // Internal application dependencies
+    implementation platform('com.mercadolibre.library:java-melitk-bom:0.2.1')
+    implementation('com.mercadolibre.metrics:metrics-core')
+    implementation('com.mercadolibre.metrics:datadog-metric-wrapper') {
+        exclude module: 'org.apache.commons.io'
+    }
+    implementation('com.mercadolibre:threading')
+    implementation('com.mercadolibre.json_jackson:json-jackson')
 
-  // External application dependencies
-  implementation('org.springframework.boot:spring-boot-starter-web') {
-    exclude module: 'spring-boot-starter-tomcat'
-  }
-  implementation('org.springframework.boot:spring-boot-starter-jetty')
-  implementation('com.fasterxml.jackson.module:jackson-module-blackbird')
-  implementation('com.newrelic.agent.java:newrelic-api:8.0.0')
-  implementation('org.springdoc:springdoc-openapi-ui:1.6.11')
-  implementation('commons-io:commons-io:2.11.0')
 
-  // Test dependencies for all projects
-  testImplementation('org.springframework.boot:spring-boot-starter-test')
-  testImplementation('uk.org.webcompere:system-stubs-jupiter:2.0.1')
-  testImplementation('com.mercadolibre.restclient:restclient-core')
-  testImplementation('com.mercadolibre.restclient:restclient-core:0.5.5:tests')
+    // External application dependencies
+    implementation('org.springframework.boot:spring-boot-starter-web') {
+        exclude module: 'spring-boot-starter-tomcat'
+    }
+    implementation('com.fasterxml.jackson.module:jackson-module-blackbird')
+    implementation('com.fasterxml.jackson.datatype:jackson-datatype-jsr310')
+    implementation('com.newrelic.agent.java:newrelic-api:8.0.0')
+    implementation('org.springdoc:springdoc-openapi-ui:1.6.11')
+    implementation('org.springframework.boot:spring-boot-starter-jetty')
+    implementation('com.mercadolibre.restclient:meli-restclient-default')
+    implementation('com.mercadolibre.fbm.wms.outbound:commons:1.2.0')
+    implementation('commons-io:commons-io:2.11.0')
+
+    // Test dependencies for all projects
+    testImplementation('com.mercadolibre.restclient:restclient-core')
+    testImplementation('com.mercadolibre.restclient:restclient-core:0.5.5:tests')
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+    testImplementation('uk.org.webcompere:system-stubs-jupiter:2.0.1')
 }
 
 test {
-  useJUnitPlatform()
+    useJUnitPlatform()
 
-  // Always run tests, even when nothing changed.
-  dependsOn 'cleanTest'
+    // Always run tests, even when nothing changed.
+    dependsOn 'cleanTest'
 
-  // Show test results.
-  testLogging {
-    events "passed", "skipped", "failed"
-  }
+    // Show test results.
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 jacoco {
-  toolVersion = "0.8.8"
+    toolVersion = "0.8.8"
 }
 
 jacocoTestReport {
-  reports {
-    xml.required = true
-    html.required = false
-  }
+    reports {
+        xml.required = true
+        html.required = false
+    }
 }

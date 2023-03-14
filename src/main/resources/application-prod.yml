@@ -1,2 +1,8 @@
 # "prod" suffix properties file. Scopes name samples: "prod", "web-prod", "api-prod", etc.
 # Overrides application.yml default properties
+
+restclient:
+  pool:
+    backlog:
+      base-url: http://fbm-flow.melisystems.com
+      socket-timeout: 5000
