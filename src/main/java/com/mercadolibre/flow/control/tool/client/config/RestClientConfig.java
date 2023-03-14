@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.client.config;
 
 import static com.mercadolibre.flow.control.tool.client.config.RestPool.BACKLOG;
+import static com.mercadolibre.flow.control.tool.client.config.RestPool.PLANNING_MODEL_API;
 
 import com.mercadolibre.restclient.MeliRESTPool;
 import com.mercadolibre.restclient.MeliRestClient;
@@ -22,12 +23,14 @@ import org.springframework.context.annotation.Configuration;
 @AllArgsConstructor
 @Configuration
 @EnableConfigurationProperties({
-    RestClientConfig.BacklogApiClientProperties.class
+    RestClientConfig.BacklogApiClientProperties.class,
+    RestClientConfig.PlanningModelApiClientProperties.class
 })
 
 public class RestClientConfig {
 
   private BacklogApiClientProperties backlogApiClientProperties;
+  private PlanningModelApiClientProperties planningModelApiClientProperties;
 
   /**
    * Tries to build a MeLiRestClient with required REST pool.
@@ -40,7 +43,8 @@ public class RestClientConfig {
     return MeliRestClient
         .builder()
         .withPool(
-            restPool(BACKLOG.name(), backlogApiClientProperties)
+            restPool(BACKLOG.name(), backlogApiClientProperties),
+            restPool(PLANNING_MODEL_API.name(), planningModelApiClientProperties)
         )
         .build();
   }
@@ -86,5 +90,9 @@ public class RestClientConfig {
    */
   @ConfigurationProperties("restclient.pool.backlog")
   public static class BacklogApiClientProperties extends RestClientProperties {
+  }
+
+  @ConfigurationProperties("restclient.pool.planning-model-api")
+  public static class PlanningModelApiClientProperties extends RestClientProperties {
   }
 }
