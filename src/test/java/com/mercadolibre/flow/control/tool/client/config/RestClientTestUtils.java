@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.client.config;
 
 import com.mercadolibre.flow.control.tool.client.config.RestClientConfig.BacklogApiClientProperties;
+import com.mercadolibre.flow.control.tool.client.config.RestClientConfig.PlanningModelApiClientProperties;
 import com.mercadolibre.restclient.MeliRestClient;
 import com.mercadolibre.restclient.mock.RequestMockHolder;
 import java.io.IOException;
@@ -22,8 +23,13 @@ public class RestClientTestUtils {
     final BacklogApiClientProperties backlogApiClientProperties = new BacklogApiClientProperties();
     backlogApiClientProperties.setBaseUrl(BASE_URL);
 
+    final PlanningModelApiClientProperties planningModelApiClientProperties =
+        new PlanningModelApiClientProperties();
+    planningModelApiClientProperties.setBaseUrl(BASE_URL);
+
     return new RestClientConfig(
-        backlogApiClientProperties
+        backlogApiClientProperties,
+        planningModelApiClientProperties
     ).restClient();
   }
 

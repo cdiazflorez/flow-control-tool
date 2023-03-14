@@ -7,3 +7,6 @@ restclient:
     backlog:
       base-url: https://fbm-flow-stage.melioffice.com
       socket-timeout: 10000
+    planning-model-api:
+      base-url: https://fbm-flow-stage.melioffice.com
+      socket-timeout: 10000
