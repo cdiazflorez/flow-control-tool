@@ -3,6 +3,7 @@ package com.mercadolibre.flow.control.tool.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +14,10 @@ import org.apache.commons.io.IOUtils;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TestUtils {
   public static final String LOGISTIC_CENTER_ID = "ARTW01";
+
+  public static final String FBM_WMS_OUTBOUND = "fbm_wms_outbound";
+
+  public static final Instant VIEW_DATE_INSTANT = Instant.parse("2023-03-06T10:00:00Z");
 
   /**
    * Load as String a resource located in the given resourceName.
@@ -31,4 +36,5 @@ public class TestUtils {
       throw new IllegalStateException(e);
     }
   }
+
 }

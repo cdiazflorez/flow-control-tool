@@ -1,9 +1,9 @@
 package com.mercadolibre.flow.control.tool.client.backlog;
 
 import static com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClientMockUtils.BACKLOG_PHOTO_LAST_URL;
-import static com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClientMockUtils.VIEW_DATE;
 import static com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClientMockUtils.mockBacklogPhotosLastRequest;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTANT;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static com.mercadolibre.restclient.http.ContentType.APPLICATION_JSON;
 import static com.mercadolibre.restclient.http.ContentType.HEADER_NAME;
@@ -74,7 +74,7 @@ class BacklogApiClientTest extends RestClientTestUtils {
 
     // THEN
     assertEquals(expectedPhotoResponse, photoResponse);
-    assertEquals(VIEW_DATE, photoResponse.takenOn());
+    assertEquals(VIEW_DATE_INSTANT, photoResponse.takenOn());
   }
 
   /**

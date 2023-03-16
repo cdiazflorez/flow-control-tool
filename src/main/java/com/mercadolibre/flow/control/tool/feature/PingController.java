@@ -1,4 +1,4 @@
-package com.mercadolibre.flow.control.tool.controller;
+package com.mercadolibre.flow.control.tool.feature;
 
 import com.newrelic.api.agent.NewRelic;
 import org.springframework.web.bind.annotation.GetMapping;

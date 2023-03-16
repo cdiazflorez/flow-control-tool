@@ -3,9 +3,9 @@ package com.mercadolibre.flow.control.tool.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
 
-import com.mercadolibre.flow.control.tool.controller.PingController;
 import com.mercadolibre.flow.control.tool.exceptions.ApiError;
 import com.mercadolibre.flow.control.tool.exceptions.ApiException;
+import com.mercadolibre.flow.control.tool.feature.PingController;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;

@@ -1,0 +1,10 @@
+{
+  "waving": 10,
+  "picking": 10,
+  "batch_sorter": 10,
+  "wall_in": 10,
+  "packing": 10,
+  "packing_wall": 10,
+  "hu_assembly": 10,
+  "shipped": 10
+}
