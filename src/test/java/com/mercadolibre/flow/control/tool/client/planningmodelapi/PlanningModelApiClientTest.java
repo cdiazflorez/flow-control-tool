@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class PlanningModelApiClientTest extends RestClientTestUtils {
 
   private static final String GET_FORECAST_METADATA_URL = "/planning/model/workflows/%s/metadata";
-  PlanningModelApiClient planningModelApiClient;
+  private PlanningModelApiClient planningModelApiClient;
 
   @BeforeEach
   void setUp() throws IOException {

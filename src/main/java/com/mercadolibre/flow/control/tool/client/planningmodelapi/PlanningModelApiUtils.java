@@ -6,15 +6,19 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class PlanningModelApiUtils {
-  protected static final String GET_FORECAST_METADATA = "/planning/model/workflows/%s/metadata";
-  protected static final String WAREHOUSE_ID = "warehouse_id";
-  protected static final String DATE_FROM = "date_from";
-  protected static final String DATE_TO = "date_to";
+final class PlanningModelApiUtils {
+  static final String GET_FORECAST_METADATA = "/planning/model/workflows/%s/metadata";
+  static final String UNIT_PER_ORDER_RATIO = "units_per_order_ratio";
+  private static final String WAREHOUSE_ID = "warehouse_id";
+  private static final String DATE_FROM = "date_from";
+  private static final String DATE_TO = "date_to";
 
-  protected static Map<String, String> createForecastMetadataParams(final String warehouseId,
-                                                                    final ZonedDateTime dateFrom,
-                                                                    final ZonedDateTime dateTo) {
+  private PlanningModelApiUtils() {
+  }
+
+  static Map<String, String> createForecastMetadataParams(final String warehouseId,
+                                                          final ZonedDateTime dateFrom,
+                                                          final ZonedDateTime dateTo) {
     final Map<String, String> params = new ConcurrentHashMap<>();
     params.put(WAREHOUSE_ID, warehouseId);
     params.put(DATE_FROM, dateFrom.format(ISO_OFFSET_DATE_TIME));
