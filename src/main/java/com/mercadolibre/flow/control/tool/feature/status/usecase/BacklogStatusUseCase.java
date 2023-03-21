@@ -4,6 +4,7 @@ import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Proces
 import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.ValueType;
 import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -37,21 +38,21 @@ public class BacklogStatusUseCase {
 
     if (valueType.equals(ValueType.ORDERS)) {
       final Optional<Double> ratio =
-          unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate)
-              .orElse(0.0).describeConstable();
-      return processes.stream()
-          .collect(
-              Collectors.toMap(
-                  Function.identity(),
-                  value ->
-                      (int) (backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL) / ratio.get())
-              )
-          );
+          unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate);
+
+      return ratio.map(r -> processes.stream()
+              .collect(
+                  Collectors.toMap(
+                      Function.identity(),
+                      value ->
+                          (int) (backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL) / r)
+                  )
+              ))
+          .orElse(Collections.emptyMap());
     }
 
     return processes.stream()
         .collect(Collectors.toMap(Function.identity(), value -> backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL)));
-
   }
 
   /**
@@ -83,9 +84,9 @@ public class BacklogStatusUseCase {
     /**
      * The implementation should return the ratio.
      *
-     * @param logisticCenterId    outbound
-     * @param warehouseId logistic center id
-     * @param viewDate    base date to backlog.
+     * @param logisticCenterId outbound
+     * @param warehouseId      logistic center id
+     * @param viewDate         base date to backlog.
      * @return optional of double.
      */
     Optional<Double> getUnitsPerOrderRatio(

@@ -178,7 +178,7 @@ class BacklogStatusUseCaseTest {
 
     when(unitsPerOrderRatioGateway
         .getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, VIEW_DATE_INSTANT))
-        .thenReturn(Optional.of(1.0));
+        .thenReturn(Optional.empty());
 
     // WHEN
     final Map<Processes, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
@@ -190,13 +190,6 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(30, backlogByProcess.get(Processes.WAVING));
-    assertEquals(30, backlogByProcess.get(Processes.PICKING));
-    assertEquals(30, backlogByProcess.get(Processes.BATCH_SORTER));
-    assertEquals(30, backlogByProcess.get(Processes.WALL_IN));
-    assertEquals(30, backlogByProcess.get(Processes.PACKING));
-    assertEquals(30, backlogByProcess.get(Processes.PACKING_WALL));
-    assertEquals(30, backlogByProcess.get(Processes.HU_ASSEMBLY));
-    assertEquals(30, backlogByProcess.get(Processes.SHIPPED));
+    assertEquals(Map.of(), backlogByProcess);
   }
 }
