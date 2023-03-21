@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto.constant;
 
 import java.util.Locale;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -30,6 +31,10 @@ public enum PhotoSteps {
 
   public static PhotoSteps from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
+  }
+
+  public static Optional<PhotoSteps> of(final String value) {
+    return Optional.of(from(value));
   }
 
   public String getName() {
