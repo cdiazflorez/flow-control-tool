@@ -1,6 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi;
 
-import static com.mercadolibre.flow.control.tool.client.planningmodelapi.Workflow.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static com.mercadolibre.restclient.http.ContentType.APPLICATION_JSON;
@@ -58,8 +58,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
         planningModelApiClient.getForecastMetadata(
             FBM_WMS_OUTBOUND,
             LOGISTIC_CENTER_ID,
-            now(),
-            now().plusDays(1));
+            now());
 
     //THEN
     assertNotNull(forecastMetadata);
@@ -97,8 +96,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
         planningModelApiClient.getForecastMetadata(
             FBM_WMS_OUTBOUND,
             LOGISTIC_CENTER_ID,
-            now(),
-            now().plusDays(1)));
+            now()));
 
     //THEN
     assertTrue(response.getMessage().contains(expectedMessage));

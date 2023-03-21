@@ -4,6 +4,7 @@ import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_
 import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -16,9 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class PlanningModelApiAdapterTest {
+public class RatioAdapterForStatusTest {
   @InjectMocks
-  private PlanningModelApiAdapter planningModelApiAdapter;
+  private RatioAdapterForStatusGateway ratioAdapterForStatus;
   @Mock
   private PlanningModelApiClient planningModelApiClient;
 
@@ -27,15 +28,14 @@ public class PlanningModelApiAdapterTest {
     // GIVEN
     final String date = "2023-03-16T13:47:48.809940Z";
     final ZonedDateTime dateFrom = ZonedDateTime.parse(date);
-    final ZonedDateTime dateTo = dateFrom.plusDays(1);
     when(planningModelApiClient
-        .getForecastMetadata(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom, dateTo))
+        .getForecastMetadata(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom))
         .thenReturn(mockMetadata());
 
     // WHEN
     final Instant viewDate = Instant.parse(date);
     final Optional<Double> unitsPerOrderRatio =
-        planningModelApiAdapter.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
+        ratioAdapterForStatus.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
 
     // THEN
     final Double expectedUnitsPerOrderRatio = 3.96;
@@ -48,15 +48,14 @@ public class PlanningModelApiAdapterTest {
     // GIVEN
     final String date = "2023-03-16T13:47:48.809940Z";
     final ZonedDateTime dateFrom = ZonedDateTime.parse(date);
-    final ZonedDateTime dateTo = dateFrom.plusDays(1);
     when(planningModelApiClient
-        .getForecastMetadata(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom, dateTo))
+        .getForecastMetadata(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom))
         .thenReturn(mockMetadataError());
 
     // WHEN
     final Instant viewDate = Instant.parse(date);
     final Optional<Double> unitsPerOrderRatio =
-        planningModelApiAdapter.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
+        ratioAdapterForStatus.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
 
     // THEN
     Assertions.assertEquals(Optional.empty(), unitsPerOrderRatio);
