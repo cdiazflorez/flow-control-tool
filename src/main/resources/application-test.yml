@@ -1,0 +1,11 @@
+# "test" suffix properties file. Scopes name samples: "test", "web-test", "api-test", etc.
+# Overrides application.yml default properties
+
+restclient:
+  pool:
+    backlog:
+      base-url: http://fbm-flow-test.melisystems.com
+      socket-timeout: 5000
+    planning-model-api:
+      base-url: http://fbm-flow-test.melisystems.com
+      socket-timeout: 5000

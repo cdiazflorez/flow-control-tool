@@ -1,0 +1,11 @@
+# "stage" suffix properties file. Scopes name samples: "stage", "web-stage", "api-stage", etc.
+# Overrides application.yml default properties
+
+restclient:
+  pool:
+    backlog:
+      base-url: http://fbm-flow-stage.melisystems.com
+      socket-timeout: 5000
+    planning-model-api:
+      base-url: http://fbm-flow-stage.melisystems.com
+      socket-timeout: 5000
