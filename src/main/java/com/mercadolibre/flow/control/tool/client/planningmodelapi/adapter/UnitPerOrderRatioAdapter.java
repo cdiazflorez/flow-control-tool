@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
@@ -29,7 +30,7 @@ public class UnitPerOrderRatioAdapter implements UnitsPerOrderRatioGateway {
     final ZonedDateTime dateTime = ZonedDateTime.ofInstant(viewDate, ZoneOffset.UTC);
 
     final List<Metadata> forecastMetadata =
-        planningModelApiClient.getForecastMetadata(workflow, logisticCenterId, dateTime);
+        planningModelApiClient.getForecastMetadata(PlanningWorkflow.from(workflow.getName()), logisticCenterId, dateTime);
 
     return forecastMetadata.stream()
         .filter(ratio -> UNIT_PER_ORDER_RATIO.equalsIgnoreCase(ratio.key()))

@@ -1,0 +1,582 @@
+{
+  "headcount": [
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 92
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 8
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 76
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 4
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 53
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 7
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 12
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 8
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 19
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 6
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 19
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 6
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 17
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 8
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 92
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 8
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 76
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 4
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 53
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 7
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 12
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 8
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 19
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 6
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 19
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 6
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "type": "effective_workers",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 17
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "type": "effective_workers_ns",
+      "metric_unit": "workers",
+      "source": "forecast",
+      "value": 8
+    }
+  ],
+  "productivity": [
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 96
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 77
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 50
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 38
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 40
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 34
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 76
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 96
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 77
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 50
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 38
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 40
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 34
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "ability_level": 1,
+      "main_productivity": true,
+      "polyvalent_productivity": false,
+      "value": 76
+    }
+  ],
+  "throughput": [
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 8832
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 5852
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 2650
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 456
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 760
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 646
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T14:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 1292
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "picking",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 8832
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 5852
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "packing_wall",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 2650
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "batch_sorter",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 456
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "wall_in",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 760
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "hu_assembly",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 646
+    },
+    {
+      "workflow": "fbm-wms-outbound",
+      "date": "2023-03-17T15:00:00Z",
+      "process_path": "global",
+      "process_name": "sales_dispatch",
+      "metric_unit": "units_per_hour",
+      "source": "forecast",
+      "value": 1292
+    }
+  ]
+}

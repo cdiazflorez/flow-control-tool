@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi;
 
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static org.mockito.Mockito.when;
 
@@ -30,7 +31,7 @@ public class RatioAdapterForStatusTest {
     final String date = "2023-03-16T13:47:48.809940Z";
     final ZonedDateTime dateFrom = ZonedDateTime.parse(date);
     when(planningModelApiClient
-        .getForecastMetadata(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom))
+        .getForecastMetadata(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom))
         .thenReturn(mockMetadata());
 
     // WHEN
@@ -50,7 +51,7 @@ public class RatioAdapterForStatusTest {
     final String date = "2023-03-16T13:47:48.809940Z";
     final ZonedDateTime dateFrom = ZonedDateTime.parse(date);
     when(planningModelApiClient
-        .getForecastMetadata(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom))
+        .getForecastMetadata(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom))
         .thenReturn(mockMetadataError());
 
     // WHEN
