@@ -97,6 +97,7 @@ public class BacklogByProcessAdapter implements BacklogGateway {
         .map(process -> ProcessToStep.from(process.getName()).getBacklogPhotoSteps())
         .flatMap(List::stream)
         .collect(Collectors.toSet());
+
     final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
         logisticCenterId,
         Set.of(PhotoWorkflow.from(workflow)),
@@ -104,9 +105,13 @@ public class BacklogByProcessAdapter implements BacklogGateway {
         steps,
         viewDate
     );
-    final List<PhotoResponse.Group> groups = backlogApiClient.getLastPhoto(backlogPhotosLastRequest).groups();
+    final PhotoResponse groups = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);
 
-    var unitsByProcess = groups.stream()
+    if (groups == null) {
+      return Map.of();
+    }
+
+    final var unitsByProcess = groups.groups().stream()
         .filter(group -> ProcessPath.of(group.key().get(PATH)).isPresent() && PhotoStep.of(group.key().get(STEP)).isPresent())
         .collect(Collectors.toMap(
         group -> mapGroupKeyToProcess(ProcessPath.from(group.key().get(PATH)), PhotoStep.from(group.key().get(STEP))),

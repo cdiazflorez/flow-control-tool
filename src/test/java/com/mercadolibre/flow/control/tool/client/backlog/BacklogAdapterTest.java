@@ -171,4 +171,23 @@ class BacklogAdapterTest {
     assertEquals(expected.keySet().size(), response.keySet().size());
     assertEquals(expected.get(WAVING), response.get(WAVING));
   }
+
+  @Test
+  void backlogByProcessWhenBacklogsIsNull() {
+    final LastPhotoRequest request = new LastPhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(FBM_WMS_OUTBOUND),
+        Set.of(PhotoGrouper.PATH, PhotoGrouper.STEP),
+        Set.of(PENDING, TO_ROUTE),
+        PHOTO_DATE
+    );
+    when(backlogApiClient.getLastPhoto(request)).thenReturn(null);
+    final var response = backlogAdapter.getBacklogTotalsByProcess(
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        Set.of(WAVING),
+        PHOTO_DATE
+    );
+    assertEquals(Map.of(), response);
+  }
 }
