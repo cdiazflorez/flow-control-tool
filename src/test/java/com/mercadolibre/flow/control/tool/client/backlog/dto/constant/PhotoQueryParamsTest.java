@@ -14,10 +14,10 @@ class PhotoQueryParamsTest {
   @Test
   void testFromGetName() {
     // GIVEN
-    final PhotoQueryParams expectedBacklogPhotoQueryParams = PhotoQueryParams.PHOTO_DATE_TO;
+    final PhotoQueryParam expectedBacklogPhotoQueryParams = PhotoQueryParam.PHOTO_DATE_TO;
 
     // WHEN
-    final PhotoQueryParams backlogPhotoQueryParamsDate = PhotoQueryParams.from(PHOTO_DATE_TO);
+    final PhotoQueryParam backlogPhotoQueryParamsDate = PhotoQueryParam.from(PHOTO_DATE_TO);
 
     // THEN
     assertEquals(expectedBacklogPhotoQueryParams, backlogPhotoQueryParamsDate);

@@ -7,11 +7,12 @@ import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTAN
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.BacklogStatusUseCase.BacklogGateway;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.ValueType;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.BacklogGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -40,18 +41,18 @@ class BacklogStatusUseCaseTest {
   @Test
   void testGetBacklogTotalsByAllProcess() {
     // GIVEN
-    final Set<Processes> processes = mockAllProcessesSet();
+    final Set<ProcessName> processes = mockAllProcessesSet();
     when(backlogGateway.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         processes,
         VIEW_DATE_INSTANT
-    )).thenReturn(Arrays.stream(Processes.values())
+    )).thenReturn(Arrays.stream(ProcessName.values())
         .collect(Collectors.toMap(Function.identity(), value -> 10))
     );
 
     // WHEN
-    final Map<Processes, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,
@@ -60,29 +61,29 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(10, backlogByProcess.get(Processes.WAVING));
-    assertEquals(10, backlogByProcess.get(Processes.PICKING));
-    assertEquals(10, backlogByProcess.get(Processes.BATCH_SORTER));
-    assertEquals(10, backlogByProcess.get(Processes.WALL_IN));
-    assertEquals(10, backlogByProcess.get(Processes.PACKING));
-    assertEquals(10, backlogByProcess.get(Processes.PACKING_WALL));
-    assertEquals(10, backlogByProcess.get(Processes.HU_ASSEMBLY));
-    assertEquals(10, backlogByProcess.get(Processes.SHIPPED));
+    assertEquals(10, backlogByProcess.get(ProcessName.WAVING));
+    assertEquals(10, backlogByProcess.get(ProcessName.PICKING));
+    assertEquals(10, backlogByProcess.get(ProcessName.BATCH_SORTER));
+    assertEquals(10, backlogByProcess.get(ProcessName.WALL_IN));
+    assertEquals(10, backlogByProcess.get(ProcessName.PACKING));
+    assertEquals(10, backlogByProcess.get(ProcessName.PACKING_WALL));
+    assertEquals(10, backlogByProcess.get(ProcessName.HU_ASSEMBLY));
+    assertEquals(10, backlogByProcess.get(ProcessName.SHIPPED));
   }
 
   @Test
   void testGetBacklogTotalsByProcessWhenNoProcessStepsValues() {
     // GIVEN
-    final Set<Processes> processes = mockAllProcessesSet();
+    final Set<ProcessName> processes = mockAllProcessesSet();
     when(backlogGateway.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         processes,
         VIEW_DATE_INSTANT
-    )).thenReturn(Map.of(Processes.WAVING, 20, Processes.PICKING, 20));
+    )).thenReturn(Map.of(ProcessName.WAVING, 20, ProcessName.PICKING, 20));
 
     // WHEN
-    final Map<Processes, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,
@@ -91,29 +92,29 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(20, backlogByProcess.get(Processes.WAVING));
-    assertEquals(20, backlogByProcess.get(Processes.PICKING));
-    assertEquals(0, backlogByProcess.get(Processes.BATCH_SORTER));
-    assertEquals(0, backlogByProcess.get(Processes.WALL_IN));
-    assertEquals(0, backlogByProcess.get(Processes.PACKING));
-    assertEquals(0, backlogByProcess.get(Processes.PACKING_WALL));
-    assertEquals(0, backlogByProcess.get(Processes.HU_ASSEMBLY));
-    assertEquals(0, backlogByProcess.get(Processes.SHIPPED));
+    assertEquals(20, backlogByProcess.get(ProcessName.WAVING));
+    assertEquals(20, backlogByProcess.get(ProcessName.PICKING));
+    assertEquals(0, backlogByProcess.get(ProcessName.BATCH_SORTER));
+    assertEquals(0, backlogByProcess.get(ProcessName.WALL_IN));
+    assertEquals(0, backlogByProcess.get(ProcessName.PACKING));
+    assertEquals(0, backlogByProcess.get(ProcessName.PACKING_WALL));
+    assertEquals(0, backlogByProcess.get(ProcessName.HU_ASSEMBLY));
+    assertEquals(0, backlogByProcess.get(ProcessName.SHIPPED));
   }
 
   @Test
   void testGetBacklogTotalsByProcessWhenTwoProcessRequested() {
     // GIVEN
-    final Set<Processes> processes = mockTwoProcessesSet();
+    final Set<ProcessName> processes = mockTwoProcessesSet();
     when(backlogGateway.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         processes,
         VIEW_DATE_INSTANT
-    )).thenReturn(Map.of(Processes.WAVING, 5));
+    )).thenReturn(Map.of(ProcessName.WAVING, 5));
 
     // WHEN
-    final Map<Processes, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,
@@ -122,20 +123,20 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(5, backlogByProcess.get(Processes.WAVING));
-    assertEquals(0, backlogByProcess.get(Processes.PICKING));
+    assertEquals(5, backlogByProcess.get(ProcessName.WAVING));
+    assertEquals(0, backlogByProcess.get(ProcessName.PICKING));
   }
 
   @Test
   void testGetBacklogTotalsByAllProcessOrders() {
     // GIVEN
-    final Set<Processes> processes = mockAllProcessesSet();
+    final Set<ProcessName> processes = mockAllProcessesSet();
     when(backlogGateway.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         processes,
         VIEW_DATE_INSTANT
-    )).thenReturn(Arrays.stream(Processes.values())
+    )).thenReturn(Arrays.stream(ProcessName.values())
         .collect(Collectors.toMap(Function.identity(), value -> 10))
     );
 
@@ -144,7 +145,7 @@ class BacklogStatusUseCaseTest {
         .thenReturn(Optional.of(3.96));
 
     // WHEN
-    final Map<Processes, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.ORDERS,
@@ -153,26 +154,26 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(2, backlogByProcess.get(Processes.WAVING));
-    assertEquals(2, backlogByProcess.get(Processes.PICKING));
-    assertEquals(2, backlogByProcess.get(Processes.BATCH_SORTER));
-    assertEquals(2, backlogByProcess.get(Processes.WALL_IN));
-    assertEquals(2, backlogByProcess.get(Processes.PACKING));
-    assertEquals(2, backlogByProcess.get(Processes.PACKING_WALL));
-    assertEquals(2, backlogByProcess.get(Processes.HU_ASSEMBLY));
-    assertEquals(2, backlogByProcess.get(Processes.SHIPPED));
+    assertEquals(2, backlogByProcess.get(ProcessName.WAVING));
+    assertEquals(2, backlogByProcess.get(ProcessName.PICKING));
+    assertEquals(2, backlogByProcess.get(ProcessName.BATCH_SORTER));
+    assertEquals(2, backlogByProcess.get(ProcessName.WALL_IN));
+    assertEquals(2, backlogByProcess.get(ProcessName.PACKING));
+    assertEquals(2, backlogByProcess.get(ProcessName.PACKING_WALL));
+    assertEquals(2, backlogByProcess.get(ProcessName.HU_ASSEMBLY));
+    assertEquals(2, backlogByProcess.get(ProcessName.SHIPPED));
   }
 
   @Test
   void testGetBacklogTotalsByAllProcessOrdersNull() {
     // GIVEN
-    final Set<Processes> processes = mockAllProcessesSet();
+    final Set<ProcessName> processes = mockAllProcessesSet();
     when(backlogGateway.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         processes,
         VIEW_DATE_INSTANT
-    )).thenReturn(Arrays.stream(Processes.values())
+    )).thenReturn(Arrays.stream(ProcessName.values())
         .collect(Collectors.toMap(Function.identity(), value -> 30))
     );
 
@@ -181,7 +182,7 @@ class BacklogStatusUseCaseTest {
         .thenReturn(Optional.empty());
 
     // WHEN
-    final Map<Processes, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.ORDERS,

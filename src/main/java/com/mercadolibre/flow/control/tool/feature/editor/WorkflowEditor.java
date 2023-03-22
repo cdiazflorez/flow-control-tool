@@ -1,8 +1,8 @@
-package com.mercadolibre.flow.control.tool.feature.status.usecase.constant.editor;
+package com.mercadolibre.flow.control.tool.feature.editor;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.beans.PropertyEditorSupport;
 
 public class WorkflowEditor extends PropertyEditorSupport {

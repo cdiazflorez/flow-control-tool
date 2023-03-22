@@ -1,6 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto.constant;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.util.Locale;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,17 +10,17 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum PhotoWorkflows {
+public enum PhotoWorkflow {
 
   FBM_WMS_OUTBOUND("outbound-orders");
 
   public final String alias;
 
-  public static PhotoWorkflows from(final String value) {
+  public static PhotoWorkflow from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 
-  public static PhotoWorkflows from(final Workflow workflow) {
+  public static PhotoWorkflow from(final Workflow workflow) {
     return valueOf(workflow.name());
   }
 

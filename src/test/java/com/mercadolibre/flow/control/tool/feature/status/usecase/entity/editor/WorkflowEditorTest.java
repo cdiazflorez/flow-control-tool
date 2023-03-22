@@ -1,9 +1,10 @@
-package com.mercadolibre.flow.control.tool.feature.status.usecase.constant.editor;
+package com.mercadolibre.flow.control.tool.feature.status.usecase.entity.editor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.mercadolibre.flow.control.tool.feature.editor.WorkflowEditor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -3,8 +3,9 @@ package com.mercadolibre.flow.control.tool.client.planningmodelapi;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter.UnitPerOrderRatioAdapter;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -19,7 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class RatioAdapterForStatusTest {
   @InjectMocks
-  private RatioAdapterForStatusGateway ratioAdapterForStatus;
+  private UnitPerOrderRatioAdapter ratioAdapterForStatus;
   @Mock
   private PlanningModelApiClient planningModelApiClient;
 

@@ -1,4 +1,4 @@
-package com.mercadolibre.flow.control.tool.exceptions;
+package com.mercadolibre.flow.control.tool.exception;
 
 /** 
  * Class containing relevant information from an API call error.

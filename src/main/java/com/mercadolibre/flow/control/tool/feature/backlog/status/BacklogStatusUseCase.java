@@ -1,8 +1,8 @@
-package com.mercadolibre.flow.control.tool.feature.status.usecase;
+package com.mercadolibre.flow.control.tool.feature.backlog.status;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.ValueType;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
@@ -22,15 +22,15 @@ public class BacklogStatusUseCase {
   final BacklogGateway backlogGateway;
   final UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
-  public Map<Processes, Integer> getBacklogTotalsByProcess(
+  public Map<ProcessName, Integer> getBacklogTotalsByProcess(
       final String logisticCenterId,
       final Workflow workflow,
       final ValueType valueType,
-      final Set<Processes> processes,
+      final Set<ProcessName> processes,
       final Instant viewDate
   ) {
 
-    final Map<Processes, Integer> backlogTotalsByProcess = backlogGateway.getBacklogTotalsByProcess(
+    final Map<ProcessName, Integer> backlogTotalsByProcess = backlogGateway.getBacklogTotalsByProcess(
         logisticCenterId,
         workflow,
         processes,
@@ -69,10 +69,10 @@ public class BacklogStatusUseCase {
      * @param viewDate         base date to backlog.
      * @return map with amount of units by each process.
      */
-    Map<Processes, Integer> getBacklogTotalsByProcess(
+    Map<ProcessName, Integer> getBacklogTotalsByProcess(
         String logisticCenterId,
         Workflow workflow,
-        Set<Processes> processes,
+        Set<ProcessName> processes,
         Instant viewDate
     );
   }

@@ -1,8 +1,9 @@
-package com.mercadolibre.flow.control.tool.client.planningmodelapi;
+package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RatioAdapterForStatusGateway implements UnitsPerOrderRatioGateway {
+public class UnitPerOrderRatioAdapter implements UnitsPerOrderRatioGateway {
 
   private static final String UNIT_PER_ORDER_RATIO = "units_per_order_ratio";
 

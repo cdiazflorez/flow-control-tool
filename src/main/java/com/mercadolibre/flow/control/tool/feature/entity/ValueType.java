@@ -1,12 +1,12 @@
-package com.mercadolibre.flow.control.tool.feature.status.usecase.constant;
+package com.mercadolibre.flow.control.tool.feature.entity;
 
 import java.util.Locale;
 
-public enum Workflow {
+public enum ValueType {
+  UNITS,
+  ORDERS;
 
-  FBM_WMS_OUTBOUND;
-
-  public static Workflow from(final String value) {
+  public static ValueType from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 

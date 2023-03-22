@@ -14,10 +14,10 @@ class PhotoStepsTest {
   @Test
   void testFromGetName() {
     // GIVEN
-    final PhotoSteps expectedBacklogPhotoSteps = PhotoSteps.PENDING;
+    final PhotoStep expectedBacklogPhotoSteps = PhotoStep.PENDING;
 
     // WHEN
-    final PhotoSteps backlogPhotoStepsPending = PhotoSteps.from(PENDING);
+    final PhotoStep backlogPhotoStepsPending = PhotoStep.from(PENDING);
 
     // THEN
     assertEquals(expectedBacklogPhotoSteps, backlogPhotoStepsPending);

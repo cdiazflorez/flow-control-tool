@@ -1,7 +1,5 @@
-package com.mercadolibre.flow.control.tool.config;
+package com.mercadolibre.flow.control.tool.exception;
 
-import com.mercadolibre.flow.control.tool.exceptions.ApiError;
-import com.mercadolibre.flow.control.tool.exceptions.ApiException;
 import com.newrelic.api.agent.NewRelic;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;

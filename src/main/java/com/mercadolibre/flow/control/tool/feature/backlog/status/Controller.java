@@ -1,12 +1,11 @@
-package com.mercadolibre.flow.control.tool.feature.status.controller;
+package com.mercadolibre.flow.control.tool.feature.backlog.status;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.BacklogStatusUseCase;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.ValueType;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.editor.ProcessesEditor;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.editor.ValueTypeEditor;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.editor.WorkflowEditor;
+import com.mercadolibre.flow.control.tool.feature.editor.ProcessNameEditor;
+import com.mercadolibre.flow.control.tool.feature.editor.ValueTypeEditor;
+import com.mercadolibre.flow.control.tool.feature.editor.WorkflowEditor;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.newrelic.api.agent.Trace;
 import java.time.Instant;
 import java.util.Map;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/control_tool/logistic_center/{logisticCenterId}/backlog")
-public class BacklogController {
+public class Controller {
 
   private BacklogStatusUseCase backlogStatusUseCase;
 
@@ -34,7 +33,7 @@ public class BacklogController {
       @PathVariable final String logisticCenterId,
       @RequestParam final Workflow workflow,
       @RequestParam final ValueType type,
-      @RequestParam final Set<Processes> processes,
+      @RequestParam final Set<ProcessName> processes,
       @RequestParam(name = "view_date") final Instant viewDate
   ) {
 
@@ -53,7 +52,7 @@ public class BacklogController {
   @InitBinder
   public void initBinder(final PropertyEditorRegistry dataBinder) {
     dataBinder.registerCustomEditor(Workflow.class, new WorkflowEditor());
-    dataBinder.registerCustomEditor(Processes.class, new ProcessesEditor());
+    dataBinder.registerCustomEditor(ProcessName.class, new ProcessNameEditor());
     dataBinder.registerCustomEditor(ValueType.class, new ValueTypeEditor());
   }
 }

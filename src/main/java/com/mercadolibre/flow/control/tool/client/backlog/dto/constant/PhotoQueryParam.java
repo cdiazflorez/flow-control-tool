@@ -5,7 +5,7 @@ import java.util.Locale;
 /**
  * Needed query params used into GET request for BacklogApi photos/.
  */
-public enum PhotoQueryParams {
+public enum PhotoQueryParam {
 
   LOGISTIC_CENTER_ID,
   WORKFLOWS,
@@ -13,7 +13,7 @@ public enum PhotoQueryParams {
   PHOTO_DATE_TO,
   STEPS;
 
-  public static PhotoQueryParams from(final String value) {
+  public static PhotoQueryParam from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 

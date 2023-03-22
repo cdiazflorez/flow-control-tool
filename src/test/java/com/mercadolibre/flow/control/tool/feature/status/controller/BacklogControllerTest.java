@@ -11,10 +11,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.BacklogStatusUseCase;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.ValueType;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.Controller;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.util.Arrays;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = BacklogController.class)
+@WebMvcTest(controllers = Controller.class)
 class BacklogControllerTest {
 
   private static final String BACKLOG_STATUS_URL = "/control_tool/logistic_center/%s/backlog/status";
@@ -64,7 +65,7 @@ class BacklogControllerTest {
   @Test
   void testGetBacklogStatusAllProcesses() throws Exception {
     // GIVEN
-    final Set<Processes> processes = mockAllProcessesSet();
+    final Set<ProcessName> processes = mockAllProcessesSet();
     when(backlogStatusUseCase.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,

@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.OK;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpClient;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.json.type.TypeReference;
 import com.mercadolibre.restclient.MeliRestClient;
 import com.newrelic.api.agent.Trace;

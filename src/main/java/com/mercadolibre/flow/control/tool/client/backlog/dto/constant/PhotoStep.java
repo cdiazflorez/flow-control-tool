@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum PhotoSteps {
+public enum PhotoStep {
 
   PENDING,
   TO_PICK,
@@ -29,11 +29,11 @@ public enum PhotoSteps {
   TO_OUT,
   TO_ROUTE;
 
-  public static PhotoSteps from(final String value) {
+  public static PhotoStep from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 
-  public static Optional<PhotoSteps> of(final String value) {
+  public static Optional<PhotoStep> of(final String value) {
     return Optional.of(from(value));
   }
 

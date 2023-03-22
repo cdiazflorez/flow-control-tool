@@ -1,6 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi;
 
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static com.mercadolibre.restclient.http.ContentType.APPLICATION_JSON;

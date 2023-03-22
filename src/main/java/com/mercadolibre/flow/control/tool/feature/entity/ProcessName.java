@@ -1,8 +1,8 @@
-package com.mercadolibre.flow.control.tool.feature.status.usecase.constant;
+package com.mercadolibre.flow.control.tool.feature.entity;
 
 import java.util.Locale;
 
-public enum Processes {
+public enum ProcessName {
 
   WAVING,
   PICKING,
@@ -13,7 +13,7 @@ public enum Processes {
   HU_ASSEMBLY,
   SHIPPED;
 
-  public static Processes from(final String value) {
+  public static ProcessName from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 

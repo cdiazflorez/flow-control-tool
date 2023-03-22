@@ -1,8 +1,8 @@
-package com.mercadolibre.flow.control.tool.feature.status.usecase.constant.editor;
+package com.mercadolibre.flow.control.tool.feature.editor;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.ValueType;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import java.beans.PropertyEditorSupport;
 
 public class ValueTypeEditor extends PropertyEditorSupport {
