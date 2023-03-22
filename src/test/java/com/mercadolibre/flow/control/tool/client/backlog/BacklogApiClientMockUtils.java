@@ -3,27 +3,27 @@ package com.mercadolibre.flow.control.tool.client.backlog;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.AREA;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.PATH;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.STEP;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.GROUPED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.GROUPING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PACKED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PACKING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PACKING_WALL;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PENDING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PICKED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PICKING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.SORTED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_DISPATCH;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_GROUP;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_OUT;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_PACK;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_PICK;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_SORT;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflows.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKING_WALL;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PENDING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PICKED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PICKING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.SORTED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DISPATCH;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_GROUP;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_OUT;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PACK;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PICK;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_SORT;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTANT;
 
 import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -56,7 +56,7 @@ public class BacklogApiClientMockUtils {
    *
    * @return full list BacklogPhotoSteps.
    */
-  public static Set<PhotoSteps> mockListOfBacklogPhotoSteps() {
+  public static Set<PhotoStep> mockListOfBacklogPhotoSteps() {
     return Set.of(
         PENDING,
         TO_PICK,

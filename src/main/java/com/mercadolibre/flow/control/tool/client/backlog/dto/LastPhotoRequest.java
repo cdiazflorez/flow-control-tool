@@ -1,15 +1,15 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto;
 
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParams.GROUP_BY;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParams.LOGISTIC_CENTER_ID;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParams.PHOTO_DATE_TO;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParams.STEPS;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParams.WORKFLOWS;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.GROUP_BY;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.LOGISTIC_CENTER_ID;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.PHOTO_DATE_TO;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.STEPS;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.WORKFLOWS;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
 
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflows;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -27,9 +27,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public record LastPhotoRequest(
     String logisticCenterId,
-    Set<PhotoWorkflows> workflows,
+    Set<PhotoWorkflow> workflows,
     Set<PhotoGrouper> groupBy,
-    Set<PhotoSteps> steps,
+    Set<PhotoStep> steps,
     Instant photoDateTo
 ) {
 
@@ -39,9 +39,9 @@ public record LastPhotoRequest(
   public Map<String, String> getQueryParams() {
     final Map<String, String> queryParams = new ConcurrentHashMap<>();
     queryParams.put(LOGISTIC_CENTER_ID.getName(), logisticCenterId);
-    addAsQueryParam(queryParams, WORKFLOWS.getName(), workflows.stream().map(PhotoWorkflows::getAlias).toList());
+    addAsQueryParam(queryParams, WORKFLOWS.getName(), workflows.stream().map(PhotoWorkflow::getAlias).toList());
     addAsQueryParam(queryParams, GROUP_BY.getName(), groupBy.stream().map(PhotoGrouper::getName).toList());
-    addAsQueryParam(queryParams, STEPS.getName(), steps.stream().map(PhotoSteps::getName).toList());
+    addAsQueryParam(queryParams, STEPS.getName(), steps.stream().map(PhotoStep::getName).toList());
     addAsQueryParam(queryParams, PHOTO_DATE_TO.getName(), photoDateTo);
     return queryParams;
   }

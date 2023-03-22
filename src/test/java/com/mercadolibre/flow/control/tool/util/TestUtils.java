@@ -1,5 +1,8 @@
 package com.mercadolibre.flow.control.tool.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mercadolibre.json.JsonUtils;
+import com.mercadolibre.json_jackson.JsonJackson;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -37,4 +40,12 @@ public class TestUtils {
     }
   }
 
+  /**
+   * build an object instance to use in tests.
+   * @return and {@link ObjectMapper} instance
+   */
+  public static ObjectMapper objectMapper() {
+    return ((JsonJackson) JsonUtils.INSTANCE.getEngine())
+            .getMapper();
+  }
 }

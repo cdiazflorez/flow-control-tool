@@ -1,35 +1,36 @@
 package com.mercadolibre.flow.control.tool.client.backlog;
 
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.GROUPED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.GROUPING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PACKED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PENDING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.PICKING;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.SORTED;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_DISPATCH;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_GROUP;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_OUT;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_PACK;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_PICK;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_ROUTE;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps.TO_SORT;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflows.FBM_WMS_OUTBOUND;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.BATCH_SORTER;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.HU_ASSEMBLY;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.PACKING;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.PACKING_WALL;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.SHIPPED;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.WALL_IN;
-import static com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes.WAVING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PENDING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PICKING;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.SORTED;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DISPATCH;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_GROUP;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_OUT;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PACK;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PICK;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_ROUTE;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_SORT;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.BATCH_SORTER;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.client.backlog.adapter.BacklogByProcessAdapter;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Processes;
-import com.mercadolibre.flow.control.tool.feature.status.usecase.constant.Workflow;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ class BacklogAdapterTest {
   private static final String PICKED = "picked";
   private static final String NON_TOT_MULTI_BATCH = "NON_TOT_MULTI_BATCH";
   @InjectMocks
-  BacklogAdapter backlogAdapter;
+  BacklogByProcessAdapter backlogAdapter;
 
   @Mock
   BacklogApiClient backlogApiClient;
@@ -69,7 +70,7 @@ class BacklogAdapterTest {
         LOGISTIC_CENTER_ID,
         Set.of(FBM_WMS_OUTBOUND),
         Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
-        Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoSteps.PICKED, TO_PACK),
+        Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoStep.PICKED, TO_PACK),
         PHOTO_DATE
     );
 
@@ -79,7 +80,7 @@ class BacklogAdapterTest {
         backlogAdapter.getBacklogTotalsByProcess(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
             PHOTO_DATE);
 
-    final Map<Processes, Integer> expected = Map.of(WAVING, 700, BATCH_SORTER, 500, PACKING_WALL, 1000);
+    final Map<ProcessName, Integer> expected = Map.of(WAVING, 700, BATCH_SORTER, 500, PACKING_WALL, 1000);
     assertEquals(expected.get(WAVING), response.get(WAVING));
     assertEquals(expected.get(PACKING_WALL), response.get(PACKING_WALL));
     assertEquals(expected.get(BATCH_SORTER), response.get(BATCH_SORTER));
@@ -107,8 +108,8 @@ class BacklogAdapterTest {
         LOGISTIC_CENTER_ID,
         Set.of(FBM_WMS_OUTBOUND),
         Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
-        Set.of(PENDING, TO_PICK, PICKING, PhotoSteps.PICKED, TO_GROUP, GROUPING, GROUPED, TO_ROUTE, TO_SORT, SORTED,
-            TO_PACK, PhotoSteps.PACKING, PACKED, TO_DISPATCH, TO_OUT),
+        Set.of(PENDING, TO_PICK, PICKING, PhotoStep.PICKED, TO_GROUP, GROUPING, GROUPED, TO_ROUTE, TO_SORT, SORTED,
+            TO_PACK, PhotoStep.PACKING, PACKED, TO_DISPATCH, TO_OUT),
         PHOTO_DATE
     );
 
@@ -118,10 +119,10 @@ class BacklogAdapterTest {
         backlogAdapter.getBacklogTotalsByProcess(
             LOGISTIC_CENTER_ID,
             Workflow.FBM_WMS_OUTBOUND,
-            Set.of(WAVING, Processes.PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPED),
+            Set.of(WAVING, ProcessName.PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPED),
             PHOTO_DATE);
 
-    final Map<Processes, Integer> expected = Map.of(
+    final Map<ProcessName, Integer> expected = Map.of(
         WAVING, 1253,
         BATCH_SORTER, 2443,
         WALL_IN, 1010,
@@ -130,7 +131,7 @@ class BacklogAdapterTest {
     );
     // compare the returned response with what should have been returned.
     assertEquals(expected.get(WAVING), response.get(WAVING));
-    assertEquals(expected.get(Processes.PICKING), response.get(Processes.PICKING));
+    assertEquals(expected.get(ProcessName.PICKING), response.get(ProcessName.PICKING));
     assertEquals(expected.get(BATCH_SORTER), response.get(BATCH_SORTER));
     assertEquals(expected.get(WALL_IN), response.get(WALL_IN));
     assertEquals(expected.get(PACKING), response.get(PACKING));
@@ -166,8 +167,27 @@ class BacklogAdapterTest {
         PHOTO_DATE
     );
 
-    final Map<Processes, Integer> expected = Map.of(WAVING, 500);
+    final Map<ProcessName, Integer> expected = Map.of(WAVING, 500);
     assertEquals(expected.keySet().size(), response.keySet().size());
     assertEquals(expected.get(WAVING), response.get(WAVING));
+  }
+
+  @Test
+  void backlogByProcessWhenBacklogsIsNull() {
+    final LastPhotoRequest request = new LastPhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(FBM_WMS_OUTBOUND),
+        Set.of(PhotoGrouper.PATH, PhotoGrouper.STEP),
+        Set.of(PENDING, TO_ROUTE),
+        PHOTO_DATE
+    );
+    when(backlogApiClient.getLastPhoto(request)).thenReturn(null);
+    final var response = backlogAdapter.getBacklogTotalsByProcess(
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        Set.of(WAVING),
+        PHOTO_DATE
+    );
+    assertEquals(Map.of(), response);
   }
 }

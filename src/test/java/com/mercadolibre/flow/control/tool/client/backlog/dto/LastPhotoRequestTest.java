@@ -5,12 +5,12 @@ import static com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClient
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.AREA;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.PATH;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.STEP;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflows.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTANT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoSteps;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +24,7 @@ class LastPhotoRequestTest {
 
     // GIVEN
     final LastPhotoRequest lastPhotoRequest = mockBacklogPhotosLastRequest();
-    final Set<PhotoSteps> expectedBacklogPhotoSteps = mockListOfBacklogPhotoSteps();
+    final Set<PhotoStep> expectedBacklogPhotoSteps = mockListOfBacklogPhotoSteps();
 
     // THEN
     assertEquals(VIEW_DATE_INSTANT, lastPhotoRequest.photoDateTo());
