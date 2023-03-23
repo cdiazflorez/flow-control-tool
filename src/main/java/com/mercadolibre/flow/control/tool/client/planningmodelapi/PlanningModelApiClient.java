@@ -66,13 +66,14 @@ public class PlanningModelApiClient extends HttpClient {
   @Trace
   public Map<EntityType, List<EntityDataDto>> searchEntities(final EntityRequestDto entityRequestDto) {
     final HttpRequest request = HttpRequest.builder()
-            .url(format(GET_ALL_STAFFING_DATA, entityRequestDto.workflow()))
-            .POST(requestSupplier(entityRequestDto))
-            .acceptedHttpStatuses(Set.of(OK))
-            .build();
+        .url(format(GET_ALL_STAFFING_DATA, entityRequestDto.workflow()))
+        .POST(requestSupplier(entityRequestDto))
+        .acceptedHttpStatuses(Set.of(OK))
+        .build();
     return send(
-            request,
-            response -> response.getData(new TypeReference<>() {})
+        request,
+        response -> response.getData(new TypeReference<>() {
+        })
     );
   }
 

@@ -4,6 +4,7 @@ import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
@@ -40,8 +41,7 @@ public class UnitPerOrderRatioAdapter implements UnitsPerOrderRatioGateway {
           .map(Metadata::value)
           .map(Double::parseDouble);
     } catch (ClientException e) {
-      log.error("ForecastMetadata [{}]", e.getMessage());
-      return Optional.of((double) 0);
+      throw new NoForecastMetadataFoundException(logisticCenterId, e);
     }
   }
 }
