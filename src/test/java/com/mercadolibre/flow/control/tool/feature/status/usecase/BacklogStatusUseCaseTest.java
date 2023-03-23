@@ -7,6 +7,7 @@ import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTAN
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatus;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.BacklogGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
@@ -52,7 +53,7 @@ class BacklogStatusUseCaseTest {
     );
 
     // WHEN
-    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final BacklogStatus backlogByProcess = backlogStatusUseCase.getBacklogStatus(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,
@@ -61,14 +62,14 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(10, backlogByProcess.get(ProcessName.WAVING));
-    assertEquals(10, backlogByProcess.get(ProcessName.PICKING));
-    assertEquals(10, backlogByProcess.get(ProcessName.BATCH_SORTER));
-    assertEquals(10, backlogByProcess.get(ProcessName.WALL_IN));
-    assertEquals(10, backlogByProcess.get(ProcessName.PACKING));
-    assertEquals(10, backlogByProcess.get(ProcessName.PACKING_WALL));
-    assertEquals(10, backlogByProcess.get(ProcessName.HU_ASSEMBLY));
-    assertEquals(10, backlogByProcess.get(ProcessName.SHIPPED));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.WAVING.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.PICKING.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.BATCH_SORTER.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.WALL_IN.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
   }
 
   @Test
@@ -83,7 +84,7 @@ class BacklogStatusUseCaseTest {
     )).thenReturn(Map.of(ProcessName.WAVING, 20, ProcessName.PICKING, 20));
 
     // WHEN
-    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final BacklogStatus backlogByProcess = backlogStatusUseCase.getBacklogStatus(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,
@@ -92,14 +93,14 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(20, backlogByProcess.get(ProcessName.WAVING));
-    assertEquals(20, backlogByProcess.get(ProcessName.PICKING));
-    assertEquals(0, backlogByProcess.get(ProcessName.BATCH_SORTER));
-    assertEquals(0, backlogByProcess.get(ProcessName.WALL_IN));
-    assertEquals(0, backlogByProcess.get(ProcessName.PACKING));
-    assertEquals(0, backlogByProcess.get(ProcessName.PACKING_WALL));
-    assertEquals(0, backlogByProcess.get(ProcessName.HU_ASSEMBLY));
-    assertEquals(0, backlogByProcess.get(ProcessName.SHIPPED));
+    assertEquals(20, backlogByProcess.backlogStatus().get(ProcessName.WAVING.getName()));
+    assertEquals(20, backlogByProcess.backlogStatus().get(ProcessName.PICKING.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.BATCH_SORTER.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.WALL_IN.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
   }
 
   @Test
@@ -114,7 +115,7 @@ class BacklogStatusUseCaseTest {
     )).thenReturn(Map.of(ProcessName.WAVING, 5));
 
     // WHEN
-    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final BacklogStatus backlogByProcess = backlogStatusUseCase.getBacklogStatus(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,
@@ -123,8 +124,8 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(5, backlogByProcess.get(ProcessName.WAVING));
-    assertEquals(0, backlogByProcess.get(ProcessName.PICKING));
+    assertEquals(5, backlogByProcess.backlogStatus().get(ProcessName.WAVING.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.PICKING.getName()));
   }
 
   @Test
@@ -145,7 +146,7 @@ class BacklogStatusUseCaseTest {
         .thenReturn(Optional.of(3.96));
 
     // WHEN
-    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final BacklogStatus backlogByProcess = backlogStatusUseCase.getBacklogStatus(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.ORDERS,
@@ -154,14 +155,14 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(2, backlogByProcess.get(ProcessName.WAVING));
-    assertEquals(2, backlogByProcess.get(ProcessName.PICKING));
-    assertEquals(2, backlogByProcess.get(ProcessName.BATCH_SORTER));
-    assertEquals(2, backlogByProcess.get(ProcessName.WALL_IN));
-    assertEquals(2, backlogByProcess.get(ProcessName.PACKING));
-    assertEquals(2, backlogByProcess.get(ProcessName.PACKING_WALL));
-    assertEquals(2, backlogByProcess.get(ProcessName.HU_ASSEMBLY));
-    assertEquals(2, backlogByProcess.get(ProcessName.SHIPPED));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.WAVING.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.PICKING.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.BATCH_SORTER.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.WALL_IN.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
   }
 
   @Test
@@ -182,7 +183,7 @@ class BacklogStatusUseCaseTest {
         .thenReturn(Optional.empty());
 
     // WHEN
-    final Map<ProcessName, Integer> backlogByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    final BacklogStatus backlogByProcess = backlogStatusUseCase.getBacklogStatus(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.ORDERS,
@@ -191,6 +192,6 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(Map.of(), backlogByProcess);
+    assertEquals(8, backlogByProcess.backlogStatus().size());
   }
 }

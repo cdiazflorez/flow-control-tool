@@ -66,7 +66,7 @@ class BacklogControllerTest {
   void testGetBacklogStatusAllProcesses() throws Exception {
     // GIVEN
     final Set<ProcessName> processes = mockAllProcessesSet();
-    when(backlogStatusUseCase.getBacklogTotalsByProcess(
+    when(backlogStatusUseCase.getBacklogStatus(
         LOGISTIC_CENTER_ID,
         Workflow.FBM_WMS_OUTBOUND,
         ValueType.UNITS,

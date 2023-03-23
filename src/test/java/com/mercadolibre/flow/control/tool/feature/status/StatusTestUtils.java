@@ -9,11 +9,11 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIP
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatus;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -21,10 +21,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StatusTestUtils {
 
-  public static Map<ProcessName, Integer> mockBacklogTotalsByProcess() {
-    return Arrays.stream(ProcessName.values())
-        .collect(Collectors.toMap(Function.identity(), value -> 10)
-        );
+  public static BacklogStatus mockBacklogTotalsByProcess() {
+    final Map<String, Integer> process = Arrays.stream(ProcessName.values())
+        .collect(Collectors.toMap(ProcessName::getName, value -> 10));
+
+    return new BacklogStatus(process, 3.96);
   }
 
   public static Set<ProcessName> mockAllProcessesSet() {

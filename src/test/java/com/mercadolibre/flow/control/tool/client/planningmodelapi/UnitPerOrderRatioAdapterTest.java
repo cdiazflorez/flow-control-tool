@@ -19,9 +19,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class RatioAdapterForStatusTest {
+public class UnitPerOrderRatioAdapterTest {
   @InjectMocks
-  private UnitPerOrderRatioAdapter ratioAdapterForStatus;
+  private UnitPerOrderRatioAdapter unitPerOrderRatioAdapter;
   @Mock
   private PlanningModelApiClient planningModelApiClient;
 
@@ -37,7 +37,7 @@ public class RatioAdapterForStatusTest {
     // WHEN
     final Instant viewDate = Instant.parse(date);
     final Optional<Double> unitsPerOrderRatio =
-        ratioAdapterForStatus.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
+        unitPerOrderRatioAdapter.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
 
     // THEN
     final Double expectedUnitsPerOrderRatio = 3.96;
@@ -57,7 +57,7 @@ public class RatioAdapterForStatusTest {
     // WHEN
     final Instant viewDate = Instant.parse(date);
     final Optional<Double> unitsPerOrderRatio =
-        ratioAdapterForStatus.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
+        unitPerOrderRatioAdapter.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
 
     // THEN
     Assertions.assertEquals(Optional.empty(), unitsPerOrderRatio);
