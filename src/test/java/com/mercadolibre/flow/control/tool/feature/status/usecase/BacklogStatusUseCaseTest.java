@@ -5,8 +5,10 @@ import static com.mercadolibre.flow.control.tool.feature.status.StatusTestUtils.
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTANT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatus;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.BacklogGateway;
@@ -166,7 +168,7 @@ class BacklogStatusUseCaseTest {
   }
 
   @Test
-  void testGetBacklogTotalsByAllProcessOrdersNull() {
+  void testGetBacklogTotalsByAllProcessOrdersOne() {
     // GIVEN
     final Set<ProcessName> processes = mockAllProcessesSet();
     when(backlogGateway.getBacklogTotalsByProcess(
@@ -175,12 +177,12 @@ class BacklogStatusUseCaseTest {
         processes,
         VIEW_DATE_INSTANT
     )).thenReturn(Arrays.stream(ProcessName.values())
-        .collect(Collectors.toMap(Function.identity(), value -> 30))
+        .collect(Collectors.toMap(Function.identity(), value -> 40))
     );
 
     when(unitsPerOrderRatioGateway
         .getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, VIEW_DATE_INSTANT))
-        .thenReturn(Optional.empty());
+        .thenReturn(Optional.of(1.0));
 
     // WHEN
     final BacklogStatus backlogByProcess = backlogStatusUseCase.getBacklogStatus(
@@ -192,6 +194,55 @@ class BacklogStatusUseCaseTest {
     );
 
     // THEN
-    assertEquals(8, backlogByProcess.backlogStatus().size());
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.WAVING.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.PICKING.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.BATCH_SORTER.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.WALL_IN.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
+  }
+
+  @Test
+  void testGetBacklogTotalsByAllProcessOrdersZero() {
+    // GIVEN
+    final Set<ProcessName> processes = mockAllProcessesSet();
+
+    when(unitsPerOrderRatioGateway
+        .getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, VIEW_DATE_INSTANT))
+        .thenReturn(Optional.of(0.80));
+
+    // THEN
+    assertThrows(
+        NoForecastMetadataFoundException.class, () ->
+            backlogStatusUseCase
+                .getBacklogStatus(
+                    LOGISTIC_CENTER_ID,
+                    Workflow.FBM_WMS_OUTBOUND,
+                    ValueType.ORDERS,
+                    processes,
+                    VIEW_DATE_INSTANT
+                )
+    );
+  }
+
+  @Test
+  public void testNoForecastMetadataFoundException() {
+    // GIVEN
+    final Set<ProcessName> processes = mockAllProcessesSet();
+
+    // WHEN and THEN
+    assertThrows(
+        NoForecastMetadataFoundException.class, () ->
+            backlogStatusUseCase
+                .getBacklogStatus(
+                    LOGISTIC_CENTER_ID,
+                    Workflow.FBM_WMS_OUTBOUND,
+                    ValueType.ORDERS,
+                    processes,
+                    VIEW_DATE_INSTANT
+                )
+    );
   }
 }

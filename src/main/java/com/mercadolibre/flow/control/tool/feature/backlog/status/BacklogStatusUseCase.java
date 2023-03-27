@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.status;
 
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -41,7 +42,7 @@ public class BacklogStatusUseCase {
 
       final Map<String, Integer> ordersByProcess =
           unitsPerOrderRatio
-              .filter(ratio -> ratio > minValue)
+              .filter(ratio -> ratio >= minValue)
               .map(ratio -> processes.stream()
                   .collect(
                       Collectors.toMap(
@@ -50,15 +51,8 @@ public class BacklogStatusUseCase {
                               (int) (backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL) / ratio)
                       )
                   ))
-              .orElse(
-                  processes.stream()
-                      .collect(
-                          Collectors
-                              .toMap(
-                                  ProcessName::getName,
-                                  value -> 0
-                              )
-                      )
+              .orElseThrow(
+                  () -> new NoForecastMetadataFoundException(logisticCenterId)
               );
 
       return new BacklogStatus(
