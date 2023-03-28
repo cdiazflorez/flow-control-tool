@@ -35,32 +35,35 @@ public class BacklogStatusUseCase {
         viewDate);
 
     if (valueType.equals(ValueType.ORDERS)) {
-
-      final Optional<Double> ratio =
+      final double minValue = 1;
+      final Optional<Double> unitsPerOrderRatio =
           unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate);
 
-      final Map<String, Integer> ordersByProcess = ratio.map(r -> processes.stream()
-              .collect(
-                  Collectors.toMap(
-                      ProcessName::getName,
-                      value ->
-                          (int) (backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL) / r)
-                  )
-              ))
-          .orElse(
-              processes.stream()
+      final Map<String, Integer> ordersByProcess =
+          unitsPerOrderRatio
+              .filter(ratio -> ratio > minValue)
+              .map(ratio -> processes.stream()
                   .collect(
-                      Collectors
-                          .toMap(
-                              ProcessName::getName,
-                              value -> 0
-                          )
-                  )
-          );
+                      Collectors.toMap(
+                          ProcessName::getName,
+                          value ->
+                              (int) (backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL) / ratio)
+                      )
+                  ))
+              .orElse(
+                  processes.stream()
+                      .collect(
+                          Collectors
+                              .toMap(
+                                  ProcessName::getName,
+                                  value -> 0
+                              )
+                      )
+              );
 
       return new BacklogStatus(
           ordersByProcess,
-          ratio.orElse(0.0)
+          unitsPerOrderRatio.orElse(0.0)
       );
     }
 
