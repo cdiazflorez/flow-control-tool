@@ -1,1 +1,4 @@
 FROM hub.furycloud.io/mercadolibre/java:17-runtime-mini
+
+# IGNORE STATUS New Relic
+ENV NEWRELIC_EXPECTED_STATUS_CODES=204,400,401,403,404,405,409,422,423
