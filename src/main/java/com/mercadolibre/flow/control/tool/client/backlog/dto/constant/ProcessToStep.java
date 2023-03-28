@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto.constant;
 
 
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.DOCUMENTED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPING;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKED;
@@ -8,6 +9,7 @@ import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.Pho
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PICKED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.SORTED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DISPATCH;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DOCUMENT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_GROUP;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_OUT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PACK;
@@ -31,7 +33,7 @@ public enum ProcessToStep {
   WALL_IN(List.of(SORTED, TO_GROUP, GROUPING, GROUPED)),
   PACKING(List.of(TO_PACK, PICKED)),
   PACKING_WALL(List.of(TO_PACK)),
-  HU_ASSEMBLY(List.of(PhotoStep.PACKING, PACKED)),
+  HU_ASSEMBLY(List.of(PhotoStep.PACKING, PACKED, TO_DOCUMENT, DOCUMENTED)),
   SHIPPED(List.of(TO_DISPATCH, TO_OUT));
 
   private static final Map<ProcessToStep, List<PhotoStep>>
