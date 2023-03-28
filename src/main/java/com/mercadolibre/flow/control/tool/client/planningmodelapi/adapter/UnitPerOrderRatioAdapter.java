@@ -1,8 +1,10 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
@@ -27,15 +29,19 @@ public class UnitPerOrderRatioAdapter implements UnitsPerOrderRatioGateway {
   public Optional<Double> getUnitsPerOrderRatio(final Workflow workflow,
                                                 final String logisticCenterId,
                                                 final Instant viewDate) {
-    final ZonedDateTime dateTime = ZonedDateTime.ofInstant(viewDate, ZoneOffset.UTC);
+    try {
+      final ZonedDateTime dateTime = ZonedDateTime.ofInstant(viewDate, ZoneOffset.UTC);
 
-    final List<Metadata> forecastMetadata =
-        planningModelApiClient.getForecastMetadata(PlanningWorkflow.from(workflow.getName()), logisticCenterId, dateTime);
+      final List<Metadata> forecastMetadata =
+          planningModelApiClient.getForecastMetadata(PlanningWorkflow.from(workflow.getName()), logisticCenterId, dateTime);
 
-    return forecastMetadata.stream()
-        .filter(ratio -> UNIT_PER_ORDER_RATIO.equalsIgnoreCase(ratio.key()))
-        .findAny()
-        .map(Metadata::value)
-        .map(Double::parseDouble);
+      return forecastMetadata.stream()
+          .filter(ratio -> UNIT_PER_ORDER_RATIO.equalsIgnoreCase(ratio.key()))
+          .findAny()
+          .map(Metadata::value)
+          .map(Double::parseDouble);
+    } catch (ClientException e) {
+      throw new NoForecastMetadataFoundException(logisticCenterId, e);
+    }
   }
 }

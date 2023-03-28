@@ -2,10 +2,13 @@ package com.mercadolibre.flow.control.tool.client.planningmodelapi;
 
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter.UnitPerOrderRatioAdapter;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -19,9 +22,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class RatioAdapterForStatusTest {
+public class UnitPerOrderRatioAdapterTest {
   @InjectMocks
-  private UnitPerOrderRatioAdapter ratioAdapterForStatus;
+  private UnitPerOrderRatioAdapter unitPerOrderRatioAdapter;
   @Mock
   private PlanningModelApiClient planningModelApiClient;
 
@@ -37,7 +40,7 @@ public class RatioAdapterForStatusTest {
     // WHEN
     final Instant viewDate = Instant.parse(date);
     final Optional<Double> unitsPerOrderRatio =
-        ratioAdapterForStatus.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
+        unitPerOrderRatioAdapter.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
 
     // THEN
     final Double expectedUnitsPerOrderRatio = 3.96;
@@ -57,10 +60,27 @@ public class RatioAdapterForStatusTest {
     // WHEN
     final Instant viewDate = Instant.parse(date);
     final Optional<Double> unitsPerOrderRatio =
-        ratioAdapterForStatus.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
+        unitPerOrderRatioAdapter.getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate);
 
     // THEN
     Assertions.assertEquals(Optional.empty(), unitsPerOrderRatio);
+  }
+
+  @Test
+  public void testNoForecastMetadataFoundException() {
+    // GIVEN
+    final String date = "2023-03-16T13:47:48.809940Z";
+    final ZonedDateTime dateFrom = ZonedDateTime.parse(date);
+    final Instant viewDate = Instant.parse(date);
+    doThrow(NoForecastMetadataFoundException.class).when(planningModelApiClient)
+        .getForecastMetadata(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, dateFrom);
+
+    // WHEN and THEN
+    assertThrows(
+        NoForecastMetadataFoundException.class, () ->
+            unitPerOrderRatioAdapter
+                .getUnitsPerOrderRatio(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, viewDate)
+    );
   }
 
   private List<Metadata> mockMetadata() {

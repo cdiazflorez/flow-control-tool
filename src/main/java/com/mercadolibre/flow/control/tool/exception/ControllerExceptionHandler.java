@@ -20,9 +20,9 @@ public class ControllerExceptionHandler {
 
   /**
    * Handler for not found routes.
-   * 
+   *
    * @param req the incoming request.
-   * @param ex the exception thrown when route is not found.
+   * @param ex  the exception thrown when route is not found.
    * @return {@link ResponseEntity} with 404 status code and the route that was not found in the body.
    */
   @ExceptionHandler(NoHandlerFoundException.class)
@@ -38,7 +38,7 @@ public class ControllerExceptionHandler {
 
   /**
    * Handler for external API exceptions.
-   *  
+   *
    * @param e the exception thrown during a request to external API.
    * @return {@link ResponseEntity} with status code and description provided for the handled exception.
    */
@@ -59,7 +59,7 @@ public class ControllerExceptionHandler {
 
   /**
    * Handler for internal exceptions.
-   * 
+   *
    * @param e the exception thrown during request processing.
    * @return {@link ResponseEntity} with 500 status code and description indicating an internal error.
    */
@@ -71,6 +71,27 @@ public class ControllerExceptionHandler {
     ApiError apiError =
         new ApiError(
             "internal_error", "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR.value());
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for ForecastMetadata exceptions.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 500 status code and description indicating an internal error.
+   */
+  @ExceptionHandler(NoForecastMetadataFoundException.class)
+  public ResponseEntity<ApiError> handlerNoForecastMetadataFoundException(
+      NoForecastMetadataFoundException ex) {
+    LOGGER.error("No Content", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "no_content",
+        ex.getMessage(),
+        HttpStatus.NO_CONTENT.value()
+    );
+
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
   }
 }

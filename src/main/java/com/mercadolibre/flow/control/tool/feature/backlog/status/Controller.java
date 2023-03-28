@@ -8,9 +8,7 @@ import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.newrelic.api.agent.Trace;
 import java.time.Instant;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.PropertyEditorRegistry;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +27,7 @@ public class Controller {
 
   @Trace
   @GetMapping("/status")
-  public Map<String, Integer> getBacklogStatus(
+  public BacklogStatus getBacklogStatus(
       @PathVariable final String logisticCenterId,
       @RequestParam final Workflow workflow,
       @RequestParam final ValueType type,
@@ -37,16 +35,13 @@ public class Controller {
       @RequestParam(name = "view_date") final Instant viewDate
   ) {
 
-    final var backlogTotalsByProcess = backlogStatusUseCase.getBacklogTotalsByProcess(
+    return backlogStatusUseCase.getBacklogStatus(
         logisticCenterId,
         workflow,
         type,
         processes,
         viewDate
     );
-
-    return backlogTotalsByProcess.entrySet().stream()
-        .collect(Collectors.toMap(entry -> entry.getKey().getName(), Map.Entry::getValue));
   }
 
   @InitBinder

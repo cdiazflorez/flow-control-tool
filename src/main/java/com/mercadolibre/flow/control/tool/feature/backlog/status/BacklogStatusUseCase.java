@@ -4,11 +4,9 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,7 +20,7 @@ public class BacklogStatusUseCase {
   final BacklogGateway backlogGateway;
   final UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
-  public Map<ProcessName, Integer> getBacklogTotalsByProcess(
+  public BacklogStatus getBacklogStatus(
       final String logisticCenterId,
       final Workflow workflow,
       final ValueType valueType,
@@ -37,22 +35,42 @@ public class BacklogStatusUseCase {
         viewDate);
 
     if (valueType.equals(ValueType.ORDERS)) {
+
       final Optional<Double> ratio =
           unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate);
 
-      return ratio.map(r -> processes.stream()
+      final Map<String, Integer> ordersByProcess = ratio.map(r -> processes.stream()
               .collect(
                   Collectors.toMap(
-                      Function.identity(),
+                      ProcessName::getName,
                       value ->
                           (int) (backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL) / r)
                   )
               ))
-          .orElse(Collections.emptyMap());
+          .orElse(
+              processes.stream()
+                  .collect(
+                      Collectors
+                          .toMap(
+                              ProcessName::getName,
+                              value -> 0
+                          )
+                  )
+          );
+
+      return new BacklogStatus(
+          ordersByProcess,
+          ratio.orElse(0.0)
+      );
     }
 
-    return processes.stream()
-        .collect(Collectors.toMap(Function.identity(), value -> backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL)));
+    final Map<String, Integer> unitsByProcess = processes.stream()
+        .collect(Collectors.toMap(ProcessName::getName, value -> backlogTotalsByProcess.getOrDefault(value, DEFAULT_PROCESS_TOTAL)));
+
+    return new BacklogStatus(
+        unitsByProcess,
+        null
+    );
   }
 
   /**
