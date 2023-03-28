@@ -25,6 +25,8 @@ public enum PhotoStep {
   PACKING,
   PACKING_WALL,
   PACKED,
+  TO_DOCUMENT,
+  DOCUMENTED,
   TO_DISPATCH,
   TO_OUT,
   TO_ROUTE;

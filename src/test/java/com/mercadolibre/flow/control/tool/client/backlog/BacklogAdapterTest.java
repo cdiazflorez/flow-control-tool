@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.backlog;
 
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.DOCUMENTED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPING;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKED;
@@ -7,6 +8,7 @@ import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.Pho
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PICKING;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.SORTED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DISPATCH;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DOCUMENT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_GROUP;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_OUT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PACK;
@@ -101,6 +103,8 @@ class BacklogAdapterTest {
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "to_route"), 553),
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "sorted"), 1000),
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "pending"), 700),
+            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "to_document"), 500),
+            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "documented"), 500),
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "grouping"), 10)
         ));
 
@@ -109,7 +113,7 @@ class BacklogAdapterTest {
         Set.of(FBM_WMS_OUTBOUND),
         Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
         Set.of(PENDING, TO_PICK, PICKING, PhotoStep.PICKED, TO_GROUP, GROUPING, GROUPED, TO_ROUTE, TO_SORT, SORTED,
-            TO_PACK, PhotoStep.PACKING, PACKED, TO_DISPATCH, TO_OUT),
+            TO_PACK, PhotoStep.PACKING, PACKED, TO_DOCUMENT, DOCUMENTED, TO_DISPATCH, TO_OUT),
         PHOTO_DATE
     );
 
@@ -127,7 +131,7 @@ class BacklogAdapterTest {
         BATCH_SORTER, 2443,
         WALL_IN, 1010,
         PACKING, 1002,
-        HU_ASSEMBLY, 50000
+        HU_ASSEMBLY, 51000
     );
     // compare the returned response with what should have been returned.
     assertEquals(expected.get(WAVING), response.get(WAVING));

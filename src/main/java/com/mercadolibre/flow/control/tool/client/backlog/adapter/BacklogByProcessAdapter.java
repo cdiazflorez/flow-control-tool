@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.DOCUMENTED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.GROUPING;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PACKED;
@@ -7,6 +8,7 @@ import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.Pho
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PICKED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.SORTED;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DISPATCH;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_DOCUMENT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_GROUP;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_OUT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PACK;
@@ -78,7 +80,9 @@ public class BacklogByProcessAdapter implements BacklogGateway {
             PACKING_WALL, Map.of(TO_PACK, ProcessPath.multiBatchPaths()
             ),
             HU_ASSEMBLY, Map.of(PACKED, ProcessPath.allPaths(),
-                PhotoStep.PACKING, ProcessPath.allPaths()
+                PhotoStep.PACKING, ProcessPath.allPaths(),
+                TO_DOCUMENT, ProcessPath.allPaths(),
+                DOCUMENTED, ProcessPath.allPaths()
             ),
             SHIPPED, Map.of(
                 TO_DISPATCH, ProcessPath.allPaths(),
