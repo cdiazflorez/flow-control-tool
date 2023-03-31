@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.PropertyEditorRegistry;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("StatusController")
 @AllArgsConstructor
 @RequestMapping("/control_tool/logistic_center/{logisticCenterId}/backlog")
 public class Controller {
@@ -27,7 +28,7 @@ public class Controller {
 
   @Trace
   @GetMapping("/status")
-  public BacklogStatus getBacklogStatus(
+  public ResponseEntity<BacklogStatus> getBacklogStatus(
       @PathVariable final String logisticCenterId,
       @RequestParam final Workflow workflow,
       @RequestParam final ValueType type,
@@ -35,12 +36,14 @@ public class Controller {
       @RequestParam(name = "view_date") final Instant viewDate
   ) {
 
-    return backlogStatusUseCase.getBacklogStatus(
-        logisticCenterId,
-        workflow,
-        type,
-        processes,
-        viewDate
+    return ResponseEntity.ok(
+        backlogStatusUseCase.getBacklogStatus(
+            logisticCenterId,
+            workflow,
+            type,
+            processes,
+            viewDate
+        )
     );
   }
 

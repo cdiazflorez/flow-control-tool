@@ -1,6 +1,6 @@
 package com.mercadolibre.flow.control.tool.feature.status.usecase.entity.editor;
 
-import static com.mercadolibre.flow.control.tool.feature.entity.ValueType.UNITS;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessPath.NON_TOT_MONO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -9,28 +9,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.mercadolibre.flow.control.tool.feature.editor.ValueTypeEditor;
+import com.mercadolibre.flow.control.tool.feature.editor.ProcessPathEditor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ValueTypeEditorTest {
+public class ProcessPathEditorTest {
 
   @InjectMocks
-  ValueTypeEditor valueTypeEditor;
+  private ProcessPathEditor processPathEditor;
 
   @Test
   void testSetAsTextBlank() {
-
     // GIVEN
     String expectedMessage = "Value should not be blank";
 
     // WHEN
-    Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-      valueTypeEditor.setAsText("");
-    });
+    Exception exception = assertThrows(IllegalArgumentException.class, () -> processPathEditor.setAsText(""));
 
     // THEN
     assertEquals(expectedMessage, exception.getMessage());
@@ -38,14 +35,11 @@ class ValueTypeEditorTest {
 
   @Test
   void testSetAsTextNotFound() {
-
     // GIVEN
-    String expectedMessage = "No enum constant";
+    String expectedMessage = "instead it should be one of";
 
     // WHEN
-    Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-      valueTypeEditor.setAsText("test");
-    });
+    Exception exception = assertThrows(IllegalArgumentException.class, () -> processPathEditor.setAsText("test"));
 
     // THEN
     assertTrue(exception.getMessage().contains(expectedMessage));
@@ -54,13 +48,13 @@ class ValueTypeEditorTest {
   @Test
   void testSetAsTextSuccess() {
     // GIVEN
-    final ValueTypeEditor valueType = mock(ValueTypeEditor.class);
-    doNothing().when(valueType).setAsText(UNITS.getName());
+    final ProcessPathEditor pathEditor = mock(ProcessPathEditor.class);
+    doNothing().when(pathEditor).setAsText(NON_TOT_MONO.getName());
 
     // WHEN
-    valueType.setAsText(UNITS.getName());
+    pathEditor.setAsText(NON_TOT_MONO.getName());
 
     // THEN
-    verify(valueType, times(1)).setAsText(UNITS.getName());
+    verify(pathEditor, times(1)).setAsText(NON_TOT_MONO.getName());
   }
 }
