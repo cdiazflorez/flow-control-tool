@@ -6,6 +6,7 @@ import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constan
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName.PICKING;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.ProcessingType.EFFECTIVE_WORKERS;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Source.FORECAST;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
@@ -150,7 +151,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
             PICKING,
             EFFECTIVE_WORKERS,
             "workers",
-            "forecast",
+            FORECAST,
             92);
 
     //WHEN
