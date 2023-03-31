@@ -1,5 +1,7 @@
 package com.mercadolibre.flow.control.tool.util;
 
+import static java.time.temporal.ChronoUnit.HOURS;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mercadolibre.json.JsonUtils;
 import com.mercadolibre.json_jackson.JsonJackson;
@@ -21,6 +23,10 @@ public class TestUtils {
   public static final String FBM_WMS_OUTBOUND = "fbm_wms_outbound";
 
   public static final Instant VIEW_DATE_INSTANT = Instant.parse("2023-03-06T10:00:00Z");
+
+  public static final Instant DATE_FROM = Instant.parse("2023-03-24T12:00:00Z");
+
+  public static final Instant DATE_TO = DATE_FROM.plus(6, HOURS);
 
   /**
    * Load as String a resource located in the given resourceName.
