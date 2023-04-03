@@ -9,6 +9,12 @@ public class ForecastNotFoundException extends RuntimeException {
   private final String workflow;
 
   public ForecastNotFoundException(final String logisticCenterId,
+                                   final String workflow) {
+    this.logisticCenterId = logisticCenterId;
+    this.workflow = workflow;
+  }
+
+  public ForecastNotFoundException(final String logisticCenterId,
                                    final String workflow,
                                    final Throwable cause) {
     super(cause);

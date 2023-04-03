@@ -1,0 +1,949 @@
+{
+  "last_modified_date": "2023-03-24T11:45:00Z",
+  "values": {
+    "headcount": {
+      "picking": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      },
+      "packing": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      },
+      "packing_wall": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      },
+      "batch_sorter": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      },
+      "wall_in": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      },
+      "hu_assembly": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      },
+      "shipped": {
+        "total": {
+          "planned_systemic": 70,
+          "planned_non_systemic": 21
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned_systemic": 10,
+            "planned_systemic_edited": false,
+            "planned_non_systemic": 3,
+            "planned_non_systemic_edited": false
+          }
+        ]
+      }
+    },
+    "productivity": {
+      "picking": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      },
+      "packing": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      },
+      "packing_wall": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      },
+      "batch_sorter": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      },
+      "wall_in": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      },
+      "hu_assembly": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      },
+      "shipped": {
+        "total": {
+          "planned": 110
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 110,
+            "planned_edited": false
+          }
+        ]
+      }
+    },
+    "throughput": {
+      "picking": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      },
+      "packing": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      },
+      "packing_wall": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      },
+      "batch_sorter": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      },
+      "wall_in": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      },
+      "hu_assembly": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      },
+      "shipped": {
+        "total": {
+          "planned": 7700
+        },
+        "values": [
+          {
+            "date": "2023-03-24T12:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T13:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T14:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T15:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T16:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T17:00:00Z",
+            "planned": 1100
+          },
+          {
+            "date": "2023-03-24T18:00:00Z",
+            "planned": 1100
+          }
+        ]
+      }
+    }
+  }
+}

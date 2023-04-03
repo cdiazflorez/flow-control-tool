@@ -24,6 +24,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityData
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.flow.control.tool.feature.staffing.StaffingPlanUseCase;
 import com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.StaffingPlannedData;
 import java.time.Instant;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class StaffingPlanAdapter {
+public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGateway {
 
   private static final String MAIN_ABILITY_LEVEL = "1";
 
@@ -72,6 +73,7 @@ public class StaffingPlanAdapter {
 
   private final PlanningModelApiClient planningModelApiClient;
 
+  @Override
   public Map<StaffingType, List<StaffingPlannedData>> getStaffingPlanned(final Workflow workflow,
                                                                          final String logisticCenter,
                                                                          final Instant dateFrom,
