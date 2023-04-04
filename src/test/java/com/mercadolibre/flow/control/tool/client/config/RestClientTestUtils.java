@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.client.config;
 
 import com.mercadolibre.flow.control.tool.client.config.RestClientConfig.BacklogApiClientProperties;
 import com.mercadolibre.flow.control.tool.client.config.RestClientConfig.PlanningModelApiClientProperties;
+import com.mercadolibre.flow.control.tool.client.config.RestClientConfig.StaffingApiClientProperties;
 import com.mercadolibre.restclient.MeliRestClient;
 import com.mercadolibre.restclient.mock.RequestMockHolder;
 import java.io.IOException;
@@ -27,9 +28,13 @@ public class RestClientTestUtils {
         new PlanningModelApiClientProperties();
     planningModelApiClientProperties.setBaseUrl(BASE_URL);
 
+    final RestClientConfig.StaffingApiClientProperties staffingApiClientProperties = new StaffingApiClientProperties();
+    staffingApiClientProperties.setBaseUrl(BASE_URL);
+
     return new RestClientConfig(
         backlogApiClientProperties,
-        planningModelApiClientProperties
+        planningModelApiClientProperties,
+        staffingApiClientProperties
     ).restClient();
   }
 

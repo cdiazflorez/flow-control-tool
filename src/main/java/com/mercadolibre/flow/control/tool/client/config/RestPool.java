@@ -5,5 +5,6 @@ package com.mercadolibre.flow.control.tool.client.config;
  */
 public enum RestPool {
   BACKLOG,
-  PLANNING_MODEL_API
+  PLANNING_MODEL_API,
+  STAFFING_API
 }

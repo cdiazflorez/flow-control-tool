@@ -10,3 +10,6 @@ restclient:
     planning-model-api:
       base-url: https://fbm-flow-stage.melioffice.com
       socket-timeout: 10000
+    staffing-api:
+      base-url: https://fbm-flow-stage.melioffice.com
+      socket-timeout: 10000
