@@ -23,9 +23,13 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACK
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mercadolibre.flow.control.tool.client.backlog.adapter.BacklogByProcessAdapter;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
@@ -194,4 +198,81 @@ class BacklogAdapterTest {
     );
     assertEquals(Map.of(), response);
   }
+
+  @Test
+  void exhaustiveTest() throws JsonProcessingException {
+
+    final LastPhotoRequest request = new LastPhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(FBM_WMS_OUTBOUND),
+        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
+        Set.of(
+            TO_PICK,
+            TO_PACK,
+            SORTED,
+            GROUPING,
+            TO_ROUTE,
+            PhotoStep.PACKING,
+            TO_DISPATCH,
+            TO_GROUP,
+            PACKED,
+            TO_SORT,
+            PENDING,
+            PhotoStep.PICKED,
+            TO_OUT,
+            PICKING,
+            TO_DOCUMENT,
+            DOCUMENTED,
+            GROUPED
+        ),
+        Instant.parse("2023-03-15T10:00:00Z")
+    );
+
+    final String jsonResponseBacklogPhotosLast = getResourceAsString(
+        "client/response_get_backlog_api_photos_last.json"
+    );
+    final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    final PhotoResponse expectedBacklogPhotoResponse = objectMapper.readValue(
+        jsonResponseBacklogPhotosLast,
+        PhotoResponse.class
+    );
+    when(backlogApiClient.getLastPhoto(request)).thenReturn(expectedBacklogPhotoResponse);
+
+    final Map<ProcessName, Integer> response = backlogAdapter.getBacklogTotalsByProcess(
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        Set.of(
+            WAVING,
+            ProcessName.PICKING,
+            BATCH_SORTER,
+            WALL_IN,
+            PACKING,
+            PACKING_WALL,
+            HU_ASSEMBLY,
+            SHIPPED
+        ),
+        Instant.parse("2023-03-15T10:00:00Z")
+    );
+
+    final Map<ProcessName, Integer> expected = Map.of(
+        WAVING, 32628,
+        ProcessName.PICKING, 3509,
+        BATCH_SORTER, 1306,
+        WALL_IN, 5027,
+        PACKING, 2846,
+        PACKING_WALL, 579,
+        HU_ASSEMBLY, 26,
+        SHIPPED, 20740);
+
+    // compare the returned response with what should have been returned.
+    assertEquals(expected.get(WAVING), response.get(WAVING));
+    assertEquals(expected.get(ProcessName.PICKING), response.get(ProcessName.PICKING));
+    assertEquals(expected.get(BATCH_SORTER), response.get(BATCH_SORTER));
+    assertEquals(expected.get(WALL_IN), response.get(WALL_IN));
+    assertEquals(expected.get(PACKING), response.get(PACKING));
+    assertEquals(expected.get(PACKING_WALL), response.get(PACKING_WALL));
+    assertEquals(expected.get(HU_ASSEMBLY), response.get(HU_ASSEMBLY));
+    assertEquals(expected.get(SHIPPED), response.get(SHIPPED));
+  }
+
 }

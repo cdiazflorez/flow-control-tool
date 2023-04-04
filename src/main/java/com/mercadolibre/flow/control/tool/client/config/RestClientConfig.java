@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.client.config;
 
 import static com.mercadolibre.flow.control.tool.client.config.RestPool.BACKLOG;
 import static com.mercadolibre.flow.control.tool.client.config.RestPool.PLANNING_MODEL_API;
+import static com.mercadolibre.flow.control.tool.client.config.RestPool.STAFFING_API;
 
 import com.mercadolibre.restclient.MeliRESTPool;
 import com.mercadolibre.restclient.MeliRestClient;
@@ -24,13 +25,15 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties({
     RestClientConfig.BacklogApiClientProperties.class,
-    RestClientConfig.PlanningModelApiClientProperties.class
+    RestClientConfig.PlanningModelApiClientProperties.class,
+    RestClientConfig.StaffingApiClientProperties.class
 })
 
 public class RestClientConfig {
 
   private BacklogApiClientProperties backlogApiClientProperties;
   private PlanningModelApiClientProperties planningModelApiClientProperties;
+  private StaffingApiClientProperties staffingApiClientProperties;
 
   /**
    * Tries to build a MeLiRestClient with required REST pool.
@@ -43,8 +46,9 @@ public class RestClientConfig {
     return MeliRestClient
         .builder()
         .withPool(
-            restPool(BACKLOG.name(), backlogApiClientProperties),
-            restPool(PLANNING_MODEL_API.name(), planningModelApiClientProperties)
+            restPool(BACKLOG, backlogApiClientProperties),
+            restPool(PLANNING_MODEL_API, planningModelApiClientProperties),
+            restPool(STAFFING_API, staffingApiClientProperties)
         )
         .build();
   }
@@ -52,13 +56,15 @@ public class RestClientConfig {
   /**
    * Build a RESTPool with given name and properties.
    *
-   * @param name       name for pooling
+   * @param restPool   rest pooling
    * @param properties properties to be applied
    * @return meli RESTPool
    */
-  private RESTPool restPool(final String name,
+  private RESTPool restPool(final RestPool restPool,
                             final RestClientProperties properties
   ) {
+
+    final var name = restPool.name();
 
     RESTPool.Builder restPoolBuilder = MeliRESTPool.builder()
         .withName(name)
@@ -94,5 +100,9 @@ public class RestClientConfig {
 
   @ConfigurationProperties("restclient.pool.planning-model-api")
   public static class PlanningModelApiClientProperties extends RestClientProperties {
+  }
+
+  @ConfigurationProperties("restclient.pool.staffing-api")
+  public static class StaffingApiClientProperties extends RestClientProperties {
   }
 }

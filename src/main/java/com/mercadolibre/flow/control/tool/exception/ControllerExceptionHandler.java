@@ -37,6 +37,23 @@ public class ControllerExceptionHandler {
   }
 
   /**
+   * Handler for when enums don't match.
+   *
+   * @param req the incoming request.
+   * @return {@link ResponseEntity} with 400 status code .
+   */
+  @ExceptionHandler(WorkflowNotSupportedException.class)
+  public ResponseEntity<ApiError> handleWorkflowNotSupportedException(
+      HttpServletRequest req) {
+    ApiError apiError =
+        new ApiError(
+            "bad_request",
+            String.format("bad request %s", req.getRequestURI()),
+            HttpStatus.BAD_REQUEST.value());
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
    * Handler for external API exceptions.
    *
    * @param e the exception thrown during a request to external API.
@@ -83,6 +100,27 @@ public class ControllerExceptionHandler {
   @ExceptionHandler(NoForecastMetadataFoundException.class)
   public ResponseEntity<ApiError> handlerNoForecastMetadataFoundException(
       NoForecastMetadataFoundException ex) {
+    LOGGER.error("No Content", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "no_content",
+        ex.getMessage(),
+        HttpStatus.NO_CONTENT.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for ForecastNotFound exceptions.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 204 status code and description indicating a no content.
+   */
+  @ExceptionHandler(ForecastNotFoundException.class)
+  public ResponseEntity<ApiError> handlerForecastNotFoundException(
+      ForecastNotFoundException ex) {
     LOGGER.error("No Content", ex);
     NewRelic.noticeError(ex);
 

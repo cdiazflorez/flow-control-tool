@@ -23,9 +23,9 @@ public enum ProcessPath {
       toMap(ProcessPath::toString, Function.identity())
   );
 
-    public static ProcessPath from(final String value) {
-      return valueOf(value.toUpperCase(Locale.getDefault()));
-    }
+  public static ProcessPath from(final String value) {
+    return valueOf(value.toUpperCase(Locale.getDefault()));
+  }
 
   public static Optional<ProcessPath> of(final String value) {
     return Optional.ofNullable(LOOKUP.get(value.toUpperCase(Locale.US).replace('-', '_')));
@@ -41,5 +41,9 @@ public enum ProcessPath {
 
   public static List<ProcessPath> allPaths() {
     return Stream.concat(multiBatchPaths().stream(), pathsMinusMultiBatch().stream()).toList();
+  }
+
+  public String getName() {
+    return name().toLowerCase(Locale.getDefault());
   }
 }
