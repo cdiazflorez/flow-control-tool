@@ -37,6 +37,23 @@ public class ControllerExceptionHandler {
   }
 
   /**
+   * Handler for when enums don't match.
+   *
+   * @param req the incoming request.
+   * @return {@link ResponseEntity} with 400 status code .
+   */
+  @ExceptionHandler(WorkflowNotSupportedException.class)
+  public ResponseEntity<ApiError> handleWorkflowNotSupportedException(
+      HttpServletRequest req) {
+    ApiError apiError =
+        new ApiError(
+            "bad_request",
+            String.format("bad request %s", req.getRequestURI()),
+            HttpStatus.BAD_REQUEST.value());
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
    * Handler for external API exceptions.
    *
    * @param e the exception thrown during a request to external API.

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.mercadolibre.flow.control.tool.exception.WorkflowNotSupportedException;
 import com.mercadolibre.flow.control.tool.feature.editor.WorkflowEditor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,10 +41,10 @@ class WorkflowEditorTest {
   void testSetAsTextNotFound() {
 
     // GIVEN
-    String expectedMessage = "No enum constant";
+    String expectedMessage = "Workflow: test not supported";
 
     // WHEN
-    Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+    Exception exception = assertThrows(WorkflowNotSupportedException.class, () -> {
       workflowEditor.setAsText("test");
     });
 

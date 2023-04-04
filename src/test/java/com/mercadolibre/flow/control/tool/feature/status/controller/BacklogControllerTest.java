@@ -96,4 +96,27 @@ class BacklogControllerTest {
     result.andExpect(status().isOk()).andExpect(content()
         .json(getResourceAsString("monitor/controller_response_get_backlog_status.json")));
   }
+
+  @Test
+  void testWhenWorkflowIsNotSuported() throws Exception {
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_STATUS_URL, LOGISTIC_CENTER_ID))
+            .param(WORKFLOW, "NOT_SUPPORTED_WORKFLOW")
+            .param(TYPE, UNITS)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                WAVING,
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPED
+            )))
+            .param(VIEW_DATE, "2023-03-06T10:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isBadRequest());
+  }
 }

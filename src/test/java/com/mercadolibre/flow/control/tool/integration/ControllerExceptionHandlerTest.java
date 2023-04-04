@@ -30,6 +30,9 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   private static final String BACKLOG_URL = "/control_tool/logistic_center/ARTW01/backlog"
       + "/status?workflow=FBM_WMS_OUTBOUND&type=orders&view_date=2023-03-23T08:25:00Z"
       + "&processes=HU_ASSEMBLY, SHIPPED";
+  private static final String NOT_SUPPORTED_URL = "/control_tool/logistic_center/ARTW01/backlog"
+      + "/status?workflow=NOT_SUPPORTED_WORKFLOW&type=orders&view_date=2023-03-23T08:25:00Z"
+      + "&processes=HU_ASSEMBLY, SHIPPED";
 
   private static final String STAFFING_URL = "/control_tool/logistic_center/%s/plan/staffing";
 
@@ -51,6 +54,23 @@ class ControllerExceptionHandlerTest extends ControllerTest {
 
     // Then
     assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+  }
+
+  @Test
+  void testBadRequest() {
+    // When
+    ResponseEntity<ApiError> responseEntity =
+        this.testRestTemplate.exchange(
+            NOT_SUPPORTED_URL,
+            HttpMethod.GET,
+            this.getDefaultRequestEntity(),
+            ApiError.class
+        );
+
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+
+
   }
 
   @Test
