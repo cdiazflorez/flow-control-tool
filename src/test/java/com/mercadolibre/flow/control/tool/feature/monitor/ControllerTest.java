@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.monitor;
 
 import static com.mercadolibre.flow.control.tool.util.TestUtils.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -72,7 +73,11 @@ public class ControllerTest {
     );
 
     // THEN
-    result.andExpect(status().isOk()).andExpect(content().string("Historical"));
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_historical.json"))
+        );
   }
 
   @Test
@@ -142,7 +147,11 @@ public class ControllerTest {
     );
 
     // THEN
-    result.andExpect(status().isOk()).andExpect(content().string("Projections"));
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_projections.json"))
+        );
   }
 
   @Test
@@ -212,7 +221,11 @@ public class ControllerTest {
     );
 
     // THEN
-    result.andExpect(status().isOk()).andExpect(content().string("Average"));
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_average.json"))
+        );
   }
 
   @Test
@@ -247,6 +260,6 @@ public class ControllerTest {
     );
 
     // THEN
-    result.andExpect(status().is5xxServerError()).andExpect(status().isInternalServerError());
+    result.andExpect(status().is4xxClientError()).andExpect(status().isBadRequest());
   }
 }
