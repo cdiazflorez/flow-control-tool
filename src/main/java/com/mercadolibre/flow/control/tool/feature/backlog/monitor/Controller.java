@@ -33,14 +33,15 @@ public class Controller {
 
   private static final String TOT_MONO = "tot_mono";
   private static final String NON_TOT_MONO = "non_tot_mono";
+
   @Trace
   @GetMapping("/historical")
-  public ResponseEntity<BacklogMonitor> getBacklogHistorical(
+  public ResponseEntity<List<BacklogMonitor>> getBacklogHistorical(
       @PathVariable final String logisticCenterId,
       @RequestParam final Workflow workflow,
       @RequestParam final Set<ProcessName> processes,
-      @RequestParam final Set<Instant> slas,
-      @RequestParam(name = "process_paths") final Set<ProcessPath> processPaths,
+      @RequestParam(required = false) final Set<Instant> slas,
+      @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
       @RequestParam(name = "view_date") final Instant viewDate
@@ -77,17 +78,17 @@ public class Controller {
             )
         );
 
-    return ResponseEntity.ok(monitorHistoricalResponse);
+    return ResponseEntity.ok(List.of(monitorHistoricalResponse));
   }
 
   @Trace
   @GetMapping("/projections")
-  public ResponseEntity<BacklogMonitor> getBacklogProjections(
+  public ResponseEntity<List<BacklogMonitor>> getBacklogProjections(
       @PathVariable final String logisticCenterId,
       @RequestParam final Workflow workflow,
       @RequestParam final Set<ProcessName> processes,
-      @RequestParam final Set<Instant> slas,
-      @RequestParam(name = "process_paths") final Set<ProcessPath> processPaths,
+      @RequestParam(required = false) final Set<Instant> slas,
+      @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
       @RequestParam(name = "view_date") final Instant viewDate
@@ -124,17 +125,17 @@ public class Controller {
             )
         );
 
-    return ResponseEntity.ok(monitorProjectionsResponse);
+    return ResponseEntity.ok(List.of(monitorProjectionsResponse));
   }
 
   @Trace
   @GetMapping("/average")
-  public ResponseEntity<BacklogMonitor> getBacklogAverage(
+  public ResponseEntity<List<BacklogMonitor>> getBacklogAverage(
       @PathVariable final String logisticCenterId,
       @RequestParam final Workflow workflow,
       @RequestParam final Set<ProcessName> processes,
-      @RequestParam final Set<Instant> slas,
-      @RequestParam(name = "process_paths") final Set<ProcessPath> processPaths,
+      @RequestParam(required = false) final Set<Instant> slas,
+      @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
       @RequestParam(name = "view_date") final Instant viewDate
@@ -171,7 +172,7 @@ public class Controller {
             )
         );
 
-    return ResponseEntity.ok(monitorAverageResponse);
+    return ResponseEntity.ok(List.of(monitorAverageResponse));
   }
 
   @InitBinder

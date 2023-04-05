@@ -81,6 +81,35 @@ public class ControllerTest {
   }
 
   @Test
+  void testGetBacklogHistoricalWithoutParams() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(VIEW_DATE, "2023-03-23T10:00:00Z")
+            .param(DATE_FROM, "2023-03-23T07:00:00Z")
+            .param(DATE_TO, "2023-03-24T20:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_historical.json"))
+        );
+  }
+
+  @Test
   void testGetBacklogHistoricalError() throws Exception {
 
     // WHEN
@@ -155,6 +184,35 @@ public class ControllerTest {
   }
 
   @Test
+  void testGetBacklogProjectionsWithoutParams() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(VIEW_DATE, "2023-03-28T10:00:00Z")
+            .param(DATE_FROM, "2023-03-28T07:00:00Z")
+            .param(DATE_TO, "2023-03-29T20:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_projections.json"))
+        );
+  }
+
+  @Test
   void testGetBacklogProjectionsError() throws Exception {
 
     // WHEN
@@ -214,6 +272,35 @@ public class ControllerTest {
                 "global",
                 "non_tot_mono",
                 "tot_mono"
+            )))
+            .param(VIEW_DATE, "2023-03-15T10:00:00Z")
+            .param(DATE_FROM, "2023-03-15T07:00:00Z")
+            .param(DATE_TO, "2023-03-16T20:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_average.json"))
+        );
+  }
+
+  @Test
+  void testGetBacklogAverageWithoutParams() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, AVERAGE))
+            .param(WORKFLOW, "FBM_WMS_OUTBOUND")
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
             )))
             .param(VIEW_DATE, "2023-03-15T10:00:00Z")
             .param(DATE_FROM, "2023-03-15T07:00:00Z")
