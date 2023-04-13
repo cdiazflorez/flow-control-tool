@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.editor;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+import com.mercadolibre.flow.control.tool.exception.ProcessNotSupportedException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import java.beans.PropertyEditorSupport;
 
@@ -13,7 +14,7 @@ public class ProcessNameEditor extends PropertyEditorSupport {
       throw new IllegalArgumentException("Value should not be blank");
     }
 
-    final ProcessName processes = ProcessName.from(text);
+    final ProcessName processes = ProcessName.from(text).orElseThrow(() -> new ProcessNotSupportedException(text));
     setValue(processes);
   }
 }

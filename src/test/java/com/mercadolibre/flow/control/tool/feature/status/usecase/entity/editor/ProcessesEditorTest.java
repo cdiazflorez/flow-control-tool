@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.mercadolibre.flow.control.tool.exception.ProcessNotSupportedException;
 import com.mercadolibre.flow.control.tool.feature.editor.ProcessNameEditor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,11 +42,11 @@ class ProcessesEditorTest {
   void testSetAsTextNotFound() {
 
     // GIVEN
-    String expectedMessage = "No enum constant";
+    final String expectedMessage = "instead it should be one of";
 
     // WHEN
-    Exception exception = assertThrows(
-        IllegalArgumentException.class,
+    final Exception exception = assertThrows(
+        ProcessNotSupportedException.class,
         () -> processesEditor.setAsText("test")
     );
 

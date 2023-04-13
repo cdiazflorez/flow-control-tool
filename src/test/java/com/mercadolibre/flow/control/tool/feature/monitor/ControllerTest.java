@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.Controller;
 import java.util.Arrays;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -141,7 +142,7 @@ public class ControllerTest {
     );
 
     // THEN
-    result.andExpect(status().is5xxServerError()).andExpect(status().isInternalServerError());
+    result.andExpect(status().isBadRequest());
   }
 
   @Test
@@ -348,5 +349,49 @@ public class ControllerTest {
 
     // THEN
     result.andExpect(status().is4xxClientError()).andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testGetBacklogProcessNotSupportedException() throws Exception {
+    // GIVEN
+    final String expectedMessage = new JSONObject()
+        .put("error", "bad_request")
+        .put("message",
+            "bad request /control_tool/logistic_center/ARTW01/backlog/historical. "
+                + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPED]")
+        .put("status", 400)
+        .toString();
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                " batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(SLAS, String.join(",", Arrays.asList(
+                "2023-03-20T10:00:00Z",
+                "2023-03-21T10:00:00Z",
+                "2023-03-22T10:00:00Z"
+            )))
+            .param(PROCESS_PATHS, String.join(",", Arrays.asList(
+                "global",
+                "non_tot_mono",
+                "tot_mono"
+            )))
+            .param(VIEW_DATE, "2023-03-23T10:00:00Z")
+            .param(DATE_FROM, "2023-03-23T07:00:00Z")
+            .param(DATE_TO, "2023-03-24T20:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isBadRequest())
+        .andExpect(content().json(expectedMessage));
   }
 }
