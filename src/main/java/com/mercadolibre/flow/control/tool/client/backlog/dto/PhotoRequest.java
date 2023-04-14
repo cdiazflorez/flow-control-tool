@@ -1,8 +1,9 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto;
 
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.DATE_FROM;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.DATE_TO;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.GROUP_BY;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.LOGISTIC_CENTER_ID;
-import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.PHOTO_DATE_TO;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.STEPS;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.WORKFLOWS;
 import static java.time.format.DateTimeFormatter.ISO_INSTANT;
@@ -17,33 +18,38 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * DTO Class for Backlog photos/last request. Based on given filters/params.
+ * DTO Class for Backlog /photos request. Based on given filters/params.
  *
  * @param logisticCenterId warehouse
  * @param workflows        list of BacklogPhotoWorkflows
  * @param groupBy          list of BacklogPhotoGrouper
  * @param steps            list of BacklogPhotoSteps
- * @param photoDateTo      Instant date
+ * @param dateFrom         Instant date
+ * @param dateTo           Instant date
  */
-public record LastPhotoRequest(
+public record PhotoRequest(
     String logisticCenterId,
     Set<PhotoWorkflow> workflows,
     Set<PhotoGrouper> groupBy,
     Set<PhotoStep> steps,
-    Instant photoDateTo
+    Instant dateFrom,
+    Instant dateTo
 ) {
 
   /**
-   * Get needed query params for photos/last GET request.
+   * Get needed query params for /photos GET request.
    */
-  public Map<String, String> getQueryParams() {
-    final Map<String, String> queryParams = new ConcurrentHashMap<>();
-    queryParams.put(LOGISTIC_CENTER_ID.getName(), logisticCenterId);
-    addAsQueryParam(queryParams, WORKFLOWS.getName(), workflows.stream().map(PhotoWorkflow::getAlias).toList());
-    addAsQueryParam(queryParams, GROUP_BY.getName(), groupBy.stream().map(PhotoGrouper::getName).toList());
-    addAsQueryParam(queryParams, STEPS.getName(), steps.stream().map(PhotoStep::getName).toList());
-    addAsQueryParam(queryParams, PHOTO_DATE_TO.getName(), photoDateTo);
-    return queryParams;
+  public Map<String, String> queryParams() {
+    final Map<String, String> params = new ConcurrentHashMap<>();
+
+    params.put(LOGISTIC_CENTER_ID.getName(), logisticCenterId);
+    addAsQueryParam(params, WORKFLOWS.getName(), workflows().stream().map(PhotoWorkflow::getAlias).toList());
+    addAsQueryParam(params, GROUP_BY.getName(), groupBy.stream().map(PhotoGrouper::getName).toList());
+    addAsQueryParam(params, STEPS.getName(), steps.stream().map(PhotoStep::getName).toList());
+    addAsQueryParam(params, DATE_FROM.getName(), dateFrom);
+    addAsQueryParam(params, DATE_TO.getName(), dateTo);
+
+    return params;
   }
 
   /**

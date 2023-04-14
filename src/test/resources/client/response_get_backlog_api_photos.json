@@ -1,0 +1,52 @@
+[
+  {
+    "taken_on": "2023-04-13T08:00:00Z",
+    "groups": [
+      {
+        "key": {
+          "area": "PW",
+          "path": "TOT_MULTI_BATCH",
+          "step": "GROUPING",
+          "date_out": "2023-04-13T11:00:00Z"
+        },
+        "total": 463,
+        "accumulated_total": 1742
+      },
+      {
+        "key": {
+          "area": "N/A",
+          "path": "TOT_MONO",
+          "step": "PACKED",
+          "date_out": "2023-04-04T06:00:00Z"
+        },
+        "total": 1,
+        "accumulated_total": 15
+      }
+    ]
+  },
+  {
+    "taken_on": "2023-04-13T07:30:00Z",
+    "groups": [
+      {
+        "key": {
+          "area": "PW",
+          "path": "TOT_MULTI_BATCH",
+          "step": "GROUPING",
+          "date_out": "2023-04-13T09:00:00Z"
+        },
+        "total": 217,
+        "accumulated_total": 1127
+      },
+      {
+        "key": {
+          "area": "PW",
+          "path": "TOT_MULTI_BATCH",
+          "step": "GROUPING",
+          "date_out": "2023-04-13T11:00:00Z"
+        },
+        "total": 121,
+        "accumulated_total": 366
+      }
+    ]
+  }
+]
