@@ -19,10 +19,13 @@ import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.Pho
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PICK;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_SORT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_FROM;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_TO;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTANT;
 
 import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -35,6 +38,7 @@ import lombok.NoArgsConstructor;
 public class BacklogApiClientMockUtils {
 
   public static final String BACKLOG_PHOTO_LAST_URL = "/fbm/flow/backlogs/logistic_centers/%s/photos/last";
+  public static final String BACKLOG_PHOTO_URL = "/fbm/flow/backlogs/logistic_centers/%s/photos";
 
   /**
    * Mock BacklogPhotosLastRequest using some common values in utils.
@@ -48,6 +52,22 @@ public class BacklogApiClientMockUtils {
         Set.of(STEP, AREA, PATH),
         mockListOfBacklogPhotoSteps(),
         VIEW_DATE_INSTANT
+    );
+  }
+
+  /**
+   * Mock BacklogPhotosRequest using some common values in utils.
+   *
+   * @return an example of BacklogPhotosRequest using common logistic_center in TestUtils.
+   */
+  public static PhotoRequest mockBacklogPhotosRequest() {
+    return new PhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(FBM_WMS_OUTBOUND),
+        Set.of(STEP, AREA, PATH),
+        mockListOfBacklogPhotoSteps(),
+        DATE_FROM,
+        DATE_TO
     );
   }
 

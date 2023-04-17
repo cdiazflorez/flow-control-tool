@@ -11,7 +11,9 @@ public enum PhotoQueryParam {
   WORKFLOWS,
   GROUP_BY,
   PHOTO_DATE_TO,
-  STEPS;
+  STEPS,
+  DATE_FROM,
+  DATE_TO;
 
   public static PhotoQueryParam from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));

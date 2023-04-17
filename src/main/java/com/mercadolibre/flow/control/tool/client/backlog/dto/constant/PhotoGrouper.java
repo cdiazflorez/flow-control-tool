@@ -13,7 +13,8 @@ public enum PhotoGrouper {
 
   AREA,
   STEP,
-  PATH;
+  PATH,
+  DATE_OUT;
 
   public static PhotoGrouper from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
