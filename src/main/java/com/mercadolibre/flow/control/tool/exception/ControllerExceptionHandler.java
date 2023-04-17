@@ -1,6 +1,10 @@
 package com.mercadolibre.flow.control.tool.exception;
 
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.newrelic.api.agent.NewRelic;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,6 +134,26 @@ public class ControllerExceptionHandler {
         HttpStatus.NO_CONTENT.value()
     );
 
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for when enums Process don't match.
+   *
+   * @param req the incoming request.
+   * @return {@link ResponseEntity} with 400 status code .
+   */
+  @ExceptionHandler(ProcessNotSupportedException.class)
+  public ResponseEntity<ApiError> handleProcessNotSupported(final HttpServletRequest req) {
+    final List<String> allowedValues = Arrays.stream(ProcessName.values())
+        .map(Enum::name)
+        .collect(Collectors.toList());
+
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        String.format("bad request %s. Allowed values are: %s", req.getRequestURI(), allowedValues),
+        HttpStatus.BAD_REQUEST.value());
+    
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
   }
 }
