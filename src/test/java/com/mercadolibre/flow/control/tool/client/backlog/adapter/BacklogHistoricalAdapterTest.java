@@ -18,8 +18,8 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Collections;
@@ -81,7 +81,7 @@ class BacklogHistoricalAdapterTest {
         backlogHistoricalAdapter.getBacklogByDateProcessAndPP(
             Workflow.FBM_WMS_OUTBOUND,
             LOGISTIC_CENTER_ID,
-            List.of(WAVING, BATCH_SORTER, PACKING_WALL),
+            Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
             PHOTO_DATE,
             DATE_TO);
 
@@ -105,7 +105,7 @@ class BacklogHistoricalAdapterTest {
                     Map.of(ProcessPath.TOT_MULTI_BATCH, 1000),
                     Instant.parse(DATE_OUT_2),
                     Map.of(ProcessPath.TOT_MULTI_BATCH, 1000))
-                )
+            )
         );
     assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH),
         response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH));
@@ -140,7 +140,7 @@ class BacklogHistoricalAdapterTest {
         backlogHistoricalAdapter.getBacklogByDateProcessAndPP(
             Workflow.FBM_WMS_OUTBOUND,
             LOGISTIC_CENTER_ID,
-            List.of(WAVING, BATCH_SORTER, PACKING_WALL),
+            Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
             PHOTO_DATE,
             DATE_TO);
     assertEquals(Map.of(), response);
@@ -163,7 +163,7 @@ class BacklogHistoricalAdapterTest {
         backlogHistoricalAdapter.getBacklogByDateProcessAndPP(
             Workflow.FBM_WMS_OUTBOUND,
             LOGISTIC_CENTER_ID,
-            List.of(WAVING, BATCH_SORTER, PACKING_WALL),
+            Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
             PHOTO_DATE,
             DATE_TO);
     assertEquals(Map.of(PHOTO_DATE, Map.of()), response);

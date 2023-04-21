@@ -25,8 +25,8 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
 
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;

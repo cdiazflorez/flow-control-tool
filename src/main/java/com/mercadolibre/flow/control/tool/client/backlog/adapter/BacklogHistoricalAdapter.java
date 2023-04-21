@@ -8,9 +8,10 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessPath;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessToStep;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
@@ -22,19 +23,19 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class BacklogHistoricalAdapter {
+public class BacklogHistoricalAdapter implements GetHistoricalBacklogUseCase.BacklogGateway {
   private static final String PATH = "path";
   private static final String STEP = "step";
   private static final String DATE_OUT = "date_out";
   final BacklogApiClient backlogApiClient;
 
-  Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> getBacklogByDateProcessAndPP(
+  @Override
+  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> getBacklogByDateProcessAndPP(
       final Workflow workflow,
       final String logisticCenterId,
-      final List<ProcessName> processes,
+      final Set<ProcessName> processes,
       final Instant dateFrom,
-      final Instant dateTo
-  ) {
+      final Instant dateTo) {
 
     final Set<PhotoStep> steps = processes.stream()
         .map(process -> ProcessToStep.from(process.getName()).getBacklogPhotoSteps())
@@ -48,6 +49,7 @@ public class BacklogHistoricalAdapter {
         steps,
         dateFrom,
         dateTo);
+
     final List<PhotoResponse> responseFromBacklogsAPI = backlogApiClient.getPhotos(request);
 
     if (responseFromBacklogsAPI == null) {

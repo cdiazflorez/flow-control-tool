@@ -3,16 +3,30 @@ package com.mercadolibre.flow.control.tool.feature.monitor;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.Controller;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = Controller.class)
@@ -39,11 +53,71 @@ public class ControllerTest {
 
   private static final String DATE_TO = "date_to";
 
+  private static final Instant DATE = Instant.parse("2023-04-01T08:00:00Z");
+
+  private static final String VIEW_DATE_STRING = "2023-03-23T10:00:00Z";
+
+  private static final String DATE_FROM_STRING = "2023-03-23T07:00:00Z";
+
+  private static final String DATE_TO_STRING = "2023-03-24T20:00:00Z";
+
+  private static final List<BacklogMonitor> HISTORICAL_BACKLOG_MOCK =
+      List.of(
+          new BacklogMonitor(
+              DATE,
+              List.of(
+                  new ProcessesMonitor(
+                      ProcessName.PICKING,
+                      20,
+                      List.of(
+                          new SlasMonitor(
+                              DATE,
+                              0,
+                              List.of(
+                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 0),
+                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 0)
+                              )
+                          ),
+                          new SlasMonitor(
+                              DATE.plus(1, HOURS),
+                              5,
+                              List.of(
+                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
+                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 3)
+                              )
+                          )
+                      )
+                  )
+              )
+          )
+      );
+
+
   @Autowired
   private MockMvc mvc;
 
+  @MockBean
+  private GetHistoricalBacklogUseCase getHistoricalBacklogUseCase;
+
   @Test
   void testGetBacklogHistorical() throws Exception {
+
+    //GIVEN
+    when(getHistoricalBacklogUseCase.backlogHistoricalMonitor(
+        Workflow.FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        Set.of(
+            ProcessName.PICKING,
+            ProcessName.BATCH_SORTER,
+            ProcessName.WALL_IN,
+            ProcessName.PACKING,
+            ProcessName.PACKING_WALL,
+            ProcessName.HU_ASSEMBLY,
+            ProcessName.SHIPPED
+        ),
+        Instant.parse(DATE_FROM_STRING),
+        Instant.parse(DATE_TO_STRING)
+    )).thenReturn(HISTORICAL_BACKLOG_MOCK);
 
     // WHEN
     final var result = mvc.perform(
@@ -68,9 +142,9 @@ public class ControllerTest {
                 "non_tot_mono",
                 "tot_mono"
             )))
-            .param(VIEW_DATE, "2023-03-23T10:00:00Z")
-            .param(DATE_FROM, "2023-03-23T07:00:00Z")
-            .param(DATE_TO, "2023-03-24T20:00:00Z")
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -83,6 +157,21 @@ public class ControllerTest {
 
   @Test
   void testGetBacklogHistoricalWithoutParams() throws Exception {
+    //GIVEN
+    when(getHistoricalBacklogUseCase.backlogHistoricalMonitor(
+        Workflow.FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        Set.of(
+            ProcessName.PICKING,
+            ProcessName.BATCH_SORTER,
+            ProcessName.WALL_IN,
+            ProcessName.PACKING,
+            ProcessName.PACKING_WALL,
+            ProcessName.HU_ASSEMBLY,
+            ProcessName.SHIPPED),
+        Instant.parse(DATE_FROM_STRING),
+        Instant.parse(DATE_TO_STRING)
+    )).thenReturn(HISTORICAL_BACKLOG_MOCK);
 
     // WHEN
     final var result = mvc.perform(
@@ -97,9 +186,9 @@ public class ControllerTest {
                 "hu_assembly",
                 "shipped"
             )))
-            .param(VIEW_DATE, "2023-03-23T10:00:00Z")
-            .param(DATE_FROM, "2023-03-23T07:00:00Z")
-            .param(DATE_TO, "2023-03-24T20:00:00Z")
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -118,7 +207,7 @@ public class ControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking1",
+                "process_not_exist",
                 "batch_sorter",
                 "wall_in",
                 "packing",
@@ -136,9 +225,9 @@ public class ControllerTest {
                 "non_tot_mono",
                 "tot_mono"
             )))
-            .param(VIEW_DATE, "2023-03-23T10:00:00Z")
-            .param(DATE_FROM, "2023-03-23T07:00:00Z")
-            .param(DATE_TO, "2023-03-24T20:00:00Z")
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -385,9 +474,9 @@ public class ControllerTest {
                 "non_tot_mono",
                 "tot_mono"
             )))
-            .param(VIEW_DATE, "2023-03-23T10:00:00Z")
-            .param(DATE_FROM, "2023-03-23T07:00:00Z")
-            .param(DATE_TO, "2023-03-24T20:00:00Z")
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN

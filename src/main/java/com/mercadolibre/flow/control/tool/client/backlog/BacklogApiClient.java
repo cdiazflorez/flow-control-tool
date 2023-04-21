@@ -60,7 +60,7 @@ public class BacklogApiClient extends HttpClient {
   @Trace
   public List<PhotoResponse> getPhotos(final PhotoRequest photoRequest) {
     final HttpHeaders httpHeaders = new HttpHeaders();
-    httpHeaders.set("X-Consistency-Strong", String.valueOf(true));
+    httpHeaders.set("X-Iterative-Query", String.valueOf(true));
 
     final HttpRequest request = HttpRequest.builder()
         .url(format(BACKLOG_PHOTO_URL, photoRequest.logisticCenterId()))
