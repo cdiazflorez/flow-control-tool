@@ -11,10 +11,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public enum ProcessPath {
-  TOT_MULTI_BATCH,
-  NON_TOT_MULTI_BATCH,
   TOT_MONO,
   NON_TOT_MONO,
+  TOT_MULTI_BATCH,
+  NON_TOT_MULTI_BATCH,
   TOT_MULTI_ORDER,
   NON_TOT_MULTI_ORDER,
   TOT_SINGLE_SKU,
