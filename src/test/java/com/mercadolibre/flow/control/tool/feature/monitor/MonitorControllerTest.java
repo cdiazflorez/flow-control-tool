@@ -9,8 +9,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.Controller;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
@@ -23,14 +23,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import org.json.JSONObject;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = Controller.class)
-public class ControllerTest {
+@WebMvcTest(controllers = MonitorController.class)
+public class MonitorControllerTest {
   private static final String BACKLOG_MONITOR_URL = "/control_tool/logistic_center/%s/backlog/%s";
 
   private static final String HISTORICAL = "historical";
@@ -59,7 +60,9 @@ public class ControllerTest {
 
   private static final String DATE_FROM_STRING = "2023-03-23T07:00:00Z";
 
-  private static final String DATE_TO_STRING = "2023-03-24T20:00:00Z";
+  private static final String DATE_TO_STRING = "2023-03-24T08:00:00Z";
+
+  private static final String DATE_TO_STRING_PLUS = "2023-03-24T22:00:00Z";
 
   private static final List<BacklogMonitor> HISTORICAL_BACKLOG_MOCK =
       List.of(
@@ -80,6 +83,22 @@ public class ControllerTest {
                           ),
                           new SlasMonitor(
                               DATE.plus(1, HOURS),
+                              5,
+                              List.of(
+                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
+                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 3)
+                              )
+                          ),
+                          new SlasMonitor(
+                              DATE.plus(2, HOURS),
+                              5,
+                              List.of(
+                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
+                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 3)
+                              )
+                          ),
+                          new SlasMonitor(
+                              Instant.parse("2023-03-23T08:00:00Z"),
                               5,
                               List.of(
                                   new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
@@ -145,6 +164,62 @@ public class ControllerTest {
             .param(VIEW_DATE, VIEW_DATE_STRING)
             .param(DATE_FROM, DATE_FROM_STRING)
             .param(DATE_TO, DATE_TO_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_historical.json"))
+        );
+  }
+
+  @Test
+  void testGetBacklogHistoricalDate() throws Exception {
+
+    //GIVEN
+    when(getHistoricalBacklogUseCase.backlogHistoricalMonitor(
+        Workflow.FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        Set.of(
+            ProcessName.PICKING,
+            ProcessName.BATCH_SORTER,
+            ProcessName.WALL_IN,
+            ProcessName.PACKING,
+            ProcessName.PACKING_WALL,
+            ProcessName.HU_ASSEMBLY,
+            ProcessName.SHIPPED
+        ),
+        Instant.parse(DATE_FROM_STRING),
+        Instant.parse("2023-03-24T13:00:00Z")
+    )).thenReturn(HISTORICAL_BACKLOG_MOCK);
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(SLAS, String.join(",", Arrays.asList(
+                "2023-03-20T10:00:00Z",
+                "2023-03-21T10:00:00Z",
+                "2023-03-22T10:00:00Z"
+            )))
+            .param(PROCESS_PATHS, String.join(",", Arrays.asList(
+                "global",
+                "non_tot_mono",
+                "tot_mono"
+            )))
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING_PLUS)
     );
 
     // THEN
@@ -232,6 +307,43 @@ public class ControllerTest {
 
     // THEN
     result.andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testGetBacklogHistoricalErrorDate() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(SLAS, String.join(",", Arrays.asList(
+                "2023-03-20T10:00:00Z",
+                "2023-03-21T10:00:00Z",
+                "2023-03-22T10:00:00Z"
+            )))
+            .param(PROCESS_PATHS, String.join(",", Arrays.asList(
+                "global",
+                "non_tot_mono",
+                "tot_mono"
+            )))
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_TO_STRING)
+            .param(DATE_TO, DATE_FROM_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().isBadRequest());
+    result.andExpect(r ->
+        Assertions.assertEquals("dateFrom must be less than dateTo", r.getResolvedException().getMessage())
+    );
   }
 
   @Test

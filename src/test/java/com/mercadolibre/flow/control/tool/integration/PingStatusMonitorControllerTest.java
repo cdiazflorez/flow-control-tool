@@ -7,7 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-class PingControllerTest extends ControllerTest {
+class PingStatusMonitorControllerTest extends ControllerTest {
 
   @Test
   void ping() {

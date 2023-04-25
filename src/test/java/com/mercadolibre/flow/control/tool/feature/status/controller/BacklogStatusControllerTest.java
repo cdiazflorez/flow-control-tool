@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
-import com.mercadolibre.flow.control.tool.feature.backlog.status.Controller;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.StatusController;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -24,8 +24,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = Controller.class)
-class BacklogControllerTest {
+@WebMvcTest(controllers = StatusController.class)
+class BacklogStatusControllerTest {
 
   private static final String BACKLOG_STATUS_URL = "/control_tool/logistic_center/%s/backlog/status";
 

@@ -3,6 +3,8 @@ package com.mercadolibre.flow.control.tool.integration;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MULTI_ORDER;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doThrow;
@@ -12,10 +14,12 @@ import com.mercadolibre.flow.control.tool.exception.ApiException;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.PingController;
-import com.mercadolibre.flow.control.tool.feature.backlog.status.Controller;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
+import com.mercadolibre.flow.control.tool.feature.backlog.status.StatusController;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.staffing.StaffingController;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
@@ -30,9 +34,15 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   private static final String BACKLOG_URL = "/control_tool/logistic_center/ARTW01/backlog"
       + "/status?workflow=FBM_WMS_OUTBOUND&type=orders&view_date=2023-03-23T08:25:00Z"
       + "&processes=HU_ASSEMBLY, SHIPPED";
+
   private static final String NOT_SUPPORTED_URL = "/control_tool/logistic_center/ARTW01/backlog"
       + "/status?workflow=NOT_SUPPORTED_WORKFLOW&type=orders&view_date=2023-03-23T08:25:00Z"
       + "&processes=HU_ASSEMBLY, SHIPPED";
+
+  private static final String HISTORICAL_ERROR = "/control_tool/logistic_center/ARTW01/backlog"
+      + "/historical?workflow=NOT_SUPPORTED_WORKFLOW&type=orders&view_date=2023-03-23T08:25:00Z"
+      + "&processes=HU_ASSEMBLY,SHIPPED&date_from=2023-02-02T08:25:00Z&date_to=2023-01-01T08:25:00Z"
+      + "&process_paths=NON_TOT_MULTI_ORDER,NON_TOT_MONO";
 
   private static final String STAFFING_URL = "/control_tool/logistic_center/%s/plan/staffing";
 
@@ -40,7 +50,10 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   private PingController pingController;
 
   @SpyBean
-  private Controller backlogController;
+  private StatusController backlogStatusController;
+
+  @SpyBean
+  private MonitorController monitorController;
 
   @SpyBean
   private StaffingController staffingController;
@@ -125,7 +138,7 @@ class ControllerExceptionHandlerTest extends ControllerTest {
     final String date = "2023-03-23T08:25:00Z";
     final Instant viewDate = Instant.parse(date);
     doThrow(new NoForecastMetadataFoundException("ARTW01"))
-        .when(backlogController)
+        .when(backlogStatusController)
         .getBacklogStatus(
             "ARTW01",
             Workflow.FBM_WMS_OUTBOUND,
@@ -167,5 +180,34 @@ class ControllerExceptionHandlerTest extends ControllerTest {
 
     //THEN
     assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+  }
+
+  @Test
+  void testDateTimeException() {
+    // Given
+    doThrow(new DateTimeException("dateFrom must be less than dateTo"))
+        .when(monitorController)
+        .getBacklogHistorical(
+            "ARTW01",
+            Workflow.FBM_WMS_OUTBOUND,
+            Set.of(HU_ASSEMBLY, SHIPPED),
+            null,
+            Set.of(NON_TOT_MULTI_ORDER, NON_TOT_MONO),
+            Instant.parse("2023-02-23T08:25:00Z"),
+            Instant.parse("2023-01-01T08:25:00Z"),
+            Instant.parse("2023-03-23T08:25:00Z")
+        );
+
+    // When
+    final ResponseEntity<ApiError> responseEntity =
+        this.testRestTemplate.exchange(
+            HISTORICAL_ERROR,
+            HttpMethod.GET,
+            this.getDefaultRequestEntity(),
+            ApiError.class
+        );
+
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
   }
 }

@@ -40,7 +40,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
-class StaffingStaffingControllerTest extends ControllerTest {
+class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
 
   private static final String STAFFING_OPERATION_URL = "/control_tool/logistic_center/%s/plan/staffing";
 

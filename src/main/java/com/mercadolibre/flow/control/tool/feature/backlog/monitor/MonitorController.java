@@ -2,6 +2,8 @@ package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.TOT_MONO;
+import static com.mercadolibre.flow.control.tool.util.DateUtils.isDifferenceBetweenDateBiggestThan;
+import static com.mercadolibre.flow.control.tool.util.DateUtils.validDates;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
@@ -15,6 +17,7 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.newrelic.api.agent.Trace;
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +34,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("MonitorController")
 @AllArgsConstructor
 @RequestMapping("/control_tool/logistic_center/{logisticCenterId}/backlog")
-public class Controller {
+public class MonitorController {
+
+  private static final int MAX_HOURS = 30;
 
   private GetHistoricalBacklogUseCase getHistoricalBacklogUseCase;
 
@@ -45,13 +50,20 @@ public class Controller {
       @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
-      @RequestParam(name = "view_date") final Instant viewDate
+      @RequestParam(name = "view_date", required = false) final Instant viewDate
   ) {
 
-    final var historicalBacklog = getHistoricalBacklogUseCase.backlogHistoricalMonitor(
-        workflow, logisticCenterId, processes, dateFrom, dateTo);
+    if (!validDates(dateFrom, dateTo)) {
 
-    return ResponseEntity.ok(historicalBacklog);
+      final Instant dateToProcessed = processDateTo(dateFrom, dateTo);
+
+      final List<BacklogMonitor> historicalBacklog = getHistoricalBacklogUseCase.backlogHistoricalMonitor(
+          workflow, logisticCenterId, processes, dateFrom, dateToProcessed);
+
+      return ResponseEntity.ok(historicalBacklog);
+    } else {
+      throw new DateTimeException("dateFrom must be less than dateTo");
+    }
   }
 
   @Trace
@@ -146,6 +158,14 @@ public class Controller {
         );
 
     return ResponseEntity.ok(List.of(monitorAverageResponse));
+  }
+
+  private static Instant processDateTo(final Instant dateFrom, final Instant dateTo) {
+    if (isDifferenceBetweenDateBiggestThan(dateFrom, dateTo, MAX_HOURS)) {
+      return dateFrom.plus(MAX_HOURS, HOURS);
+    } else {
+      return dateTo;
+    }
   }
 
   @InitBinder
