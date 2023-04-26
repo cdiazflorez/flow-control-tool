@@ -632,7 +632,8 @@ public class MonitorControllerTest {
                 "packing",
                 "packing_wall",
                 "hu_assembly",
-                "shipped"
+                "shipping",
+                "waving"
             )))
             .param(DATE_FROM, "2023-03-15T07:00:00Z")
             .param(DATE_TO, "2023-03-16T20:00:00Z")
