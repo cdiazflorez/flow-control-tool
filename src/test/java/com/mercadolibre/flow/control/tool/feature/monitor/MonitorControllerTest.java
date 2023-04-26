@@ -22,9 +22,13 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,6 +43,8 @@ public class MonitorControllerTest {
   private static final String PROJECTIONS = "projections";
 
   private static final String AVERAGE = "average";
+
+  private static final String LIMITS = "limits";
 
   private static final String WORKFLOW = "workflow";
 
@@ -611,4 +617,90 @@ public class MonitorControllerTest {
     result.andExpect(status().isBadRequest())
         .andExpect(content().json(expectedMessage));
   }
+
+  @Test
+  void testGetBacklogLimits() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, LIMITS))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(DATE_FROM, "2023-03-15T07:00:00Z")
+            .param(DATE_TO, "2023-03-16T20:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_backlog_limits.json"))
+        );
+  }
+
+  @Test
+  void testGetBacklogLimitsError() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, LIMITS))
+            .param(WORKFLOW, "FBM_WM_OUTBOUND")
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                "picking",
+                "batch_sorter",
+                "wall_in",
+                "packing",
+                "packing_wall",
+                "hu_assembly",
+                "shipped"
+            )))
+            .param(DATE_FROM, "2023-03-15T07:00:00Z")
+            .param(DATE_TO, "2023-03-16T20:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().is4xxClientError()).andExpect(status().isBadRequest());
+  }
+
+  @ParameterizedTest
+  @MethodSource("backlogLimitsProvider")
+  void testGetBacklogLimitsErrorParams(final String workflow,
+                                       final List<String> processes,
+                                       final Instant fromDate,
+                                       final Instant toDate) throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, LIMITS))
+            .param(WORKFLOW, workflow)
+            .param(PROCESSES, String.join(",", processes))
+            .param(DATE_FROM, fromDate.toString())
+            .param(DATE_TO, toDate.toString())
+    );
+
+    // THEN
+    result.andExpect(status().isBadRequest());
+  }
+
+  private static Stream<Arguments> backlogLimitsProvider() {
+    return Stream.of(
+        Arguments.of("FBM_WMS_OUTBOUND",
+            Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+            "2023-03-15T07:00:00Z",
+            "2023-03-16T20:00:00Z"),
+        Arguments.of("FBM_WM_OUTBOUND",
+            Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+            "2023-03-15T07:00:00Z",
+            "2023-03-16T20:00:00Z")
+    );
+  }
+
 }

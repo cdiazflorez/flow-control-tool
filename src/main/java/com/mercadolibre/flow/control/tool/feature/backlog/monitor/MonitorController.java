@@ -6,7 +6,9 @@ import static com.mercadolibre.flow.control.tool.util.DateUtils.isDifferenceBetw
 import static com.mercadolibre.flow.control.tool.util.DateUtils.validDates;
 import static java.time.temporal.ChronoUnit.HOURS;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogLimit;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessLimit;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
@@ -159,6 +161,49 @@ public class MonitorController {
 
     return ResponseEntity.ok(List.of(monitorAverageResponse));
   }
+
+  /**
+   * Retrieves a list of backlog limits based on the provided logistic center ID,
+   * workflow, and process filters, as well as date filters.
+   *
+   * @param logisticCenterId the ID of the logistic center to retrieve the backlog limits for
+   * @param workflow         the workflow to filter by
+   * @param processes        the set of process names to filter by
+   * @param dateFrom         the start date to filter by (inclusive)
+   * @param dateTo           the end date to filter by (inclusive)
+   * @return a ResponseEntity containing the list of matching backlog limits
+   */
+  @Trace
+  @GetMapping("/limits")
+  public ResponseEntity<List<BacklogLimit>> getBacklogLimits(
+      @PathVariable final String logisticCenterId,
+      @RequestParam final Workflow workflow,
+      @RequestParam final Set<ProcessName> processes,
+      @RequestParam("date_from") final Instant dateFrom,
+      @RequestParam("date_to") final Instant dateTo
+  ) {
+
+
+    final List<BacklogLimit> backlogLimits = List.of(
+        new BacklogLimit(
+            Instant.parse("2023-03-21T08:00:00Z"),
+            List.of(
+                new ProcessLimit(
+                    ProcessName.PICKING,
+                    40,
+                    100
+                ),
+                new ProcessLimit(
+                    ProcessName.PACKING,
+                    50,
+                    100
+                )
+            )
+        )
+    );
+    return ResponseEntity.ok(backlogLimits);
+  }
+
 
   private static Instant processDateTo(final Instant dateFrom, final Instant dateTo) {
     if (isDifferenceBetweenDateBiggestThan(dateFrom, dateTo, MAX_HOURS)) {
