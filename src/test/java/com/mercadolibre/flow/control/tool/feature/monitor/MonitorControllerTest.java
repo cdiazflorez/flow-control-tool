@@ -64,6 +64,22 @@ public class MonitorControllerTest {
 
   private static final String DATE_TO_STRING_PLUS = "2023-03-24T22:00:00Z";
 
+  private static final String PICKING = "picking";
+
+  private static final String BATCH_SORTER = "batch_sorter";
+
+  private static final String WALL_IN = "wall_in";
+
+  private static final String PACKING = "packing";
+
+  private static final String PACKING_WALL = "packing_wall";
+
+  private static final String HU_ASSEMBLY = "hu_assembly";
+
+  private static final String SHIPPING = "shipping";
+
+  private static final String ERROR = "error";
+
   private static final List<BacklogMonitor> HISTORICAL_BACKLOG_MOCK =
       List.of(
           new BacklogMonitor(
@@ -132,7 +148,7 @@ public class MonitorControllerTest {
             ProcessName.PACKING,
             ProcessName.PACKING_WALL,
             ProcessName.HU_ASSEMBLY,
-            ProcessName.SHIPPED
+            ProcessName.SHIPPING
         ),
         Instant.parse(DATE_FROM_STRING),
         Instant.parse(DATE_TO_STRING)
@@ -143,13 +159,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-20T10:00:00Z",
@@ -188,7 +204,7 @@ public class MonitorControllerTest {
             ProcessName.PACKING,
             ProcessName.PACKING_WALL,
             ProcessName.HU_ASSEMBLY,
-            ProcessName.SHIPPED
+            ProcessName.SHIPPING
         ),
         Instant.parse(DATE_FROM_STRING),
         Instant.parse("2023-03-24T13:00:00Z")
@@ -205,7 +221,7 @@ public class MonitorControllerTest {
                 "packing",
                 "packing_wall",
                 "hu_assembly",
-                "shipped"
+                "shipping"
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-20T10:00:00Z",
@@ -243,7 +259,7 @@ public class MonitorControllerTest {
             ProcessName.PACKING,
             ProcessName.PACKING_WALL,
             ProcessName.HU_ASSEMBLY,
-            ProcessName.SHIPPED),
+            ProcessName.SHIPPING),
         Instant.parse(DATE_FROM_STRING),
         Instant.parse(DATE_TO_STRING)
     )).thenReturn(HISTORICAL_BACKLOG_MOCK);
@@ -253,13 +269,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(VIEW_DATE, VIEW_DATE_STRING)
             .param(DATE_FROM, DATE_FROM_STRING)
@@ -282,13 +298,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "process_not_exist",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                ERROR,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-20T10:00:00Z",
@@ -322,7 +338,7 @@ public class MonitorControllerTest {
                 "packing",
                 "packing_wall",
                 "hu_assembly",
-                "shipped"
+                "shipping"
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-20T10:00:00Z",
@@ -354,13 +370,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-25T10:00:00Z",
@@ -393,13 +409,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(VIEW_DATE, "2023-03-28T10:00:00Z")
             .param(DATE_FROM, "2023-03-28T07:00:00Z")
@@ -422,13 +438,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-25T10:00:00Z",
@@ -457,13 +473,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, AVERAGE))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-12T10:00:00Z",
@@ -496,13 +512,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, AVERAGE))
             .param(WORKFLOW, "FBM_WMS_OUTBOUND")
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(VIEW_DATE, "2023-03-15T10:00:00Z")
             .param(DATE_FROM, "2023-03-15T07:00:00Z")
@@ -525,13 +541,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, AVERAGE))
             .param(WORKFLOW, "FBM_WM_OUTBOUND")
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                "batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-12T10:00:00Z",
@@ -559,7 +575,7 @@ public class MonitorControllerTest {
         .put("error", "bad_request")
         .put("message",
             "bad request /control_tool/logistic_center/ARTW01/backlog/historical. "
-                + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPED]")
+                + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPING]")
         .put("status", 400)
         .toString();
 
@@ -568,13 +584,13 @@ public class MonitorControllerTest {
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, HISTORICAL))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
             .param(PROCESSES, String.join(",", Arrays.asList(
-                "picking",
-                " batch_sorter",
-                "wall_in",
-                "packing",
-                "packing_wall",
-                "hu_assembly",
-                "shipped"
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                ERROR,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
             )))
             .param(SLAS, String.join(",", Arrays.asList(
                 "2023-03-20T10:00:00Z",

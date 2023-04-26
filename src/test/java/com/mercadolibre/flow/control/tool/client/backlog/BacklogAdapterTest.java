@@ -20,7 +20,7 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.BATC
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
@@ -127,7 +127,7 @@ class BacklogAdapterTest {
         backlogAdapter.getBacklogTotalsByProcess(
             LOGISTIC_CENTER_ID,
             Workflow.FBM_WMS_OUTBOUND,
-            Set.of(WAVING, ProcessName.PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPED),
+            Set.of(WAVING, ProcessName.PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPING),
             PHOTO_DATE);
 
     final Map<ProcessName, Integer> expected = Map.of(
@@ -145,7 +145,7 @@ class BacklogAdapterTest {
     assertEquals(expected.get(PACKING), response.get(PACKING));
     assertEquals(expected.get(PACKING_WALL), response.get(PACKING_WALL));
     assertEquals(expected.get(HU_ASSEMBLY), response.get(HU_ASSEMBLY));
-    assertEquals(expected.get(SHIPPED), response.get(SHIPPED));
+    assertEquals(expected.get(SHIPPING), response.get(SHIPPING));
 
   }
 
@@ -156,7 +156,7 @@ class BacklogAdapterTest {
         List.of(
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "TO_ROUTE"), 500),
             new PhotoResponse.Group(Map.of(PATH, "TOT_MULTI_BATCH_DOS", STEP, PICKED), 500)
-            ));
+        ));
 
     final LastPhotoRequest request = new LastPhotoRequest(
         LOGISTIC_CENTER_ID,
@@ -249,7 +249,7 @@ class BacklogAdapterTest {
             PACKING,
             PACKING_WALL,
             HU_ASSEMBLY,
-            SHIPPED
+            SHIPPING
         ),
         Instant.parse("2023-03-15T10:00:00Z")
     );
@@ -262,7 +262,7 @@ class BacklogAdapterTest {
         PACKING, 2846,
         PACKING_WALL, 579,
         HU_ASSEMBLY, 26,
-        SHIPPED, 20740);
+        SHIPPING, 20740);
 
     // compare the returned response with what should have been returned.
     assertEquals(expected.get(WAVING), response.get(WAVING));
@@ -272,7 +272,7 @@ class BacklogAdapterTest {
     assertEquals(expected.get(PACKING), response.get(PACKING));
     assertEquals(expected.get(PACKING_WALL), response.get(PACKING_WALL));
     assertEquals(expected.get(HU_ASSEMBLY), response.get(HU_ASSEMBLY));
-    assertEquals(expected.get(SHIPPED), response.get(SHIPPED));
+    assertEquals(expected.get(SHIPPING), response.get(SHIPPING));
   }
 
 }

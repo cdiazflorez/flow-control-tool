@@ -17,7 +17,7 @@ public enum ProcessName {
   PACKING,
   PACKING_WALL,
   HU_ASSEMBLY,
-  SHIPPED;
+  SHIPPING;
 
   private static final Map<String, ProcessName> LOOKUP = Arrays.stream(values()).collect(
       toMap(ProcessName::toString, Function.identity())
@@ -26,6 +26,7 @@ public enum ProcessName {
   public static Optional<ProcessName> from(final String value) {
     return Optional.ofNullable(LOOKUP.get(value.toUpperCase(Locale.US)));
   }
+
   public String getName() {
     return name().toLowerCase(Locale.getDefault());
   }

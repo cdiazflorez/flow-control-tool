@@ -2,7 +2,7 @@ package com.mercadolibre.flow.control.tool.integration;
 
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MULTI_ORDER;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
@@ -33,15 +33,15 @@ class ControllerExceptionHandlerTest extends ControllerTest {
 
   private static final String BACKLOG_URL = "/control_tool/logistic_center/ARTW01/backlog"
       + "/status?workflow=FBM_WMS_OUTBOUND&type=orders&view_date=2023-03-23T08:25:00Z"
-      + "&processes=HU_ASSEMBLY, SHIPPED";
+      + "&processes=HU_ASSEMBLY, SHIPPING";
 
   private static final String NOT_SUPPORTED_URL = "/control_tool/logistic_center/ARTW01/backlog"
       + "/status?workflow=NOT_SUPPORTED_WORKFLOW&type=orders&view_date=2023-03-23T08:25:00Z"
-      + "&processes=HU_ASSEMBLY, SHIPPED";
+      + "&processes=HU_ASSEMBLY, SHIPPING";
 
   private static final String HISTORICAL_ERROR = "/control_tool/logistic_center/ARTW01/backlog"
       + "/historical?workflow=NOT_SUPPORTED_WORKFLOW&type=orders&view_date=2023-03-23T08:25:00Z"
-      + "&processes=HU_ASSEMBLY,SHIPPED&date_from=2023-02-02T08:25:00Z&date_to=2023-01-01T08:25:00Z"
+      + "&processes=HU_ASSEMBLY,SHIPPING&date_from=2023-02-02T08:25:00Z&date_to=2023-01-01T08:25:00Z"
       + "&process_paths=NON_TOT_MULTI_ORDER,NON_TOT_MONO";
 
   private static final String STAFFING_URL = "/control_tool/logistic_center/%s/plan/staffing";
@@ -143,7 +143,7 @@ class ControllerExceptionHandlerTest extends ControllerTest {
             "ARTW01",
             Workflow.FBM_WMS_OUTBOUND,
             ValueType.ORDERS,
-            Set.of(HU_ASSEMBLY, SHIPPED),
+            Set.of(HU_ASSEMBLY, SHIPPING),
             viewDate
         );
 
@@ -190,7 +190,7 @@ class ControllerExceptionHandlerTest extends ControllerTest {
         .getBacklogHistorical(
             "ARTW01",
             Workflow.FBM_WMS_OUTBOUND,
-            Set.of(HU_ASSEMBLY, SHIPPED),
+            Set.of(HU_ASSEMBLY, SHIPPING),
             null,
             Set.of(NON_TOT_MULTI_ORDER, NON_TOT_MONO),
             Instant.parse("2023-02-23T08:25:00Z"),

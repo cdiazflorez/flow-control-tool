@@ -5,7 +5,7 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_A
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType.HEADCOUNT;
@@ -57,7 +57,7 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
       BATCH_SORTER,
       WALL_IN,
       HU_ASSEMBLY,
-      SHIPPED
+      SHIPPING
   );
 
   @Autowired

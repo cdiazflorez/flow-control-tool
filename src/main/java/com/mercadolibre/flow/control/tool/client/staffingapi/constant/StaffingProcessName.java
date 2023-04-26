@@ -7,22 +7,22 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum StaffingProcessName {
-    PICKING(ProcessName.PICKING),
-    PACKING(ProcessName.PACKING),
-    PACKING_WALL(ProcessName.PACKING_WALL),
-    WALL_IN(ProcessName.WALL_IN),
-    BATCH_SORTER(ProcessName.BATCH_SORTER),
-    HU_ASSEMBLY(ProcessName.HU_ASSEMBLY),
-    SALES_DISPATCH(ProcessName.SHIPPED);
+  PICKING(ProcessName.PICKING),
+  PACKING(ProcessName.PACKING),
+  PACKING_WALL(ProcessName.PACKING_WALL),
+  WALL_IN(ProcessName.WALL_IN),
+  BATCH_SORTER(ProcessName.BATCH_SORTER),
+  HU_ASSEMBLY(ProcessName.HU_ASSEMBLY),
+  SALES_DISPATCH(ProcessName.SHIPPING);
 
-    private final ProcessName processName;
+  private final ProcessName processName;
 
-    public ProcessName translateProcessName() {
-        return this.processName;
-    }
+  public ProcessName translateProcessName() {
+    return this.processName;
+  }
 
-    @JsonValue
-    public String getName() {
-        return name().toLowerCase(Locale.getDefault());
-    }
+  @JsonValue
+  public String getName() {
+    return name().toLowerCase(Locale.getDefault());
+  }
 }

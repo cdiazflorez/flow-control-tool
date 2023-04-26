@@ -34,7 +34,7 @@ public enum ProcessToStep {
   PACKING(List.of(TO_PACK, PICKED)),
   PACKING_WALL(List.of(TO_PACK)),
   HU_ASSEMBLY(List.of(PhotoStep.PACKING, PACKED, TO_DOCUMENT, DOCUMENTED)),
-  SHIPPED(List.of(TO_DISPATCH, TO_OUT));
+  SHIPPING(List.of(TO_DISPATCH, TO_OUT));
 
   private static final Map<ProcessToStep, List<PhotoStep>>
       STEPS_BY_PROCESS = Arrays.stream(values())

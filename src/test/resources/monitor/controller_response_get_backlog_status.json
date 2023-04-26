@@ -1,7 +1,7 @@
 {
   "backlogStatus": {
     "batch_sorter": 10,
-    "shipped": 10,
+    "shipping": 10,
     "hu_assembly": 10,
     "waving": 10,
     "wall_in": 10,

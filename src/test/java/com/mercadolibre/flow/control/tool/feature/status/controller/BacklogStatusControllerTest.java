@@ -51,7 +51,7 @@ class BacklogStatusControllerTest {
 
   private static final String HU_ASSEMBLY = "hu_assembly";
 
-  private static final String SHIPPED = "shipped";
+  private static final String SHIPPING = "shipping";
 
   private static final String VIEW_DATE = "view_date";
 
@@ -87,7 +87,7 @@ class BacklogStatusControllerTest {
                 PACKING,
                 PACKING_WALL,
                 HU_ASSEMBLY,
-                SHIPPED
+                SHIPPING
             )))
             .param(VIEW_DATE, "2023-03-06T10:00:00Z")
     );
@@ -111,7 +111,7 @@ class BacklogStatusControllerTest {
                 PACKING,
                 PACKING_WALL,
                 HU_ASSEMBLY,
-                SHIPPED
+                SHIPPING
             )))
             .param(VIEW_DATE, "2023-03-06T10:00:00Z")
     );
