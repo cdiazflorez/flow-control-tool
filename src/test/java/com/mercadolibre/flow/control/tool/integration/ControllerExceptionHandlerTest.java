@@ -13,6 +13,7 @@ import com.mercadolibre.flow.control.tool.exception.ApiError;
 import com.mercadolibre.flow.control.tool.exception.ApiException;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
+import com.mercadolibre.flow.control.tool.exception.RealMetricsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.PingController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.StatusController;
@@ -209,5 +210,28 @@ class ControllerExceptionHandlerTest extends ControllerTest {
 
     // Then
     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+  }
+
+  @Test
+  @DisplayName("A RealMetricsNotFound exception test")
+  void testRealMetricsNotFound() {
+    //GIVEN
+    final String queryParams = "?workflow=fbm_wms_outbound&date_from=2023-03-28T08:00:00Z&date_to=2023-03-28T10:00:00Z";
+    final Instant dateFrom = Instant.parse("2023-03-28T08:00:00Z");
+    final Instant dateTo = Instant.parse("2023-03-28T10:00:00Z");
+    doThrow(new RealMetricsNotFoundException(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND.getName(), new Throwable("Error")))
+
+        .when(staffingController).getStaffingOperation(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, dateFrom, dateTo);
+
+    //WHEN
+    final ResponseEntity<ApiError> responseEntity = this.testRestTemplate.exchange(
+        String.format(STAFFING_URL, LOGISTIC_CENTER_ID).concat(queryParams),
+        HttpMethod.GET,
+        this.getDefaultRequestEntity(),
+        ApiError.class
+    );
+
+    //THEN
+    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
   }
 }
