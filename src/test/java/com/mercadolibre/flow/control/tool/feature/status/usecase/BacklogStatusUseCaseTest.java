@@ -31,7 +31,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BacklogStatusUseCaseTest {
 
-
   @Mock
   private BacklogGateway backlogGateway;
 
@@ -71,7 +70,7 @@ class BacklogStatusUseCaseTest {
     assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
     assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
     assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
-    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
+    assertEquals(10, backlogByProcess.backlogStatus().get(ProcessName.SHIPPING.getName()));
   }
 
   @Test
@@ -102,7 +101,7 @@ class BacklogStatusUseCaseTest {
     assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
     assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
     assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
-    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
+    assertEquals(0, backlogByProcess.backlogStatus().get(ProcessName.SHIPPING.getName()));
   }
 
   @Test
@@ -164,7 +163,7 @@ class BacklogStatusUseCaseTest {
     assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
     assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
     assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
-    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
+    assertEquals(2, backlogByProcess.backlogStatus().get(ProcessName.SHIPPING.getName()));
   }
 
   @Test
@@ -201,7 +200,7 @@ class BacklogStatusUseCaseTest {
     assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.PACKING.getName()));
     assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.PACKING_WALL.getName()));
     assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.HU_ASSEMBLY.getName()));
-    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.SHIPPED.getName()));
+    assertEquals(40, backlogByProcess.backlogStatus().get(ProcessName.SHIPPING.getName()));
   }
 
   @Test

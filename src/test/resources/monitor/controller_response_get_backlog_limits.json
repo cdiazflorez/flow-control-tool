@@ -1,0 +1,17 @@
+[
+  {
+    "date": "2023-03-21T08:00:00Z",
+    "processes": [
+      {
+        "name": "picking",
+        "lower": 40,
+        "upper": 100
+      },
+      {
+        "name": "packing",
+        "lower": 50,
+        "upper": 100
+      }
+    ]
+  }
+]

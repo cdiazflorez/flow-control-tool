@@ -5,7 +5,7 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_A
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
 
@@ -37,7 +37,7 @@ public class StatusTestUtils {
         PACKING,
         PACKING_WALL,
         HU_ASSEMBLY,
-        SHIPPED
+            SHIPPING
     );
   }
 

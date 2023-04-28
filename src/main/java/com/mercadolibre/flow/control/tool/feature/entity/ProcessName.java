@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.entity;
 
 import static java.util.stream.Collectors.toMap;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -17,7 +18,7 @@ public enum ProcessName {
   PACKING,
   PACKING_WALL,
   HU_ASSEMBLY,
-  SHIPPED;
+  SHIPPING;
 
   private static final Map<String, ProcessName> LOOKUP = Arrays.stream(values()).collect(
       toMap(ProcessName::toString, Function.identity())
@@ -26,7 +27,10 @@ public enum ProcessName {
   public static Optional<ProcessName> from(final String value) {
     return Optional.ofNullable(LOOKUP.get(value.toUpperCase(Locale.US)));
   }
+
+  @JsonValue
   public String getName() {
     return name().toLowerCase(Locale.getDefault());
   }
+
 }

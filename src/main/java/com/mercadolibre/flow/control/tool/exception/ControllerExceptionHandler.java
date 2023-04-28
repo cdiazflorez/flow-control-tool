@@ -2,9 +2,9 @@ package com.mercadolibre.flow.control.tool.exception;
 
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.newrelic.api.agent.NewRelic;
+import java.time.DateTimeException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,13 +147,48 @@ public class ControllerExceptionHandler {
   public ResponseEntity<ApiError> handleProcessNotSupported(final HttpServletRequest req) {
     final List<String> allowedValues = Arrays.stream(ProcessName.values())
         .map(Enum::name)
-        .collect(Collectors.toList());
+        .toList();
 
     final ApiError apiError = new ApiError(
         "bad_request",
         String.format("bad request %s. Allowed values are: %s", req.getRequestURI(), allowedValues),
         HttpStatus.BAD_REQUEST.value());
-    
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for DateTime exceptions.
+   *
+   * @param ex the exception thrown during a request to external API.
+   * @return {@link ResponseEntity} with 400 status code .
+   */
+  @ExceptionHandler(DateTimeException.class)
+  public ResponseEntity<ApiError> handleDateTimeException(final DateTimeException ex) {
+
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        ex.getMessage(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for Real Metrics exceptions.
+   *
+   * @param ex the exception thrown during a request to external API.
+   * @return {@link ResponseEntity} with 404 status code and description indicating a no content.
+   */
+  @ExceptionHandler(RealMetricsNotFoundException.class)
+  public ResponseEntity<ApiError> handleRealMetricsNotFoundException(final RealMetricsNotFoundException ex) {
+    final ApiError apiError = new ApiError(
+        "real_metrics_not_found",
+        ex.getMessage(),
+        HttpStatus.NOT_FOUND.value()
+    );
+
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
   }
 }

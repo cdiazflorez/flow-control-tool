@@ -2,7 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.editor;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 

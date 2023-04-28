@@ -33,6 +33,34 @@
                 "quantity": 3
               }
             ]
+          },
+          {
+            "date": "2023-04-01T10:00:00Z",
+            "quantity": 5,
+            "processPaths": [
+              {
+                "name": "tot_mono",
+                "quantity": 2
+              },
+              {
+                "name": "non_tot_mono",
+                "quantity": 3
+              }
+            ]
+          },
+          {
+            "date": "2023-03-23T08:00:00Z",
+            "quantity": 5,
+            "processPaths": [
+              {
+                "name": "tot_mono",
+                "quantity": 2
+              },
+              {
+                "name": "non_tot_mono",
+                "quantity": 3
+              }
+            ]
           }
         ]
       }

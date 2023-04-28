@@ -1,11 +1,11 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto;
 
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import java.util.List;
 
-public record ProcessesMonitor(
+public record ProcessLimit(
     ProcessName name,
-    Integer quantity,
-    List<SlasMonitor> slas
+    int lower,
+    int upper
 ) {
+
 }

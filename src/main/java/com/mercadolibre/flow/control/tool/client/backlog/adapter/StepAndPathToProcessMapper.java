@@ -20,13 +20,13 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_A
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPED;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
 
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
@@ -79,9 +79,9 @@ public final class StepAndPathToProcessMapper {
             new AbstractMap.SimpleEntry<>(DOCUMENTED, ProcessPath.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> HU_ASSEMBLY))),
             new AbstractMap.SimpleEntry<>(TO_DISPATCH, ProcessPath.allPaths().stream()
-                .collect(Collectors.toMap(a -> a, value -> SHIPPED))),
+                .collect(Collectors.toMap(a -> a, value -> SHIPPING))),
             new AbstractMap.SimpleEntry<>(TO_OUT, ProcessPath.allPaths().stream()
-                .collect(Collectors.toMap(a -> a, value -> SHIPPED)))
+                .collect(Collectors.toMap(a -> a, value -> SHIPPING)))
         ).collect(Collectors.toMap(
             AbstractMap.SimpleEntry::getKey,
             AbstractMap.SimpleEntry::getValue

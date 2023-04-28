@@ -13,7 +13,7 @@ public enum OutboundProcessName {
   WALL_IN(ProcessName.WALL_IN),
   BATCH_SORTER(ProcessName.BATCH_SORTER),
   HU_ASSEMBLY(ProcessName.HU_ASSEMBLY),
-  SALES_DISPATCH(ProcessName.SHIPPED);
+  SALES_DISPATCH(ProcessName.SHIPPING);
 
   private final ProcessName processName;
 

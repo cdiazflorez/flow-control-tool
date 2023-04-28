@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("StatusController")
 @AllArgsConstructor
 @RequestMapping("/control_tool/logistic_center/{logisticCenterId}/backlog")
-public class Controller {
+public class StatusController {
 
   private BacklogStatusUseCase backlogStatusUseCase;
 

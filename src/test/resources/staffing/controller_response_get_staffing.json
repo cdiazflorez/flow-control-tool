@@ -344,7 +344,7 @@
           }
         ]
       },
-      "shipped": {
+      "shipping": {
         "total": {
           "planned_systemic": 70,
           "planned_non_systemic": 21
@@ -655,7 +655,7 @@
           }
         ]
       },
-      "shipped": {
+      "shipping": {
         "total": {
           "planned": 110
         },
@@ -909,7 +909,7 @@
           }
         ]
       },
-      "shipped": {
+      "shipping": {
         "total": {
           "planned": 7700
         },
