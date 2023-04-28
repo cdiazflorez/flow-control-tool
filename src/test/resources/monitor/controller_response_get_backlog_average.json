@@ -3,7 +3,7 @@
     "date": "2023-04-03T08:00:00Z",
     "processes": [
       {
-        "name": "PACKING",
+        "name": "packing",
         "quantity": 20,
         "slas": [
           {
@@ -11,11 +11,11 @@
             "quantity": 0,
             "processPaths": [
               {
-                "name": "TOT_MONO",
+                "name": "tot_mono",
                 "quantity": 0
               },
               {
-                "name": "NON_TOT_MONO",
+                "name": "non_tot_mono",
                 "quantity": 0
               }
             ]
@@ -25,11 +25,11 @@
             "quantity": 5,
             "processPaths": [
               {
-                "name": "TOT_MONO",
+                "name": "tot_mono",
                 "quantity": 2
               },
               {
-                "name": "NON_TOT_MONO",
+                "name": "non_tot_mono",
                 "quantity": 3
               }
             ]

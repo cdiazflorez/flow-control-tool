@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.entity;
 
 import static java.util.stream.Collectors.toMap;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -27,7 +28,9 @@ public enum ProcessName {
     return Optional.ofNullable(LOOKUP.get(value.toUpperCase(Locale.US)));
   }
 
+  @JsonValue
   public String getName() {
     return name().toLowerCase(Locale.getDefault());
   }
+
 }
