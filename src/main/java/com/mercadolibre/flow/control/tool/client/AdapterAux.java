@@ -1,7 +1,6 @@
 package com.mercadolibre.flow.control.tool.client;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
-import com.mercadolibre.flow.control.tool.feature.entity.Grouper;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -16,15 +15,7 @@ import org.springframework.stereotype.Component;
  * TODO: Temporary class. Should be removed once the real adapter has been implemented.
  */
 @Component
-public class AdapterAux implements
-    BacklogProjectedUseCase.BacklogGateway, BacklogProjectedUseCase.PlanningEntitiesGateway,
-    BacklogProjectedUseCase.BacklogProjectionGateway {
-
-  @Override
-  public List<BacklogProjectedUseCase.CurrentBacklog> getCurrentBacklog(Workflow workflow, String logisticCenterId, Instant viewDate,
-                                                                        Grouper grouper) {
-    return Collections.emptyList();
-  }
+public class AdapterAux implements BacklogProjectedUseCase.PlanningEntitiesGateway, BacklogProjectedUseCase.BacklogProjectionGateway {
 
   @Override
   public List<BacklogProjectedUseCase.Throughput> getThroughput(Workflow workflow, String logisticCenterId, Instant dateFrom,
@@ -44,7 +35,7 @@ public class AdapterAux implements
       Instant dateFrom,
       Instant dateTo,
       Set<ProcessName> process,
-      List<BacklogProjectedUseCase.CurrentBacklog> currentBacklogs,
+      Map<ProcessName, Integer> currentBacklogs,
       List<BacklogProjectedUseCase.Throughput> throughput,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs) {
     return Collections.emptyMap();

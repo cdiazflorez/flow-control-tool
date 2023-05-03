@@ -1,7 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
-import com.mercadolibre.flow.control.tool.feature.entity.Grouper;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -27,29 +27,22 @@ public class BacklogProjectedUseCase {
       final Instant dateTo,
       final String logisticCenterId,
       final Workflow workflow,
-      final Set<ProcessName> process) {
+      final Set<ProcessName> processes) {
 
-    final var currentBacklog = backlogApiGateway.getCurrentBacklog(workflow, logisticCenterId, dateFrom, Grouper.PROCESS_NAME);
+    final var currentBacklog = backlogApiGateway.getBacklogTotalsByProcess(logisticCenterId, workflow, processes, dateFrom);
 
-    final var tph = planningApiGateway.getThroughput(workflow, logisticCenterId, dateFrom, dateTo, process);
+    final var tph = planningApiGateway.getThroughput(workflow, logisticCenterId, dateFrom, dateTo, processes);
 
     final var plannedBacklog = planningApiGateway.getPlannedBacklog(workflow, logisticCenterId, dateFrom, dateTo);
 
     final var backlogProjection =
-        backlogProjectionGateway.executeBacklogProjection(dateFrom, dateTo, process, currentBacklog, tph, plannedBacklog);
+        backlogProjectionGateway.executeBacklogProjection(dateFrom, dateTo, processes, currentBacklog, tph, plannedBacklog);
 
     List<BacklogMonitor> backlogMonitors = BacklogProjectionUtil.sumBacklogProjection(backlogProjection);
 
     BacklogProjectionUtil.order(backlogMonitors);
 
     return backlogMonitors;
-  }
-
-  /**
-   * Gateway backlog api to obtain current backlog.
-   */
-  public interface BacklogGateway {
-    List<CurrentBacklog> getCurrentBacklog(Workflow workflow, String logisticCenterId, Instant viewDate, Grouper grouper);
   }
 
   /**
@@ -69,7 +62,7 @@ public class BacklogProjectedUseCase {
         Instant dateFrom,
         Instant dateTo,
         Set<ProcessName> process,
-        List<CurrentBacklog> currentBacklogs,
+        Map<ProcessName, Integer> currentBacklogs,
         List<Throughput> throughput,
         List<PlannedBacklog> plannedBacklogs);
   }
@@ -85,12 +78,6 @@ public class BacklogProjectedUseCase {
   public record PlannedBacklog(
       Instant dateIn,
       Instant dateOut,
-      Integer quantity
-  ) {
-  }
-
-  public record CurrentBacklog(
-      ProcessName processName,
       Integer quantity
   ) {
   }

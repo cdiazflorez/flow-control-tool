@@ -5,12 +5,12 @@ import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
-import com.mercadolibre.flow.control.tool.feature.entity.Grouper;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -34,9 +34,7 @@ class BacklogProjectedUseCaseTest {
   private static final Instant OP_DATE2 = Instant.parse("2023-04-21T11:00:00Z");
   private static final Instant OP_DATE3 = Instant.parse("2023-04-21T12:00:00Z");
   private static final Instant DATE_OUT = Instant.parse("2023-04-22T10:00:00Z");
-  private static final List<BacklogProjectedUseCase.CurrentBacklog> CURRENT_BACKLOG = List.of(
-      new BacklogProjectedUseCase.CurrentBacklog(ProcessName.PICKING, 100)
-  );
+  private static final Map<ProcessName, Integer> CURRENT_BACKLOG = Map.of(ProcessName.PICKING, 100);
   private static final List<BacklogProjectedUseCase.PlannedBacklog> PLANNED_BACKLOGS = List.of(
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE1, DATE_OUT, 25),
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE2, DATE_OUT, 22),
@@ -108,7 +106,7 @@ class BacklogProjectedUseCaseTest {
   );
 
   @Mock
-  private BacklogProjectedUseCase.BacklogGateway backlogApiGateway;
+  private BacklogGateway backlogApiGateway;
 
   @Mock
   private BacklogProjectedUseCase.PlanningEntitiesGateway planningEntitiesGateway;
@@ -130,11 +128,11 @@ class BacklogProjectedUseCaseTest {
   private static Stream<ParametersTest> parameterBacklog() {
     return Stream.of(
         new ParametersTest(CURRENT_BACKLOG, PLANNED_BACKLOGS, THROUGHPUT, BACKLOG, expected()),
-        new ParametersTest(emptyList(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyList(), emptyList(), THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyList(), emptyList(), emptyList(), emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), emptyList(), THROUGHPUT, emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), emptyList(), emptyList(), emptyMap(), emptyList()),
         new ParametersTest(CURRENT_BACKLOG, emptyList(), THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyList(), PLANNED_BACKLOGS, emptyList(), emptyMap(), emptyList())
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, emptyList(), emptyMap(), emptyList())
     );
   }
 
@@ -200,7 +198,7 @@ class BacklogProjectedUseCaseTest {
   }
 
   private void whenGateways(final ParametersTest parameters) {
-    when(backlogApiGateway.getCurrentBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, Grouper.PROCESS_NAME))
+    when(backlogApiGateway.getBacklogTotalsByProcess(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
         .thenReturn(parameters.currentBacklogs);
 
     when(planningEntitiesGateway.getPlannedBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
@@ -215,7 +213,7 @@ class BacklogProjectedUseCaseTest {
   }
 
   private record ParametersTest(
-      List<BacklogProjectedUseCase.CurrentBacklog> currentBacklogs,
+      Map<ProcessName, Integer> currentBacklogs,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs,
       List<BacklogProjectedUseCase.Throughput> throughput,
       Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlog,

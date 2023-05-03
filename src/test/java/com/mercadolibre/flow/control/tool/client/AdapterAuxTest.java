@@ -17,9 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class AdapterAuxTest {
 
   @Autowired
-  BacklogProjectedUseCase.BacklogGateway backlogGateway;
-
-  @Autowired
   BacklogProjectedUseCase.PlanningEntitiesGateway planningApiGateway;
 
   @Autowired
@@ -28,7 +25,6 @@ public class AdapterAuxTest {
   @Test
   public void test() {
     backlogProjectionGateway.executeBacklogProjection(null, null, null, null, null, null);
-    backlogGateway.getCurrentBacklog(null, null, null, null);
     planningApiGateway.getPlannedBacklog(null, null, null, null);
     planningApiGateway.getThroughput(null, null, null, null, null);
 

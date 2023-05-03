@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 
 import static com.mercadolibre.flow.control.tool.client.backlog.adapter.StepAndPathToProcessMapper.pathAndStepToProcessName;
+import static com.mercadolibre.flow.control.tool.client.backlog.adapter.Util.toSteps;
 
 import com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClient;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoRequest;
@@ -37,16 +38,11 @@ public class BacklogHistoricalAdapter implements GetHistoricalBacklogUseCase.Bac
       final Instant dateFrom,
       final Instant dateTo) {
 
-    final Set<PhotoStep> steps = processes.stream()
-        .map(process -> ProcessToStep.from(process.getName()).getBacklogPhotoSteps())
-        .flatMap(List::stream)
-        .collect(Collectors.toSet());
-
     final PhotoRequest request = new PhotoRequest(
         logisticCenterId,
         Set.of(PhotoWorkflow.from(workflow)),
         Set.of(PhotoGrouper.STEP, PhotoGrouper.DATE_OUT, PhotoGrouper.PATH),
-        steps,
+        toSteps(processes),
         dateFrom,
         dateTo);
 
