@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toMap;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +29,9 @@ public enum ProcessName {
     return Optional.ofNullable(LOOKUP.get(value.toUpperCase(Locale.US)));
   }
 
+  public static List<ProcessName> getShippingProcess() {
+    return List.of(HU_ASSEMBLY, SHIPPING);
+  }
   @JsonValue
   public String getName() {
     return name().toLowerCase(Locale.getDefault());

@@ -13,6 +13,7 @@ import com.mercadolibre.flow.control.tool.exception.ApiError;
 import com.mercadolibre.flow.control.tool.exception.ApiException;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
+import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.exception.RealMetricsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.PingController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
@@ -43,6 +44,11 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   private static final String HISTORICAL_ERROR = "/control_tool/logistic_center/ARTW01/backlog"
       + "/historical?workflow=NOT_SUPPORTED_WORKFLOW&type=orders&view_date=2023-03-23T08:25:00Z"
       + "&processes=HU_ASSEMBLY,SHIPPING&date_from=2023-02-02T08:25:00Z&date_to=2023-01-01T08:25:00Z"
+      + "&process_paths=NON_TOT_MULTI_ORDER,NON_TOT_MONO";
+
+  private static final String HISTORICAL_URL = "/control_tool/logistic_center/ARTW01/backlog"
+      + "/historical?workflow=FBM_WMS_OUTBOUND&view_date=2023-03-23T08:25:00Z"
+      + "&processes=HU_ASSEMBLY,SHIPPING&date_from=2023-02-01T08:25:00Z&date_to=2023-02-04T08:25:00Z"
       + "&process_paths=NON_TOT_MULTI_ORDER,NON_TOT_MONO";
 
   private static final String STAFFING_URL = "/control_tool/logistic_center/%s/plan/staffing";
@@ -152,6 +158,35 @@ class ControllerExceptionHandlerTest extends ControllerTest {
     ResponseEntity<ApiError> responseEntity =
         this.testRestTemplate.exchange(
             BACKLOG_URL,
+            HttpMethod.GET,
+            this.getDefaultRequestEntity(),
+            ApiError.class
+        );
+
+    // Then
+    assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
+  }
+
+  @Test
+  void testNoUnitPerOrderRatioFound() {
+    // Given
+    doThrow(new NoUnitsPerOrderRatioFound(LOGISTIC_CENTER_ID))
+        .when(monitorController)
+        .getBacklogHistorical(
+            LOGISTIC_CENTER_ID,
+            Workflow.FBM_WMS_OUTBOUND,
+            Set.of(HU_ASSEMBLY, SHIPPING),
+            null,
+            Set.of(NON_TOT_MULTI_ORDER, NON_TOT_MONO),
+            Instant.parse("2023-02-01T08:25:00Z"),
+            Instant.parse("2023-02-04T08:25:00Z"),
+            Instant.parse("2023-03-23T08:25:00Z")
+        );
+
+    // When
+    ResponseEntity<ApiError> responseEntity =
+        this.testRestTemplate.exchange(
+            HISTORICAL_URL,
             HttpMethod.GET,
             this.getDefaultRequestEntity(),
             ApiError.class

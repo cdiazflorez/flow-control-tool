@@ -138,6 +138,27 @@ public class ControllerExceptionHandler {
   }
 
   /**
+   * Handler for UnitsPerOrderRatio exceptions.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 204 status code and description indicating a no content.
+   */
+  @ExceptionHandler(NoUnitsPerOrderRatioFound.class)
+  public ResponseEntity<ApiError> handlerUnitsPerOrderRatioException(
+      NoUnitsPerOrderRatioFound ex) {
+    LOGGER.error("No Content", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "no_content",
+        ex.getMessage(),
+        HttpStatus.NO_CONTENT.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
    * Handler for when enums Process don't match.
    *
    * @param req the incoming request.

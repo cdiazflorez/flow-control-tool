@@ -4,8 +4,11 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +45,12 @@ class GetHistoricalBacklogUseCaseTest {
 
   private static final Instant CPT2 = Instant.parse("2023-04-15T19:00:00Z");
 
+  private static final Workflow WORKFLOW = Workflow.FBM_WMS_OUTBOUND;
+
+  private static final String LOGISTIC_CENTER = "ARTW01";
+
+  private static final Instant VIEW_DATE = Instant.parse("2023-05-03T08:00:00Z");
+
   private static final Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>> BACKLOG = Map.of(
       ProcessName.PICKING,
       Map.of(
@@ -55,6 +65,20 @@ class GetHistoricalBacklogUseCaseTest {
           BACKLOG_BY_PROCESS_PATH,
           CPT2,
           BACKLOG_BY_PROCESS_PATH
+      ),
+      ProcessName.HU_ASSEMBLY,
+      Map.of(
+          CPT1,
+          BACKLOG_BY_PROCESS_PATH,
+          CPT2,
+          BACKLOG_BY_PROCESS_PATH
+      ),
+      ProcessName.SHIPPING,
+      Map.of(
+          CPT1,
+          BACKLOG_BY_PROCESS_PATH,
+          CPT2,
+          BACKLOG_BY_PROCESS_PATH
       )
   );
 
@@ -64,12 +88,17 @@ class GetHistoricalBacklogUseCaseTest {
 
   private static final String LOGISTIC_CENTER_ID = "ARTW01";
 
-  private static final Set<ProcessName> PROCESS_NAMES = Set.of(ProcessName.PICKING, ProcessName.PACKING);
+  private static final Set<ProcessName> PROCESS_NAMES =
+      Set.of(ProcessName.PICKING, ProcessName.PACKING, ProcessName.HU_ASSEMBLY, ProcessName.SHIPPING);
+
   @InjectMocks
   private GetHistoricalBacklogUseCase backlogHistoricalUseCase;
 
   @Mock
   private GetHistoricalBacklogUseCase.BacklogGateway backlogGateway;
+
+  @Mock
+  private UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
   @Test
   void obtainBacklogHistorical() {
@@ -80,8 +109,11 @@ class GetHistoricalBacklogUseCaseTest {
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
         .thenReturn(backlogMock());
 
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
+        .thenReturn(Optional.of(3.96));
+
     final var res = backlogHistoricalUseCase.backlogHistoricalMonitor(
-        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo);
+        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE);
 
     assertNotNull(res);
     assertionsBacklogMonitor(backlogMonitorsResponseMock(), res);
@@ -96,8 +128,11 @@ class GetHistoricalBacklogUseCaseTest {
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
         .thenReturn(emptyMap());
 
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
+        .thenReturn(Optional.of(3.96));
+
     var res = backlogHistoricalUseCase.backlogHistoricalMonitor(
-        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo);
+        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE);
 
     assertEquals(emptyList(), res);
   }
@@ -111,10 +146,32 @@ class GetHistoricalBacklogUseCaseTest {
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
         .thenReturn(backlogNullProcessMock());
 
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
+        .thenReturn(Optional.of(3.96));
+
     var response = backlogHistoricalUseCase.backlogHistoricalMonitor(
-        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo);
+        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE);
 
     assertionEmptyGroups(response);
+  }
+
+  @Test
+  void obtainBacklogHistoricalException() {
+    final var dateFrom = DATE1;
+    final var dateTo = DATE2;
+
+    when(backlogGateway.getBacklogByDateProcessAndPP(
+        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
+        .thenReturn(backlogNullProcessMock());
+
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
+        .thenReturn(Optional.of(0.0));
+
+    assertThrows(
+        NoUnitsPerOrderRatioFound.class,
+        () -> backlogHistoricalUseCase.backlogHistoricalMonitor(
+            Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE)
+    );
   }
 
   private void assertionEmptyGroups(final List<BacklogMonitor> response) {
@@ -203,7 +260,7 @@ class GetHistoricalBacklogUseCaseTest {
   }
 
   private List<ProcessesMonitor> processesMonitors() {
-    final var processMonitors = new ArrayList<ProcessesMonitor>(1);
+    final var processMonitors = new ArrayList<ProcessesMonitor>(4);
     processMonitors.add(new ProcessesMonitor(
         ProcessName.PICKING,
         60,
@@ -213,6 +270,18 @@ class GetHistoricalBacklogUseCaseTest {
     processMonitors.add(new ProcessesMonitor(
         ProcessName.PACKING,
         60,
+        slasMonitors()
+    ));
+
+    processMonitors.add(new ProcessesMonitor(
+        ProcessName.HU_ASSEMBLY,
+        15,
+        slasMonitors()
+    ));
+
+    processMonitors.add(new ProcessesMonitor(
+        ProcessName.SHIPPING,
+        15,
         slasMonitors()
     ));
 

@@ -1,5 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.getShippingProcess;
+
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
@@ -45,26 +47,39 @@ public final class BacklogProjectionUtil {
   }
 
   public static List<BacklogMonitor> sumBacklogProjection(
-      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlogProjection) {
+      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlogProjection,
+      final Double unitsPerOrderRatio) {
     return backlogProjection.entrySet().stream().map(
             backlogHistoricalEntry ->
                 new BacklogMonitor(
                     backlogHistoricalEntry.getKey(),
-                    mapToProcessesMonitorList(backlogHistoricalEntry.getValue())
+                    mapToProcessesMonitorList(backlogHistoricalEntry.getValue(), unitsPerOrderRatio)
                 )
         ).sorted(Comparator.comparing(BacklogMonitor::date))
         .collect(Collectors.toList());
   }
 
   private static List<ProcessesMonitor> mapToProcessesMonitorList(
-      final Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>> backlogByProcess) {
+      final Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>> backlogByProcess,
+      final Double unitsPerOrderRatio) {
     return backlogByProcess.entrySet().stream()
-        .map(backlogByProcessEntry -> new ProcessesMonitor(
-            backlogByProcessEntry.getKey(),
-            sumProcessMonitorQuantity(backlogByProcessEntry.getValue()),
-            mapToSlasMonitorList(backlogByProcessEntry.getValue())
-        ))
+        .map(backlogByProcessEntry -> resultProcessesMonitor(backlogByProcessEntry, unitsPerOrderRatio))
         .collect(Collectors.toList());
+  }
+
+  private static ProcessesMonitor resultProcessesMonitor(
+      final Map.Entry<ProcessName, Map<Instant, Map<ProcessPath, Integer>>> backlogByProcess,
+      final Double unitsPerOrderRatio
+  ) {
+    final var quantities = sumProcessMonitorQuantity(backlogByProcess.getValue());
+
+    return new ProcessesMonitor(
+        backlogByProcess.getKey(),
+        getShippingProcess().contains(backlogByProcess.getKey())
+            ? (int) (quantities / unitsPerOrderRatio)
+            : quantities,
+        mapToSlasMonitorList(backlogByProcess.getValue())
+    );
   }
 
   private static Integer sumProcessMonitorQuantity(final Map<Instant, Map<ProcessPath, Integer>> backlogBySla) {
@@ -98,5 +113,4 @@ public final class BacklogProjectionUtil {
             backlogByProcessPathEntry.getValue())
         ).collect(Collectors.toList());
   }
-
 }
