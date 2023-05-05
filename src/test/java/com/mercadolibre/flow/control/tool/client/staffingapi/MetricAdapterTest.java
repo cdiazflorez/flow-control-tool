@@ -17,7 +17,7 @@ import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.staffingapi.adapter.MetricsAdapter;
 import com.mercadolibre.flow.control.tool.client.staffingapi.dto.MetricDto;
 import com.mercadolibre.flow.control.tool.client.staffingapi.dto.MetricHistoryDto;
-import com.mercadolibre.flow.control.tool.exception.RealMetricsNotFoundException;
+import com.mercadolibre.flow.control.tool.exception.RealMetricsException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.MetricData;
@@ -53,16 +53,16 @@ class MetricAdapterTest {
   private static Stream<Arguments> provideExceptions() throws JsonProcessingException {
     return Stream.of(
         Arguments.of(
-            RealMetricsNotFoundException.class, new ClientException(
+            RealMetricsException.class, new ClientException(
                 "FLOW_STAFFING_API",
                 HttpRequest.builder()
                     .url("URL")
                     .build(),
-                new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("real_metrics_not_found"))
+                new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("real_metrics_exception"))
             )
         ),
         Arguments.of(
-            ClientException.class, new ClientException(
+            RealMetricsException.class, new ClientException(
                 "FLOW_STAFFING_API",
                 HttpRequest.builder()
                     .url("URL")

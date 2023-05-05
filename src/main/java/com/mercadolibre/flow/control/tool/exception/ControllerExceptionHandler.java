@@ -203,12 +203,12 @@ public class ControllerExceptionHandler {
    * @param ex the exception thrown during a request to external API.
    * @return {@link ResponseEntity} with 404 status code and description indicating a no content.
    */
-  @ExceptionHandler(RealMetricsNotFoundException.class)
-  public ResponseEntity<ApiError> handleRealMetricsNotFoundException(final RealMetricsNotFoundException ex) {
+  @ExceptionHandler(RealMetricsException.class)
+  public ResponseEntity<ApiError> handleRealMetricsNotFoundException(final RealMetricsException ex) {
     final ApiError apiError = new ApiError(
-        "real_metrics_not_found",
+        "real_metrics_exception",
         ex.getMessage(),
-        HttpStatus.NOT_FOUND.value()
+        ex.getStatus()
     );
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);

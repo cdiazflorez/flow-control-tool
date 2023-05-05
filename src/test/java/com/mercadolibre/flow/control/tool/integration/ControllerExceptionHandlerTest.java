@@ -14,13 +14,14 @@ import com.mercadolibre.flow.control.tool.exception.ApiException;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
-import com.mercadolibre.flow.control.tool.exception.RealMetricsNotFoundException;
+import com.mercadolibre.flow.control.tool.exception.RealMetricsException;
 import com.mercadolibre.flow.control.tool.feature.PingController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.StatusController;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.staffing.StaffingController;
+import com.mercadolibre.flow.control.tool.util.TestUtils;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.util.Set;
@@ -251,11 +252,17 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   @DisplayName("A RealMetricsNotFound exception test")
   void testRealMetricsNotFound() {
     //GIVEN
-    final String queryParams = "?workflow=fbm_wms_outbound&date_from=2023-03-28T08:00:00Z&date_to=2023-03-28T10:00:00Z";
     final Instant dateFrom = Instant.parse("2023-03-28T08:00:00Z");
     final Instant dateTo = Instant.parse("2023-03-28T10:00:00Z");
-    doThrow(new RealMetricsNotFoundException(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND.getName(), new Throwable("Error")))
-
+    final Instant viewDate = Instant.parse("2023-03-28T09:00:00Z");
+    final String queryParams = String.format(
+        "?workflow=%s&date_from=%s&date_to=%s&view_date=%s",
+        TestUtils.FBM_WMS_OUTBOUND,
+        dateFrom.toString(),
+        dateTo.toString(),
+        viewDate.toString()
+    );
+    doThrow(new RealMetricsException(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND.getName(), new Throwable("Error"), 404))
         .when(staffingController).getStaffingOperation(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, dateFrom, dateTo);
 
     //WHEN

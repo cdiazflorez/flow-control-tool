@@ -1,11 +1,9 @@
 package com.mercadolibre.flow.control.tool.client.staffingapi.adapter;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-
 import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.staffingapi.StaffingApiClient;
 import com.mercadolibre.flow.control.tool.client.staffingapi.constant.StaffingWorkflow;
-import com.mercadolibre.flow.control.tool.exception.RealMetricsNotFoundException;
+import com.mercadolibre.flow.control.tool.exception.RealMetricsException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.MetricData;
 import java.time.Instant;
@@ -40,11 +38,7 @@ public class MetricsAdapter {
           }).toList();
 
     } catch (ClientException ce) {
-      if (ce.getResponseStatus() == NOT_FOUND.value()) {
-        throw new RealMetricsNotFoundException(logisticCenterId, workflow.getName(), ce);
-      } else {
-        throw ce;
-      }
+      throw new RealMetricsException(logisticCenterId, workflow.getName(), ce, ce.getResponseStatus());
     }
   }
 }
