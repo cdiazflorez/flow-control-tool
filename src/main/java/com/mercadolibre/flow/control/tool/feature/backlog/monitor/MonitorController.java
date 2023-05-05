@@ -52,7 +52,7 @@ public class MonitorController {
       @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
-      @RequestParam(name = "view_date", required = false) final Instant viewDate
+      @RequestParam(name = "view_date") final Instant viewDate
   ) {
 
     if (!validDates(dateFrom, dateTo)) {
@@ -60,7 +60,7 @@ public class MonitorController {
       final Instant dateToProcessed = processDateTo(dateFrom, dateTo);
 
       final List<BacklogMonitor> historicalBacklog = getHistoricalBacklogUseCase.backlogHistoricalMonitor(
-          workflow, logisticCenterId, processes, dateFrom, dateToProcessed);
+          workflow, logisticCenterId, processes, dateFrom, dateToProcessed, viewDate);
 
       return ResponseEntity.ok(historicalBacklog);
     } else {

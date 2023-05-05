@@ -3,20 +3,24 @@ package com.mercadolibre.flow.control.tool.feature.monitor;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
-import com.mercadolibre.flow.control.tool.feature.entity.Grouper;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +38,8 @@ class BacklogProjectedUseCaseTest {
   private static final Instant OP_DATE2 = Instant.parse("2023-04-21T11:00:00Z");
   private static final Instant OP_DATE3 = Instant.parse("2023-04-21T12:00:00Z");
   private static final Instant DATE_OUT = Instant.parse("2023-04-22T10:00:00Z");
-  private static final List<BacklogProjectedUseCase.CurrentBacklog> CURRENT_BACKLOG = List.of(
-      new BacklogProjectedUseCase.CurrentBacklog(ProcessName.PICKING, 100)
-  );
+  private static final Instant VIEW_DATE = Instant.parse("2023-05-03T08:00:00Z");
+  private static final Map<ProcessName, Integer> CURRENT_BACKLOG = Map.of(ProcessName.PICKING, 100);
   private static final List<BacklogProjectedUseCase.PlannedBacklog> PLANNED_BACKLOGS = List.of(
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE1, DATE_OUT, 25),
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE2, DATE_OUT, 22),
@@ -108,13 +111,16 @@ class BacklogProjectedUseCaseTest {
   );
 
   @Mock
-  private BacklogProjectedUseCase.BacklogGateway backlogApiGateway;
+  private BacklogGateway backlogApiGateway;
 
   @Mock
   private BacklogProjectedUseCase.PlanningEntitiesGateway planningEntitiesGateway;
 
   @Mock
   private BacklogProjectedUseCase.BacklogProjectionGateway backlogProjectionGateway;
+
+  @Mock
+  private UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
   @InjectMocks
   private BacklogProjectedUseCase backlogProjectedUseCase;
@@ -130,11 +136,11 @@ class BacklogProjectedUseCaseTest {
   private static Stream<ParametersTest> parameterBacklog() {
     return Stream.of(
         new ParametersTest(CURRENT_BACKLOG, PLANNED_BACKLOGS, THROUGHPUT, BACKLOG, expected()),
-        new ParametersTest(emptyList(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyList(), emptyList(), THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyList(), emptyList(), emptyList(), emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), emptyList(), THROUGHPUT, emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), emptyList(), emptyList(), emptyMap(), emptyList()),
         new ParametersTest(CURRENT_BACKLOG, emptyList(), THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyList(), PLANNED_BACKLOGS, emptyList(), emptyMap(), emptyList())
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, emptyList(), emptyMap(), emptyList())
     );
   }
 
@@ -182,7 +188,7 @@ class BacklogProjectedUseCaseTest {
     whenGateways(parameters);
 
     final var response =
-        backlogProjectedUseCase.getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING));
+        backlogProjectedUseCase.getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), VIEW_DATE);
 
     assertEquals(parameters.expected, response);
   }
@@ -193,14 +199,16 @@ class BacklogProjectedUseCaseTest {
     whenGateways(parameters);
 
     final var response =
-        backlogProjectedUseCase.getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING));
+        backlogProjectedUseCase.getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), VIEW_DATE);
 
     assertEquals(parameters.expected, response);
 
   }
 
-  private void whenGateways(final ParametersTest parameters) {
-    when(backlogApiGateway.getCurrentBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, Grouper.PROCESS_NAME))
+  @ParameterizedTest
+  @MethodSource("parameterBacklog")
+  void testGetBacklogProjectedUseCaseException(final ParametersTest parameters) {
+    when(backlogApiGateway.getBacklogTotalsByProcess(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
         .thenReturn(parameters.currentBacklogs);
 
     when(planningEntitiesGateway.getPlannedBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
@@ -212,10 +220,37 @@ class BacklogProjectedUseCaseTest {
     when(backlogProjectionGateway.executeBacklogProjection(
         OP_DATE1, OP_DATE3, Set.of(ProcessName.PICKING), parameters.currentBacklogs, parameters.throughput, parameters.plannedBacklogs))
         .thenReturn(parameters.backlog);
+
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
+        .thenReturn(Optional.of(0.0));
+
+    assertThrows(
+        NoUnitsPerOrderRatioFound.class,
+        () -> backlogProjectedUseCase
+            .getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), VIEW_DATE)
+    );
+  }
+
+  private void whenGateways(final ParametersTest parameters) {
+    when(backlogApiGateway.getBacklogTotalsByProcess(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
+        .thenReturn(parameters.currentBacklogs);
+
+    when(planningEntitiesGateway.getPlannedBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
+        .thenReturn(parameters.plannedBacklogs);
+
+    when(planningEntitiesGateway.getThroughput(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3, Set.of(ProcessName.PICKING)))
+        .thenReturn(parameters.throughput);
+
+    when(backlogProjectionGateway.executeBacklogProjection(
+        OP_DATE1, OP_DATE3, Set.of(ProcessName.PICKING), parameters.currentBacklogs, parameters.throughput, parameters.plannedBacklogs))
+        .thenReturn(parameters.backlog);
+
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
+        .thenReturn(Optional.of(3.96));
   }
 
   private record ParametersTest(
-      List<BacklogProjectedUseCase.CurrentBacklog> currentBacklogs,
+      Map<ProcessName, Integer> currentBacklogs,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs,
       List<BacklogProjectedUseCase.Throughput> throughput,
       Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlog,

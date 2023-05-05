@@ -1,6 +1,8 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.status;
 
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -18,8 +20,9 @@ public class BacklogStatusUseCase {
 
   private static final Integer DEFAULT_PROCESS_TOTAL = 0;
 
-  final BacklogGateway backlogGateway;
-  final UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
+  private final BacklogGateway backlogGateway;
+
+  private final UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
   public BacklogStatus getBacklogStatus(
       final String logisticCenterId,
@@ -67,47 +70,6 @@ public class BacklogStatusUseCase {
     return new BacklogStatus(
         unitsByProcess,
         null
-    );
-  }
-
-  /**
-   * Interface for methods used across the Backlog Status.
-   */
-  public interface BacklogGateway {
-
-    /**
-     * The implementation should return the backlog given by process and its total units|orders.
-     *
-     * @param logisticCenterId logistic center id.
-     * @param workflow         outbound
-     * @param processes        list of processes to be requested.
-     * @param viewDate         base date to backlog.
-     * @return map with amount of units by each process.
-     */
-    Map<ProcessName, Integer> getBacklogTotalsByProcess(
-        String logisticCenterId,
-        Workflow workflow,
-        Set<ProcessName> processes,
-        Instant viewDate
-    );
-  }
-
-  /**
-   * Interface for methods used across the Forecast Metadata.
-   */
-  public interface UnitsPerOrderRatioGateway {
-    /**
-     * The implementation should return the ratio.
-     *
-     * @param logisticCenterId outbound
-     * @param warehouseId      logistic center id
-     * @param viewDate         base date to backlog.
-     * @return optional of double.
-     */
-    Optional<Double> getUnitsPerOrderRatio(
-        Workflow logisticCenterId,
-        String warehouseId,
-        Instant viewDate
     );
   }
 

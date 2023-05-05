@@ -37,7 +37,7 @@ public class StatusTestUtils {
         PACKING,
         PACKING_WALL,
         HU_ASSEMBLY,
-            SHIPPING
+        SHIPPING
     );
   }
 

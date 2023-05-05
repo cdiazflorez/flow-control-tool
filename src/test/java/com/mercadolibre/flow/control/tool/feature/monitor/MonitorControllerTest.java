@@ -157,7 +157,8 @@ public class MonitorControllerTest {
             ProcessName.SHIPPING
         ),
         Instant.parse(DATE_FROM_STRING),
-        Instant.parse(DATE_TO_STRING)
+        Instant.parse(DATE_TO_STRING),
+        Instant.parse(VIEW_DATE_STRING)
     )).thenReturn(HISTORICAL_BACKLOG_MOCK);
 
     // WHEN
@@ -213,7 +214,8 @@ public class MonitorControllerTest {
             ProcessName.SHIPPING
         ),
         Instant.parse(DATE_FROM_STRING),
-        Instant.parse("2023-03-24T13:00:00Z")
+        Instant.parse("2023-03-24T13:00:00Z"),
+        Instant.parse(VIEW_DATE_STRING)
     )).thenReturn(HISTORICAL_BACKLOG_MOCK);
 
     // WHEN
@@ -267,7 +269,8 @@ public class MonitorControllerTest {
             ProcessName.HU_ASSEMBLY,
             ProcessName.SHIPPING),
         Instant.parse(DATE_FROM_STRING),
-        Instant.parse(DATE_TO_STRING)
+        Instant.parse(DATE_TO_STRING),
+        Instant.parse(VIEW_DATE_STRING)
     )).thenReturn(HISTORICAL_BACKLOG_MOCK);
 
     // WHEN

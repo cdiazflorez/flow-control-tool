@@ -5,7 +5,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelA
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
-import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase.UnitsPerOrderRatioGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.time.ZoneOffset;

@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto.constant;
 
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.Getter;
@@ -36,7 +37,9 @@ public enum PhotoStep {
   }
 
   public static Optional<PhotoStep> of(final String value) {
-    return Optional.of(from(value));
+    return Arrays.stream(PhotoStep.values())
+        .filter(photoStep -> value.toLowerCase(Locale.ROOT).equals(photoStep.getName()))
+        .findFirst();
   }
 
   public String getName() {
