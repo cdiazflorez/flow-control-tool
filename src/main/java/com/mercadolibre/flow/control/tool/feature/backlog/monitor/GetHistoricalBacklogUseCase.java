@@ -3,7 +3,7 @@ package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
@@ -63,7 +63,7 @@ public class GetHistoricalBacklogUseCase {
    * Get map backlog by date, process, sla and process path.
    */
   public interface BacklogGateway {
-    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> getBacklogByDateProcessAndPP(
+    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> getBacklogByDateProcessAndPP(
         Workflow workflow, String logisticCenter, Set<ProcessName> processes, Instant dateFrom, Instant dateTo);
   }
 }

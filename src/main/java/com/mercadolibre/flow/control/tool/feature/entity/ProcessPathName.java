@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public enum ProcessPath {
+public enum ProcessPathName {
   TOT_MONO,
   NON_TOT_MONO,
   TOT_MULTI_BATCH,
@@ -21,25 +21,27 @@ public enum ProcessPath {
   TOT_SINGLE_SKU,
   GLOBAL;
 
-  private static final Map<String, ProcessPath> LOOKUP = Arrays.stream(values()).collect(toMap(ProcessPath::toString, Function.identity()));
+  private static final Map<String, ProcessPathName> LOOKUP = Arrays.stream(values()).collect(
+      toMap(ProcessPathName::toString, Function.identity())
+  );
 
-  public static ProcessPath from(final String value) {
+  public static ProcessPathName from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 
-  public static Optional<ProcessPath> of(final String value) {
+  public static Optional<ProcessPathName> of(final String value) {
     return Optional.ofNullable(LOOKUP.get(value.toUpperCase(Locale.US).replace('-', '_')));
   }
 
-  public static List<ProcessPath> multiBatchPaths() {
+  public static List<ProcessPathName> multiBatchPaths() {
     return List.of(TOT_MULTI_BATCH, NON_TOT_MULTI_BATCH);
   }
 
-  public static List<ProcessPath> pathsMinusMultiBatch() {
+  public static List<ProcessPathName> pathsMinusMultiBatch() {
     return List.of(TOT_MONO, NON_TOT_MONO, TOT_MULTI_ORDER, NON_TOT_MULTI_ORDER, TOT_SINGLE_SKU, GLOBAL);
   }
 
-  public static List<ProcessPath> allPaths() {
+  public static List<ProcessPathName> allPaths() {
     return Stream.concat(multiBatchPaths().stream(), pathsMinusMultiBatch().stream()).toList();
   }
 

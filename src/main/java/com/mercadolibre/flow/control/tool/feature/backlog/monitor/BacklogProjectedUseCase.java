@@ -5,7 +5,7 @@ import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.Backlog
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
@@ -74,7 +74,7 @@ public class BacklogProjectedUseCase {
    * Gateway planning api to execute backlog projection.
    */
   public interface BacklogProjectionGateway {
-    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> executeBacklogProjection(
+    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> executeBacklogProjection(
         Instant dateFrom,
         Instant dateTo,
         Set<ProcessName> process,
@@ -85,7 +85,7 @@ public class BacklogProjectedUseCase {
 
   public record Throughput(
       Instant date,
-      ProcessPath processPath,
+      ProcessPathName processPathName,
       ProcessName processName,
       Integer quantity
   ) {

@@ -19,7 +19,7 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Collections;
@@ -85,42 +85,42 @@ class BacklogHistoricalAdapterTest {
             PHOTO_DATE,
             DATE_TO);
 
-    final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> expected =
+    final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> expected =
         Map.of(
             PHOTO_DATE, Map.of(
                 WAVING, Map.of(
                     Instant.parse(DATE_OUT_1),
-                    Map.of(ProcessPath.TOT_MULTI_BATCH, 700),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 700),
                     Instant.parse(DATE_OUT_2),
-                    Map.of(ProcessPath.TOT_MULTI_BATCH, 700)),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 700)),
                 BATCH_SORTER, Map.of(
                     Instant.parse(DATE_OUT_1),
                     Map.of(
-                        ProcessPath.TOT_MULTI_BATCH, 500,
-                        ProcessPath.NON_TOT_MULTI_BATCH, 1000),
+                        ProcessPathName.TOT_MULTI_BATCH, 500,
+                        ProcessPathName.NON_TOT_MULTI_BATCH, 1000),
                     Instant.parse(DATE_OUT_2),
-                    Map.of(ProcessPath.TOT_MULTI_BATCH, 500)),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 500)),
                 PACKING_WALL, Map.of(
                     Instant.parse(DATE_OUT_1),
-                    Map.of(ProcessPath.TOT_MULTI_BATCH, 1000),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 1000),
                     Instant.parse(DATE_OUT_2),
-                    Map.of(ProcessPath.TOT_MULTI_BATCH, 1000))
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 1000))
             )
         );
-    assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH));
-    assertEquals(expected.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH));
-    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.TOT_MULTI_BATCH));
-    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.NON_TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPath.NON_TOT_MULTI_BATCH));
-    assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_2)).get(ProcessPath.TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_2)).get(ProcessPath.TOT_MULTI_BATCH));
-    assertEquals(expected.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_2)).get(ProcessPath.TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_2)).get(ProcessPath.TOT_MULTI_BATCH));
-    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_2)).get(ProcessPath.TOT_MULTI_BATCH),
-        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_2)).get(ProcessPath.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.NON_TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.NON_TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH));
   }
 
   @Test

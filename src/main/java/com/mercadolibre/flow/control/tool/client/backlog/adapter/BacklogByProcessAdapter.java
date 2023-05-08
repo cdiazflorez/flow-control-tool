@@ -11,7 +11,7 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Map;
@@ -49,9 +49,9 @@ public class BacklogByProcessAdapter implements BacklogGateway {
     }
 
     final var unitsByProcess = groups.groups().stream()
-        .filter(group -> ProcessPath.of(group.key().get(PATH)).isPresent() && PhotoStep.of(group.key().get(STEP)).isPresent())
+        .filter(group -> ProcessPathName.of(group.key().get(PATH)).isPresent() && PhotoStep.of(group.key().get(STEP)).isPresent())
         .collect(Collectors.toMap(
-            group -> pathAndStepToProcessName(ProcessPath.from(group.key().get(PATH)), PhotoStep.from(group.key().get(STEP))),
+            group -> pathAndStepToProcessName(ProcessPathName.from(group.key().get(PATH)), PhotoStep.from(group.key().get(STEP))),
             PhotoResponse.Group::total,
             Integer::sum
         ));

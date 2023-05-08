@@ -1,9 +1,9 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto;
 
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 
 public record ProcessPathMonitor(
-    ProcessPath name,
+    ProcessPathName name,
     Integer quantity
 ) {
 }

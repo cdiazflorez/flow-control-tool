@@ -2,7 +2,7 @@ package com.mercadolibre.flow.control.tool.client;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class AdapterAux implements BacklogProjectedUseCase.PlanningEntitiesGatew
   }
 
   @Override
-  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> executeBacklogProjection(
+  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> executeBacklogProjection(
       Instant dateFrom,
       Instant dateTo,
       Set<ProcessName> process,

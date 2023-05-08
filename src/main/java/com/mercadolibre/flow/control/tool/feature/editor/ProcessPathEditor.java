@@ -2,7 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.editor;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.beans.PropertyEditorSupport;
 import java.util.Arrays;
 
@@ -17,15 +17,15 @@ public class ProcessPathEditor extends PropertyEditorSupport {
       throw new IllegalArgumentException("Value should not be blank");
     }
 
-    final ProcessPath processPath = ProcessPath.of(text)
+    final ProcessPathName processPathName = ProcessPathName.of(text)
         .orElseThrow(
             () -> new IllegalArgumentException(
                 String.format(
-                    MESSAGE_PATTERN, text, Arrays.toString(ProcessPath.values())
+                    MESSAGE_PATTERN, text, Arrays.toString(ProcessPathName.values())
                 )
             )
         );
 
-    setValue(processPath);
+    setValue(processPathName);
   }
 }

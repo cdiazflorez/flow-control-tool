@@ -12,6 +12,8 @@ import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.RequestBodyHandler;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
@@ -31,9 +33,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class PlanningModelApiClient extends HttpClient {
 
-  private static final String GET_FORECAST_METADATA = "/planning/model/workflows/%s/metadata";
+  private static final String GET_BACKLOG_PROJECTION_URL = "/logistic_center/%s/projections/backlog";
 
-  private static final String GET_ALL_STAFFING_DATA = "/planning/model/workflows/%s/entities/search";
+  private static final String GET_FORECAST_METADATA_URL = "/planning/model/workflows/%s/metadata";
+
+  private static final String GET_ALL_STAFFING_DATA_URL = "/planning/model/workflows/%s/entities/search";
 
   private static final String WAREHOUSE_ID = "warehouse_id";
 
@@ -47,11 +51,28 @@ public class PlanningModelApiClient extends HttpClient {
   }
 
   @Trace
+  public List<BacklogProjectionResponse> getBacklogProjection(
+      final String logisticCenterId,
+      final BacklogProjectionRequest backlogProjectionRequest
+  ) {
+    final HttpRequest request = HttpRequest.builder()
+        .url(format(GET_BACKLOG_PROJECTION_URL, logisticCenterId))
+        .POST(requestSupplier(backlogProjectionRequest))
+        .acceptedHttpStatuses(Set.of(OK))
+        .build();
+
+    return send(
+        request,
+        response -> response.getData(new TypeReference<>() {
+        }));
+  }
+
+  @Trace
   public List<Metadata> getForecastMetadata(final PlanningWorkflow planningWorkflow,
                                             final String logisticCenterId,
                                             final ZonedDateTime viewDate) {
     final HttpRequest request = HttpRequest.builder()
-        .url(format(GET_FORECAST_METADATA, planningWorkflow))
+        .url(format(GET_FORECAST_METADATA_URL, planningWorkflow))
         .GET()
         .queryParams(createForecastMetadataParams(logisticCenterId, viewDate))
         .acceptedHttpStatuses(Set.of(OK))
@@ -66,7 +87,7 @@ public class PlanningModelApiClient extends HttpClient {
   @Trace
   public Map<EntityType, List<EntityDataDto>> searchEntities(final EntityRequestDto entityRequestDto) {
     final HttpRequest request = HttpRequest.builder()
-        .url(format(GET_ALL_STAFFING_DATA, entityRequestDto.workflow()))
+        .url(format(GET_ALL_STAFFING_DATA_URL, entityRequestDto.workflow()))
         .POST(requestSupplier(entityRequestDto))
         .acceptedHttpStatuses(Set.of(OK))
         .build();

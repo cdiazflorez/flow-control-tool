@@ -15,7 +15,7 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPat
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
@@ -33,30 +33,46 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class BacklogProjectedUseCaseTest {
   private static final Workflow WORKFLOW = Workflow.FBM_WMS_OUTBOUND;
+
   private static final String LOGISTIC_CENTER = "ARTW01";
+
   private static final Instant OP_DATE1 = Instant.parse("2023-04-21T10:00:00Z");
+
   private static final Instant OP_DATE2 = Instant.parse("2023-04-21T11:00:00Z");
+
   private static final Instant OP_DATE3 = Instant.parse("2023-04-21T12:00:00Z");
+
   private static final Instant DATE_OUT = Instant.parse("2023-04-22T10:00:00Z");
+
   private static final Instant VIEW_DATE = Instant.parse("2023-05-03T08:00:00Z");
+
   private static final Map<ProcessName, Integer> CURRENT_BACKLOG = Map.of(ProcessName.PICKING, 100);
+
   private static final List<BacklogProjectedUseCase.PlannedBacklog> PLANNED_BACKLOGS = List.of(
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE1, DATE_OUT, 25),
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE2, DATE_OUT, 22),
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE3, DATE_OUT, 100)
   );
+
   private static final List<BacklogProjectedUseCase.Throughput> THROUGHPUT = List.of(
-      new BacklogProjectedUseCase.Throughput(OP_DATE1, ProcessPath.TOT_MONO, ProcessName.PICKING, 100),
-      new BacklogProjectedUseCase.Throughput(OP_DATE2, ProcessPath.TOT_MONO, ProcessName.PICKING, 75),
-      new BacklogProjectedUseCase.Throughput(OP_DATE3, ProcessPath.TOT_MONO, ProcessName.PICKING, 50),
-      new BacklogProjectedUseCase.Throughput(OP_DATE1, ProcessPath.TOT_MULTI_BATCH, ProcessName.PICKING, 50),
-      new BacklogProjectedUseCase.Throughput(OP_DATE2, ProcessPath.TOT_MULTI_BATCH, ProcessName.PICKING, 75),
-      new BacklogProjectedUseCase.Throughput(OP_DATE3, ProcessPath.TOT_MULTI_BATCH, ProcessName.PICKING, 100)
+      new BacklogProjectedUseCase.Throughput(OP_DATE1, ProcessPathName.TOT_MONO, ProcessName.PICKING, 100),
+      new BacklogProjectedUseCase.Throughput(OP_DATE2, ProcessPathName.TOT_MONO, ProcessName.PICKING, 75),
+      new BacklogProjectedUseCase.Throughput(OP_DATE3, ProcessPathName.TOT_MONO, ProcessName.PICKING, 50),
+      new BacklogProjectedUseCase.Throughput(OP_DATE1, ProcessPathName.TOT_MULTI_BATCH, ProcessName.PICKING, 50),
+      new BacklogProjectedUseCase.Throughput(OP_DATE2, ProcessPathName.TOT_MULTI_BATCH, ProcessName.PICKING, 75),
+      new BacklogProjectedUseCase.Throughput(OP_DATE3, ProcessPathName.TOT_MULTI_BATCH, ProcessName.PICKING, 100)
   );
-  private static final Map<ProcessPath, Integer> BACKLOG_BY_PROCESS1 = Map.of(ProcessPath.TOT_MONO, 25, ProcessPath.TOT_MULTI_BATCH, 175);
-  private static final Map<ProcessPath, Integer> BACKLOG_BY_PROCESS2 = Map.of(ProcessPath.TOT_MONO, 0, ProcessPath.TOT_MULTI_BATCH, 0);
-  private static final Map<ProcessPath, Integer> BACKLOG_BY_PROCESS3 = Map.of(ProcessPath.TOT_MONO, 22, ProcessPath.TOT_MULTI_BATCH, 0);
-  private static final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> BACKLOG = Map.of(
+
+  private static final Map<ProcessPathName, Integer> BACKLOG_BY_PROCESS1 = Map.of(
+      ProcessPathName.TOT_MONO, 25, ProcessPathName.TOT_MULTI_BATCH, 175);
+
+  private static final Map<ProcessPathName, Integer> BACKLOG_BY_PROCESS2 = Map.of(
+      ProcessPathName.TOT_MONO, 0, ProcessPathName.TOT_MULTI_BATCH, 0);
+
+  private static final Map<ProcessPathName, Integer> BACKLOG_BY_PROCESS3 = Map.of(
+      ProcessPathName.TOT_MONO, 22, ProcessPathName.TOT_MULTI_BATCH, 0);
+
+  private static final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> BACKLOG = Map.of(
       OP_DATE1,
       Map.of(
           ProcessName.PICKING,
@@ -74,7 +90,7 @@ class BacklogProjectedUseCaseTest {
       )
   );
 
-  private static final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> BACKLOG_DISORDER1 = Map.of(
+  private static final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> BACKLOG_DISORDER1 = Map.of(
       OP_DATE2,
       Map.of(
           ProcessName.PICKING,
@@ -92,7 +108,7 @@ class BacklogProjectedUseCaseTest {
       )
   );
 
-  private static final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> BACKLOG_DISORDER2 = Map.of(
+  private static final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> BACKLOG_DISORDER2 = Map.of(
       OP_DATE3,
       Map.of(
           ProcessName.PICKING,
@@ -151,7 +167,11 @@ class BacklogProjectedUseCaseTest {
     );
   }
 
-  private static BacklogMonitor backlogMonitorMock(final Instant date, final Integer quantityTotMono, final Integer quantityTotMultiBatch) {
+  private static BacklogMonitor backlogMonitorMock(
+      final Instant date,
+      final Integer quantityTotMono,
+      final Integer quantityTotMultiBatch
+  ) {
 
     final Integer totalQuantity = quantityTotMono + quantityTotMultiBatch;
 
@@ -165,11 +185,11 @@ class BacklogProjectedUseCaseTest {
                         totalQuantity,
                         List.of(
                             new ProcessPathMonitor(
-                                ProcessPath.TOT_MONO,
+                                ProcessPathName.TOT_MONO,
                                 quantityTotMono
                             ),
                             new ProcessPathMonitor(
-                                ProcessPath.TOT_MULTI_BATCH,
+                                ProcessPathName.TOT_MULTI_BATCH,
                                 quantityTotMultiBatch
                             )
                         )
@@ -187,8 +207,14 @@ class BacklogProjectedUseCaseTest {
   void testGetBacklogProjectedUseCase(final ParametersTest parameters) {
     whenGateways(parameters);
 
-    final var response =
-        backlogProjectedUseCase.getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), VIEW_DATE);
+    final var response = backlogProjectedUseCase.getBacklogProjected(
+        OP_DATE1,
+        OP_DATE3,
+        LOGISTIC_CENTER,
+        WORKFLOW,
+        Set.of(ProcessName.PICKING),
+        VIEW_DATE
+    );
 
     assertEquals(parameters.expected, response);
   }
@@ -198,8 +224,14 @@ class BacklogProjectedUseCaseTest {
   void testOrderOperationDate(final ParametersTest parameters) {
     whenGateways(parameters);
 
-    final var response =
-        backlogProjectedUseCase.getBacklogProjected(OP_DATE1, OP_DATE3, LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), VIEW_DATE);
+    final var response = backlogProjectedUseCase.getBacklogProjected(
+        OP_DATE1,
+        OP_DATE3,
+        LOGISTIC_CENTER,
+        WORKFLOW,
+        Set.of(ProcessName.PICKING),
+        VIEW_DATE
+    );
 
     assertEquals(parameters.expected, response);
 
@@ -238,11 +270,23 @@ class BacklogProjectedUseCaseTest {
     when(planningEntitiesGateway.getPlannedBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
         .thenReturn(parameters.plannedBacklogs);
 
-    when(planningEntitiesGateway.getThroughput(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3, Set.of(ProcessName.PICKING)))
+    when(planningEntitiesGateway.getThroughput(
+        WORKFLOW,
+        LOGISTIC_CENTER,
+        OP_DATE1,
+        OP_DATE3,
+        Set.of(ProcessName.PICKING)
+    ))
         .thenReturn(parameters.throughput);
 
     when(backlogProjectionGateway.executeBacklogProjection(
-        OP_DATE1, OP_DATE3, Set.of(ProcessName.PICKING), parameters.currentBacklogs, parameters.throughput, parameters.plannedBacklogs))
+        OP_DATE1,
+        OP_DATE3,
+        Set.of(ProcessName.PICKING),
+        parameters.currentBacklogs,
+        parameters.throughput,
+        parameters.plannedBacklogs
+    ))
         .thenReturn(parameters.backlog);
 
     when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
@@ -253,7 +297,7 @@ class BacklogProjectedUseCaseTest {
       Map<ProcessName, Integer> currentBacklogs,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs,
       List<BacklogProjectedUseCase.Throughput> throughput,
-      Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlog,
+      Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlog,
       List<BacklogMonitor> expected
   ) {
   }
