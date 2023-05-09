@@ -1,15 +1,12 @@
 package com.mercadolibre.flow.control.tool.util;
 
+import com.mercadolibre.flow.control.tool.exception.InvalidDateRangeException;
 import java.time.Duration;
 import java.time.Instant;
 
 public final class DateUtils {
 
   private DateUtils() {
-  }
-
-  public static boolean validDates(final Instant dateFrom, final Instant dateTo) {
-    return dateFrom.isAfter(dateTo);
   }
 
   public static boolean isDifferenceBetweenDateBiggestThan(
@@ -20,5 +17,11 @@ public final class DateUtils {
     final long differenceBetweenDates = Duration.between(dateFrom, dateTo).toHours();
 
     return differenceBetweenDates > hours;
+  }
+
+  public static void validateDateRange(final Instant dateFrom, final Instant dateTo) {
+    if (dateFrom.isAfter(dateTo)) {
+      throw new InvalidDateRangeException(dateFrom, dateTo);
+    }
   }
 }

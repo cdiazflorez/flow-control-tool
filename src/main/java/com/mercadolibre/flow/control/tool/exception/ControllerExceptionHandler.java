@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 /**
@@ -202,13 +203,40 @@ public class ControllerExceptionHandler {
    * @param ex the exception thrown during a request to external API.
    * @return {@link ResponseEntity} with 404 status code and description indicating a no content.
    */
-  @ExceptionHandler(RealMetricsNotFoundException.class)
-  public ResponseEntity<ApiError> handleRealMetricsNotFoundException(final RealMetricsNotFoundException ex) {
+  @ExceptionHandler(RealMetricsException.class)
+  public ResponseEntity<ApiError> handleRealMetricsNotFoundException(final RealMetricsException ex) {
     final ApiError apiError = new ApiError(
-        "real_metrics_not_found",
+        "real_metrics_exception",
         ex.getMessage(),
-        HttpStatus.NOT_FOUND.value()
+        ex.getStatus()
     );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  @ExceptionHandler(InvalidDateRangeException.class)
+  public ResponseEntity<ApiError> handleDateRangeException(final InvalidDateRangeException ex) {
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        ex.getMessage(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    LOGGER.error(apiError.getError());
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+
+  @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+  public ResponseEntity<ApiError> handleConversionFailException(final MethodArgumentTypeMismatchException ex) {
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        ex.getMessage(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    LOGGER.error(apiError.getError());
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
   }

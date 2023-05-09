@@ -4,10 +4,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
@@ -90,6 +90,8 @@ class GetHistoricalBacklogUseCaseTest {
 
   private static final Set<ProcessName> PROCESS_NAMES =
       Set.of(ProcessName.PICKING, ProcessName.PACKING, ProcessName.HU_ASSEMBLY, ProcessName.SHIPPING);
+  private static final Set<ProcessName> PROCESS_NAMES_2 =
+      Set.of(ProcessName.PICKING, ProcessName.PACKING);
 
   @InjectMocks
   private GetHistoricalBacklogUseCase backlogHistoricalUseCase;
@@ -157,21 +159,26 @@ class GetHistoricalBacklogUseCaseTest {
 
   @Test
   void obtainBacklogHistoricalException() {
+    // GIVEN
     final var dateFrom = DATE1;
     final var dateTo = DATE2;
-
+    final var expected = List.of(new BacklogMonitor(DATE1, List.of()), new BacklogMonitor(DATE2, List.of()));
     when(backlogGateway.getBacklogByDateProcessAndPP(
-        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
+        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES_2, dateFrom, dateTo))
         .thenReturn(backlogNullProcessMock());
 
     when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(WORKFLOW, LOGISTIC_CENTER, VIEW_DATE))
-        .thenReturn(Optional.of(0.0));
+        .thenReturn(Optional.empty());
 
-    assertThrows(
-        NoUnitsPerOrderRatioFound.class,
-        () -> backlogHistoricalUseCase.backlogHistoricalMonitor(
-            Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE)
-    );
+    // WHEN
+    var response = backlogHistoricalUseCase
+        .backlogHistoricalMonitor(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE);
+
+    // THEN
+    //When we call not obtain the ratio then should call getBacklogByDateProcessAndPP() method without shipping process.
+    verify(backlogGateway, times(1))
+        .getBacklogByDateProcessAndPP(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES_2, dateFrom, dateTo);
+    assertEquals(expected, response);
   }
 
   private void assertionEmptyGroups(final List<BacklogMonitor> response) {

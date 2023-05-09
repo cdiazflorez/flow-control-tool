@@ -1,6 +1,5 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
-import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -31,23 +31,32 @@ public class GetHistoricalBacklogUseCase {
       final Instant dateFrom,
       final Instant dateTo,
       final Instant viewDate) {
-    final var backlogHistorical = backlogGateway.getBacklogByDateProcessAndPP(
-        workflow, logisticCenterId, processes, dateFrom, dateTo);
 
     final Optional<Double> getUnitsPerOrderRatio =
-        unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate);
+        unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate)
+            .filter(ratio -> ratio >= MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO);
 
-    final Double unitsPerOrderRatio = getUnitsPerOrderRatio
-        .filter(ratio -> ratio >= MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO)
-        .orElseThrow(
-            () -> new NoUnitsPerOrderRatioFound(logisticCenterId)
-        );
+    final Double unitsPerOrderRatio = getUnitsPerOrderRatio.orElse(0D);
+
+    final Set<ProcessName> historicalProcesses =
+        getCalculableProcesses(processes, getUnitsPerOrderRatio);
+
+    final var backlogHistorical = backlogGateway.getBacklogByDateProcessAndPP(
+        workflow, logisticCenterId, historicalProcesses, dateFrom, dateTo);
 
     List<BacklogMonitor> response = BacklogProjectionUtil.sumBacklogProjection(backlogHistorical, unitsPerOrderRatio);
 
     BacklogProjectionUtil.order(response);
-
     return response;
+  }
+
+  private Set<ProcessName> getCalculableProcesses(final Set<ProcessName> processes, final Optional<Double> getUnitsPerOrderRatio) {
+    return getUnitsPerOrderRatio.map(r -> processes)
+        .orElse(
+            processes.stream()
+                .filter(processName -> !ProcessName.getShippingProcess().contains(processName))
+                .collect(Collectors.toSet())
+        );
   }
 
   /**

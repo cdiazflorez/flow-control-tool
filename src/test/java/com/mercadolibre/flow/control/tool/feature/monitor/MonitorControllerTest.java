@@ -1,5 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.monitor;
 
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.TOT_MONO;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
@@ -9,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
@@ -21,6 +24,7 @@ import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.json.JSONObject;
@@ -86,6 +90,15 @@ public class MonitorControllerTest {
 
   private static final String ERROR = "error";
 
+  private static final Set<ProcessName> PROCESS_NAMES = Set.of(
+      ProcessName.PICKING,
+      ProcessName.BATCH_SORTER,
+      ProcessName.WALL_IN,
+      ProcessName.PACKING,
+      ProcessName.PACKING_WALL,
+      ProcessName.HU_ASSEMBLY,
+      ProcessName.SHIPPING);
+
   private static final List<BacklogMonitor> HISTORICAL_BACKLOG_MOCK =
       List.of(
           new BacklogMonitor(
@@ -133,12 +146,56 @@ public class MonitorControllerTest {
           )
       );
 
-
+  private static final List<BacklogMonitor> BACKLOG_PROJECTED_MOCK =
+      List.of(new BacklogMonitor(
+              Instant.parse(DATE_FROM_STRING),
+              List.of(
+                  new ProcessesMonitor(
+                      ProcessName.WALL_IN,
+                      20,
+                      List.of(
+                          new SlasMonitor(
+                              Instant.parse(DATE_FROM_STRING),
+                              0,
+                              List.of(
+                                  new ProcessPathMonitor(TOT_MONO, 0),
+                                  new ProcessPathMonitor(NON_TOT_MONO, 0)
+                              )
+                          ),
+                          new SlasMonitor(
+                              Instant.parse(DATE_FROM_STRING).plus(1, HOURS),
+                              5,
+                              List.of(
+                                  new ProcessPathMonitor(TOT_MONO, 2),
+                                  new ProcessPathMonitor(NON_TOT_MONO, 3)
+                              )
+                          )
+                      )
+                  )
+              )
+          )
+      );
   @Autowired
   private MockMvc mvc;
 
   @MockBean
   private GetHistoricalBacklogUseCase getHistoricalBacklogUseCase;
+
+  @MockBean
+  private BacklogProjectedUseCase backlogProjectedUseCase;
+
+  private static Stream<Arguments> backlogLimitsProvider() {
+    return Stream.of(
+        Arguments.of("FBM_WMS_OUTBOUND",
+            Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+            DATE_FROM_STRING,
+            DATE_TO_STRING),
+        Arguments.of("FBM_WM_OUTBOUND",
+            Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+            DATE_FROM_STRING,
+            DATE_TO_STRING)
+    );
+  }
 
   @Test
   void testGetBacklogHistorical() throws Exception {
@@ -367,14 +424,27 @@ public class MonitorControllerTest {
     // THEN
     result.andExpect(status().isBadRequest());
     result.andExpect(r ->
-        Assertions.assertEquals("dateFrom must be less than dateTo", r.getResolvedException().getMessage())
+        Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
+            Objects.requireNonNull(r.getResolvedException()).getMessage())
     );
+  }
+
+  private void whenBacklogProjectionUseCase() {
+    when(backlogProjectedUseCase.getBacklogProjected(Instant.parse(DATE_FROM_STRING),
+        Instant.parse(DATE_TO_STRING),
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        PROCESS_NAMES,
+        Instant.parse(VIEW_DATE_STRING)
+    )).thenReturn(BACKLOG_PROJECTED_MOCK);
   }
 
   @Test
   void testGetBacklogProjections() throws Exception {
 
     // WHEN
+    whenBacklogProjectionUseCase();
+
     final var result = mvc.perform(
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
@@ -397,16 +467,15 @@ public class MonitorControllerTest {
                 "non_tot_mono",
                 "tot_mono"
             )))
-            .param(VIEW_DATE, "2023-03-28T10:00:00Z")
-            .param(DATE_FROM, "2023-03-28T07:00:00Z")
-            .param(DATE_TO, "2023-03-29T20:00:00Z")
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
     result.andExpect(status().isOk())
         .andExpect(
-            content()
-                .json(getResourceAsString("monitor/controller_response_get_backlog_projections.json"))
+            content().json(getResourceAsString("monitor/controller_response_get_backlog_projections.json"))
         );
   }
 
@@ -414,6 +483,8 @@ public class MonitorControllerTest {
   void testGetBacklogProjectionsWithoutParams() throws Exception {
 
     // WHEN
+    whenBacklogProjectionUseCase();
+
     final var result = mvc.perform(
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
             .param(WORKFLOW, FBM_WMS_OUTBOUND)
@@ -426,9 +497,9 @@ public class MonitorControllerTest {
                 HU_ASSEMBLY,
                 SHIPPING
             )))
-            .param(VIEW_DATE, "2023-03-28T10:00:00Z")
-            .param(DATE_FROM, "2023-03-28T07:00:00Z")
-            .param(DATE_TO, "2023-03-29T20:00:00Z")
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -471,7 +542,61 @@ public class MonitorControllerTest {
     );
 
     // THEN
-    result.andExpect(status().is5xxServerError()).andExpect(status().isInternalServerError());
+    result.andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testGetBacklogProjectionsBadRequestDate() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
+            )))
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, DATE_TO_STRING)
+            .param(DATE_TO, DATE_FROM_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().isBadRequest());
+    result.andExpect(r ->
+        Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
+            Objects.requireNonNull(r.getResolvedException()).getMessage())
+    );
+  }
+
+  @Test
+  void testGetBacklogProjectionsBadRequestFormatDate() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(PROCESSES, String.join(",", Arrays.asList(
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL,
+                HU_ASSEMBLY,
+                SHIPPING
+            )))
+            .param(VIEW_DATE, VIEW_DATE_STRING)
+            .param(DATE_FROM, "adsadsa")
+            .param(DATE_TO, DATE_FROM_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().isBadRequest());
   }
 
   @Test
@@ -501,8 +626,8 @@ public class MonitorControllerTest {
                 "tot_mono"
             )))
             .param(VIEW_DATE, "2023-03-15T10:00:00Z")
-            .param(DATE_FROM, "2023-03-15T07:00:00Z")
-            .param(DATE_TO, "2023-03-16T20:00:00Z")
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -530,8 +655,8 @@ public class MonitorControllerTest {
                 SHIPPING
             )))
             .param(VIEW_DATE, "2023-03-15T10:00:00Z")
-            .param(DATE_FROM, "2023-03-15T07:00:00Z")
-            .param(DATE_TO, "2023-03-16T20:00:00Z")
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -569,8 +694,8 @@ public class MonitorControllerTest {
                 "tot_mono"
             )))
             .param(VIEW_DATE, "2023-03-15T10:00:00Z")
-            .param(DATE_FROM, "2023-03-15T07:00:00Z")
-            .param(DATE_TO, "2023-03-16T20:00:00Z")
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -638,8 +763,8 @@ public class MonitorControllerTest {
                 "shipping",
                 "waving"
             )))
-            .param(DATE_FROM, "2023-03-15T07:00:00Z")
-            .param(DATE_TO, "2023-03-16T20:00:00Z")
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -666,8 +791,8 @@ public class MonitorControllerTest {
                 "hu_assembly",
                 "shipped"
             )))
-            .param(DATE_FROM, "2023-03-15T07:00:00Z")
-            .param(DATE_TO, "2023-03-16T20:00:00Z")
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
     );
 
     // THEN
@@ -692,19 +817,6 @@ public class MonitorControllerTest {
 
     // THEN
     result.andExpect(status().isBadRequest());
-  }
-
-  private static Stream<Arguments> backlogLimitsProvider() {
-    return Stream.of(
-        Arguments.of("FBM_WMS_OUTBOUND",
-            Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
-            "2023-03-15T07:00:00Z",
-            "2023-03-16T20:00:00Z"),
-        Arguments.of("FBM_WM_OUTBOUND",
-            Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
-            "2023-03-15T07:00:00Z",
-            "2023-03-16T20:00:00Z")
-    );
   }
 
 }
