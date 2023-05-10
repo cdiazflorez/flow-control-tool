@@ -3,6 +3,7 @@ package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 import static com.mercadolibre.flow.control.tool.client.backlog.adapter.StepAndPathToProcessMapper.pathAndStepToProcessName;
 import static com.mercadolibre.flow.control.tool.client.backlog.adapter.Util.filterExistingProcessPathAndSteps;
 import static com.mercadolibre.flow.control.tool.client.backlog.adapter.Util.toSteps;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.DATE_OUT;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.PATH;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.STEP;
 
@@ -11,11 +12,12 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
-import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,41 +26,45 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class BacklogByProcessAdapter implements BacklogStatusUseCase.BacklogGateway {
+public class BacklogProjectedAdapter implements BacklogProjectedUseCase.BacklogGateway {
+
   private final BacklogApiClient backlogApiClient;
 
   @Override
-  public Map<ProcessName, Integer> getBacklogTotalsByProcess(
-      final String logisticCenterId,
-      final Workflow workflow,
-      final Set<ProcessName> processes,
-      final Instant viewDate
-  ) {
+  public Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> getBacklogTotalsByProcessAndPPandSla(
+      final String logisticCenterId, final Workflow workflow, final Set<ProcessName> processes, final Instant viewDate) {
+
     final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
         logisticCenterId,
         Set.of(PhotoWorkflow.from(workflow)),
-        Set.of(STEP, PATH),
+        Set.of(STEP, PATH, DATE_OUT),
         toSteps(processes),
         viewDate
     );
-    final PhotoResponse groups = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);
 
-    if (groups == null) {
-      return Map.of();
+    final PhotoResponse lastPhoto = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);
+
+    if (lastPhoto == null) {
+      return Collections.emptyMap();
     }
-    final var unitsByProcess = filterExistingProcessPathAndSteps(groups.groups())
-        .collect(Collectors.toMap(
-            group -> pathAndStepToProcessName(ProcessPathName.from(group.key().get(PATH.getName())),
-                PhotoStep.from(group.key().get(STEP.getName()))),
-            PhotoResponse.Group::total,
-            Integer::sum
-        ));
 
-    return unitsByProcess.entrySet().stream()
-        .filter(optionalEntry -> optionalEntry.getKey().isPresent())
-        .collect(Collectors.toMap(
-            entry -> entry.getKey().get(),
-            Map.Entry::getValue
-        ));
+    return filterExistingProcessPathAndSteps(lastPhoto.groups())
+        .map(group -> new Group(
+                pathAndStepToProcessName(ProcessPathName.from(group.key().get(PATH.getName())),
+                    PhotoStep.from(group.key().get(STEP.getName()))).orElseThrow(),
+                ProcessPathName.from(group.key().get(PATH.getName())),
+                Instant.parse(group.key().get(DATE_OUT.getName())),
+                group.total()
+            )
+        )
+        .collect(Collectors.groupingBy(Group::processName, Collectors.groupingBy(Group::path,
+            Collectors.groupingBy(Group::dateOut, Collectors.summingInt(Group::total))))
+        );
+  }
+
+  private record Group(
+      ProcessName processName,
+      ProcessPathName path, Instant dateOut,
+      Integer total) {
   }
 }

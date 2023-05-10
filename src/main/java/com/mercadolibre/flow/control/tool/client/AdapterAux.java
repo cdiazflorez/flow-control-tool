@@ -35,7 +35,7 @@ public class AdapterAux implements BacklogProjectedUseCase.PlanningEntitiesGatew
       Instant dateFrom,
       Instant dateTo,
       Set<ProcessName> process,
-      Map<ProcessName, Integer> currentBacklogs,
+      Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
       List<BacklogProjectedUseCase.Throughput> throughput,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs) {
     return Collections.emptyMap();

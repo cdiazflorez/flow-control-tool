@@ -1,7 +1,7 @@
 package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 
-import static com.mercadolibre.flow.control.tool.client.backlog.adapter.BacklogByProcessAdapter.PATH;
-import static com.mercadolibre.flow.control.tool.client.backlog.adapter.BacklogByProcessAdapter.STEP;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.PATH;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.STEP;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PENDING;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_PACK;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.TO_ROUTE;
@@ -55,21 +55,21 @@ class BacklogHistoricalAdapterTest {
     final PhotoResponse mockBacklogsAPI = new PhotoResponse(
         PHOTO_DATE,
         List.of(
-            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, PICKED, DATE_OUT, DATE_OUT_1), 500),
-            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "to_pack", DATE_OUT, DATE_OUT_1), 1000),
-            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "pending", DATE_OUT, DATE_OUT_1), 700),
-            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, PICKED, DATE_OUT, DATE_OUT_2), 500),
-            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "to_pack", DATE_OUT, DATE_OUT_2), 1000),
-            new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "pending", DATE_OUT, DATE_OUT_2), 700),
-            new PhotoResponse.Group(Map.of(PATH, NON_TOT_MULTI_BATCH, STEP, PICKED, DATE_OUT, DATE_OUT_1), 500),
-            new PhotoResponse.Group(Map.of(PATH, NON_TOT_MULTI_BATCH, STEP, PICKED, DATE_OUT, DATE_OUT_1), 500)
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_1), 500),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "to_pack", DATE_OUT, DATE_OUT_1), 1000),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "pending", DATE_OUT, DATE_OUT_1), 700),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_2), 500),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "to_pack", DATE_OUT, DATE_OUT_2), 1000),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "pending", DATE_OUT, DATE_OUT_2), 700),
+            new PhotoResponse.Group(Map.of(PATH.getName(), NON_TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_1), 500),
+            new PhotoResponse.Group(Map.of(PATH.getName(), NON_TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_1), 500)
 
         ));
 
     final PhotoRequest request = new PhotoRequest(
         LOGISTIC_CENTER_ID,
         Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH, PhotoGrouper.DATE_OUT),
+        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
         Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoStep.PICKED, TO_PACK),
         PHOTO_DATE,
         DATE_TO
@@ -128,7 +128,7 @@ class BacklogHistoricalAdapterTest {
     final PhotoRequest request = new PhotoRequest(
         LOGISTIC_CENTER_ID,
         Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH, PhotoGrouper.DATE_OUT),
+        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
         Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoStep.PICKED, TO_PACK),
         PHOTO_DATE,
         DATE_TO
@@ -151,7 +151,7 @@ class BacklogHistoricalAdapterTest {
     final PhotoRequest request = new PhotoRequest(
         LOGISTIC_CENTER_ID,
         Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH, PhotoGrouper.DATE_OUT),
+        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
         Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoStep.PICKED, TO_PACK),
         PHOTO_DATE,
         DATE_TO

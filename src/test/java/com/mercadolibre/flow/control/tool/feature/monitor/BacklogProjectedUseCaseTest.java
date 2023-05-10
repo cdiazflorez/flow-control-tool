@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
-import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
@@ -46,8 +45,8 @@ class BacklogProjectedUseCaseTest {
 
   private static final Instant VIEW_DATE = Instant.parse("2023-05-03T08:00:00Z");
 
-  private static final Map<ProcessName, Integer> CURRENT_BACKLOG = Map.of(ProcessName.PICKING, 100);
-
+  private static final Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> CURRENT_BACKLOG = Map.of(ProcessName.PICKING,
+      Map.of(ProcessPathName.TOT_MONO, Map.of(DATE_OUT, 100)));
   private static final List<BacklogProjectedUseCase.PlannedBacklog> PLANNED_BACKLOGS = List.of(
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE1, DATE_OUT, 25),
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE2, DATE_OUT, 22),
@@ -127,7 +126,7 @@ class BacklogProjectedUseCaseTest {
   );
 
   @Mock
-  private BacklogGateway backlogApiGateway;
+  private BacklogProjectedUseCase.BacklogGateway backlogApiGateway;
 
   @Mock
   private BacklogProjectedUseCase.PlanningEntitiesGateway planningEntitiesGateway;
@@ -240,7 +239,7 @@ class BacklogProjectedUseCaseTest {
   @ParameterizedTest
   @MethodSource("parameterBacklog")
   void testGetBacklogProjectedUseCaseException(final ParametersTest parameters) {
-    when(backlogApiGateway.getBacklogTotalsByProcess(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
+    when(backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
         .thenReturn(parameters.currentBacklogs);
 
     when(planningEntitiesGateway.getPlannedBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
@@ -264,7 +263,7 @@ class BacklogProjectedUseCaseTest {
   }
 
   private void whenGateways(final ParametersTest parameters) {
-    when(backlogApiGateway.getBacklogTotalsByProcess(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
+    when(backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
         .thenReturn(parameters.currentBacklogs);
 
     when(planningEntitiesGateway.getPlannedBacklog(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
@@ -294,7 +293,7 @@ class BacklogProjectedUseCaseTest {
   }
 
   private record ParametersTest(
-      Map<ProcessName, Integer> currentBacklogs,
+      Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs,
       List<BacklogProjectedUseCase.Throughput> throughput,
       Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlog,
