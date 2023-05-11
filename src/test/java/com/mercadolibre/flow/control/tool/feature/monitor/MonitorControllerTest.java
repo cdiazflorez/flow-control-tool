@@ -1,7 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.monitor;
 
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MONO;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MONO;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
@@ -19,7 +19,6 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPat
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Arrays;
@@ -112,32 +111,32 @@ public class MonitorControllerTest {
                               DATE,
                               0,
                               List.of(
-                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 0),
-                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 0)
+                                  new ProcessPathMonitor(TOT_MONO, 0),
+                                  new ProcessPathMonitor(NON_TOT_MONO, 0)
                               )
                           ),
                           new SlasMonitor(
                               DATE.plus(1, HOURS),
                               5,
                               List.of(
-                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
-                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 3)
+                                  new ProcessPathMonitor(TOT_MONO, 2),
+                                  new ProcessPathMonitor(NON_TOT_MONO, 3)
                               )
                           ),
                           new SlasMonitor(
                               DATE.plus(2, HOURS),
                               5,
                               List.of(
-                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
-                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 3)
+                                  new ProcessPathMonitor(TOT_MONO, 2),
+                                  new ProcessPathMonitor(NON_TOT_MONO, 3)
                               )
                           ),
                           new SlasMonitor(
                               Instant.parse("2023-03-23T08:00:00Z"),
                               5,
                               List.of(
-                                  new ProcessPathMonitor(ProcessPath.TOT_MONO, 2),
-                                  new ProcessPathMonitor(ProcessPath.NON_TOT_MONO, 3)
+                                  new ProcessPathMonitor(TOT_MONO, 2),
+                                  new ProcessPathMonitor(NON_TOT_MONO, 3)
                               )
                           )
                       )
@@ -175,6 +174,7 @@ public class MonitorControllerTest {
               )
           )
       );
+
   @Autowired
   private MockMvc mvc;
 

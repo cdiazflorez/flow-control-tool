@@ -142,11 +142,11 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
               final long effectiveWorkersNs = getValueOfEntityData(date.getValue(), filterWorkersNs);
 
               return new StaffingPlannedData(date.getKey(),
-                                             outboundProcess.getKey().translateProcessName(),
-                                             effectiveWorkers,
-                                             effectiveWorkersNs,
-                                             isEffectiveWorkersSimulated,
-                                             isEffectiveWorkersNsSimulated);
+                  outboundProcess.getKey().translateProcessName(),
+                  effectiveWorkers,
+                  effectiveWorkersNs,
+                  isEffectiveWorkersSimulated,
+                  isEffectiveWorkersNsSimulated);
             })
         ).toList();
 
@@ -163,11 +163,11 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
                   ? getValueOfEntityData(date.getValue(), filterEntityDataBySource(SIMULATION))
                   : getValueOfEntityData(date.getValue(), filterEntityDataBySource(FORECAST));
               return new StaffingPlannedData(date.getKey(),
-                                             outboundProcess.getKey().translateProcessName(),
-                                             productivity,
-                                             0,
-                                             isSimulated,
-                                             false
+                  outboundProcess.getKey().translateProcessName(),
+                  productivity,
+                  0,
+                  isSimulated,
+                  false
               );
             })
         ).toList();
@@ -176,11 +176,11 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
   private static List<StaffingPlannedData> nonGrouper(final List<EntityDataDto> entitiesData) {
     return entitiesData.stream()
         .map(entityData -> new StaffingPlannedData(entityData.getDate(),
-                                                   entityData.getProcessName().translateProcessName(),
-                                                   entityData.getValue(),
-                                                   0,
-                                                   false,
-                                                   false)
+            entityData.getProcessName().translateProcessName(),
+            entityData.getValue(),
+            0,
+            false,
+            false)
         ).toList();
   }
 

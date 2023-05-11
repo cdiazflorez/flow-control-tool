@@ -9,10 +9,9 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
-import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.ProcessToStep;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.List;
@@ -26,12 +25,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BacklogHistoricalAdapter implements GetHistoricalBacklogUseCase.BacklogGateway {
   private static final String PATH = "path";
+
   private static final String STEP = "step";
+
   private static final String DATE_OUT = "date_out";
+
   final BacklogApiClient backlogApiClient;
 
   @Override
-  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> getBacklogByDateProcessAndPP(
+  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> getBacklogByDateProcessAndPP(
       final Workflow workflow,
       final String logisticCenterId,
       final Set<ProcessName> processes,
@@ -57,12 +59,12 @@ public class BacklogHistoricalAdapter implements GetHistoricalBacklogUseCase.Bac
             PhotoResponse::takenOn,
             photoResponse -> photoResponse.groups().stream()
                 .collect(Collectors.groupingBy(
-                    group -> pathAndStepToProcessName(ProcessPath.from(group.key().get(PATH)),
+                    group -> pathAndStepToProcessName(ProcessPathName.from(group.key().get(PATH)),
                         PhotoStep.from(group.key().get(STEP))).orElseThrow(),
                     Collectors.groupingBy(
                         entry -> Instant.parse(entry.key().get(DATE_OUT)),
                         Collectors.toMap(
-                            entry -> ProcessPath.from(entry.key().get(PATH)),
+                            entry -> ProcessPathName.from(entry.key().get(PATH)),
                             PhotoResponse.Group::total,
                             Integer::sum
                         )

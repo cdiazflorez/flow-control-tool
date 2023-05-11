@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
-import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.BacklogGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatus;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.BacklogStatusUseCase;
@@ -32,7 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class BacklogStatusUseCaseTest {
 
   @Mock
-  private BacklogGateway backlogGateway;
+  private BacklogStatusUseCase.BacklogGateway backlogGateway;
 
   @Mock
   private UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;

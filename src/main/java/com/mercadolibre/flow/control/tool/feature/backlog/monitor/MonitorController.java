@@ -1,7 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.NON_TOT_MONO;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPath.TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MONO;
 import static com.mercadolibre.flow.control.tool.util.DateUtils.isDifferenceBetweenDateBiggestThan;
 import static com.mercadolibre.flow.control.tool.util.DateUtils.validateDateRange;
 import static java.time.temporal.ChronoUnit.HOURS;
@@ -16,7 +16,7 @@ import com.mercadolibre.flow.control.tool.feature.editor.ProcessNameEditor;
 import com.mercadolibre.flow.control.tool.feature.editor.ProcessPathEditor;
 import com.mercadolibre.flow.control.tool.feature.editor.WorkflowEditor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.newrelic.api.agent.Trace;
 import java.time.Instant;
@@ -58,7 +58,7 @@ public class MonitorController {
       @RequestParam final Workflow workflow,
       @RequestParam final Set<ProcessName> processes,
       @RequestParam(required = false) final Set<Instant> slas,
-      @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
+      @RequestParam(name = "process_paths", required = false) final Set<ProcessPathName> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
       @RequestParam(name = "view_date") final Instant viewDate
@@ -81,7 +81,7 @@ public class MonitorController {
       @RequestParam final Workflow workflow,
       @RequestParam final Set<ProcessName> processes,
       @RequestParam(required = false) final Set<Instant> slas,
-      @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
+      @RequestParam(name = "process_paths", required = false) final Set<ProcessPathName> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
       @RequestParam(name = "view_date") final Instant viewDate
@@ -101,7 +101,7 @@ public class MonitorController {
       @RequestParam final Workflow workflow,
       @RequestParam final Set<ProcessName> processes,
       @RequestParam(required = false) final Set<Instant> slas,
-      @RequestParam(name = "process_paths", required = false) final Set<ProcessPath> processPaths,
+      @RequestParam(name = "process_paths", required = false) final Set<ProcessPathName> processPaths,
       @RequestParam(name = "date_from") final Instant dateFrom,
       @RequestParam(name = "date_to") final Instant dateTo,
       @RequestParam(name = "view_date") final Instant viewDate
@@ -187,6 +187,6 @@ public class MonitorController {
   public void initBinder(final PropertyEditorRegistry dataBinder) {
     dataBinder.registerCustomEditor(Workflow.class, new WorkflowEditor());
     dataBinder.registerCustomEditor(ProcessName.class, new ProcessNameEditor());
-    dataBinder.registerCustomEditor(ProcessPath.class, new ProcessPathEditor());
+    dataBinder.registerCustomEditor(ProcessPathName.class, new ProcessPathEditor());
   }
 }

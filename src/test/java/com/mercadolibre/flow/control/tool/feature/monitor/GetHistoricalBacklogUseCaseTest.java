@@ -15,7 +15,7 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPat
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,10 +33,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class GetHistoricalBacklogUseCaseTest {
 
-  private static final Map<ProcessPath, Integer> BACKLOG_BY_PROCESS_PATH = Map.of(
-      ProcessPath.NON_TOT_MONO,
+  private static final Map<ProcessPathName, Integer> BACKLOG_BY_PROCESS_PATH = Map.of(
+      ProcessPathName.NON_TOT_MONO,
       10,
-      ProcessPath.TOT_MONO,
+      ProcessPathName.TOT_MONO,
       20
   );
   private static final int NO_PROCESS = 0;
@@ -51,7 +51,7 @@ class GetHistoricalBacklogUseCaseTest {
 
   private static final Instant VIEW_DATE = Instant.parse("2023-05-03T08:00:00Z");
 
-  private static final Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>> BACKLOG = Map.of(
+  private static final Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>> BACKLOG = Map.of(
       ProcessName.PICKING,
       Map.of(
           CPT1,
@@ -237,11 +237,11 @@ class GetHistoricalBacklogUseCaseTest {
     }
   }
 
-  private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlogMock() {
+  private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogMock() {
     return Map.of(DATE1, BACKLOG, DATE2, BACKLOG);
   }
 
-  private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPath, Integer>>>> backlogNullProcessMock() {
+  private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogNullProcessMock() {
     return Map.of(
         DATE1, emptyMap(),
         DATE2, emptyMap());
@@ -298,12 +298,12 @@ class GetHistoricalBacklogUseCaseTest {
   private List<SlasMonitor> slasMonitors() {
     final var processPathMonitors = new ArrayList<ProcessPathMonitor>(2);
     processPathMonitors.add(new ProcessPathMonitor(
-        ProcessPath.NON_TOT_MONO,
+        ProcessPathName.NON_TOT_MONO,
         10
     ));
 
     processPathMonitors.add(new ProcessPathMonitor(
-        ProcessPath.TOT_MONO,
+        ProcessPathName.TOT_MONO,
         20
     ));
 

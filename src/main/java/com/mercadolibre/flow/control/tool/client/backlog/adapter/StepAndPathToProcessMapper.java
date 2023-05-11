@@ -26,7 +26,7 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVI
 
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
-import com.mercadolibre.flow.control.tool.feature.entity.ProcessPath;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.Optional;
@@ -38,49 +38,49 @@ public final class StepAndPathToProcessMapper {
   private StepAndPathToProcessMapper() {
   }
 
-  private static Map<PhotoStep, Map<ProcessPath, ProcessName>> stepAndPathToProcess() {
+  private static Map<PhotoStep, Map<ProcessPathName, ProcessName>> stepAndPathToProcess() {
     return
         Stream.of(
-            new AbstractMap.SimpleEntry<>(PENDING, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(PENDING, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> WAVING))),
-            new AbstractMap.SimpleEntry<>(TO_ROUTE, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_ROUTE, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> WAVING))),
-            new AbstractMap.SimpleEntry<>(TO_PICK, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_PICK, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> PICKING))),
-            new AbstractMap.SimpleEntry<>(PhotoStep.PICKING, ProcessPath.allPaths().stream(
+            new AbstractMap.SimpleEntry<>(PhotoStep.PICKING, ProcessPathName.allPaths().stream(
 
             ).collect(Collectors.toMap(a -> a, value -> PICKING))),
             new AbstractMap.SimpleEntry<>(PICKED,
-                Stream.concat(ProcessPath.multiBatchPaths().stream()
+                Stream.concat(ProcessPathName.multiBatchPaths().stream()
                             .collect(Collectors.toMap(a -> a, v -> BATCH_SORTER)).entrySet().stream(),
-                        ProcessPath.pathsMinusMultiBatch().stream().collect(Collectors.toMap(a -> a, v -> PACKING)).entrySet().stream())
+                        ProcessPathName.pathsMinusMultiBatch().stream().collect(Collectors.toMap(a -> a, v -> PACKING)).entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))),
-            new AbstractMap.SimpleEntry<>(TO_SORT, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_SORT, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> BATCH_SORTER))),
-            new AbstractMap.SimpleEntry<>(SORTED, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(SORTED, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> WALL_IN))),
-            new AbstractMap.SimpleEntry<>(TO_GROUP, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_GROUP, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> WALL_IN))),
-            new AbstractMap.SimpleEntry<>(GROUPED, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(GROUPED, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> WALL_IN))),
-            new AbstractMap.SimpleEntry<>(GROUPING, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(GROUPING, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> WALL_IN))),
             new AbstractMap.SimpleEntry<>(TO_PACK,
-                Stream.concat(ProcessPath.pathsMinusMultiBatch().stream().collect(
+                Stream.concat(ProcessPathName.pathsMinusMultiBatch().stream().collect(
                     Collectors.toMap(a -> a, v -> PACKING)).entrySet().stream(),
-                        ProcessPath.multiBatchPaths().stream().collect(Collectors.toMap(a -> a, v -> PACKING_WALL)).entrySet().stream())
+                        ProcessPathName.multiBatchPaths().stream().collect(Collectors.toMap(a -> a, v -> PACKING_WALL)).entrySet().stream())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))),
-            new AbstractMap.SimpleEntry<>(PACKED, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(PACKED, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> HU_ASSEMBLY))),
-            new AbstractMap.SimpleEntry<>(PhotoStep.PACKING, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(PhotoStep.PACKING, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> HU_ASSEMBLY))),
-            new AbstractMap.SimpleEntry<>(TO_DOCUMENT, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_DOCUMENT, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> HU_ASSEMBLY))),
-            new AbstractMap.SimpleEntry<>(DOCUMENTED, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(DOCUMENTED, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> HU_ASSEMBLY))),
-            new AbstractMap.SimpleEntry<>(TO_DISPATCH, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_DISPATCH, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> SHIPPING))),
-            new AbstractMap.SimpleEntry<>(TO_OUT, ProcessPath.allPaths().stream()
+            new AbstractMap.SimpleEntry<>(TO_OUT, ProcessPathName.allPaths().stream()
                 .collect(Collectors.toMap(a -> a, value -> SHIPPING)))
         ).collect(Collectors.toMap(
             AbstractMap.SimpleEntry::getKey,
@@ -88,7 +88,7 @@ public final class StepAndPathToProcessMapper {
         ));
   }
 
-  static Optional<ProcessName> pathAndStepToProcessName(final ProcessPath path, final PhotoStep steps) {
+  static Optional<ProcessName> pathAndStepToProcessName(final ProcessPathName path, final PhotoStep steps) {
     return Optional.ofNullable(stepAndPathToProcess().get(steps)).map(processPathToProcessName -> processPathToProcessName.get(path));
   }
 }
