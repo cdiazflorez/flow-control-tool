@@ -169,13 +169,13 @@ public class MonitorController {
             List.of(
                 new ProcessLimit(
                     ProcessName.PICKING,
-                    40,
-                    100
+                    40L,
+                    100L
                 ),
                 new ProcessLimit(
                     ProcessName.PACKING,
-                    50,
-                    100
+                    50L,
+                    100L
                 )
             )
         )

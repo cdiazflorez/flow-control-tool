@@ -235,26 +235,30 @@ class StaffingPlanAdapterTest {
   ) {
     //GIVEN
     when(client.searchEntities(
-             new EntityRequestDto(
-                 FBM_WMS_OUTBOUND,
-                 Arrays.stream(EntityType.values()).toList(),
-                 LOGISTIC_CENTER_ID,
-                 DATE_ONE,
-                 DATE_ONE,
-                 Arrays.stream(OutboundProcessName.values()).toList(),
-                 Map.of(
-                     HEADCOUNT, Map.of(
-                         PROCESSING_TYPE.getName(), List.of(
-                             EFFECTIVE_WORKERS.getName(),
-                             EFFECTIVE_WORKERS_NS.getName()
-                         )
-                     ),
-                     PRODUCTIVITY, Map.of(
-                         ABILITY_LEVEL.getName(), List.of("1")
-                     )
-                 )
-             )
-         )
+            new EntityRequestDto(
+                FBM_WMS_OUTBOUND,
+                List.of(
+                    HEADCOUNT,
+                    PRODUCTIVITY,
+                    THROUGHPUT
+                ),
+                LOGISTIC_CENTER_ID,
+                DATE_ONE,
+                DATE_ONE,
+                Arrays.stream(OutboundProcessName.values()).toList(),
+                Map.of(
+                    HEADCOUNT, Map.of(
+                        PROCESSING_TYPE.getName(), List.of(
+                            EFFECTIVE_WORKERS.getName(),
+                            EFFECTIVE_WORKERS_NS.getName()
+                        )
+                    ),
+                    PRODUCTIVITY, Map.of(
+                        ABILITY_LEVEL.getName(), List.of("1")
+                    )
+                )
+            )
+        )
     ).thenThrow(exception);
 
     //WHEN and THEN
@@ -321,6 +325,7 @@ class StaffingPlanAdapterTest {
                                         final ProcessingType processingType,
                                         final Source source,
                                         final long quantity) {
+
     return new EntityDataDto(
         FBM_WMS_OUTBOUND,
         date,

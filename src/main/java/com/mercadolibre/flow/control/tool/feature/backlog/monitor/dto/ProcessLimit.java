@@ -4,8 +4,8 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 
 public record ProcessLimit(
     ProcessName name,
-    int lower,
-    int upper
+    Long lower,
+    Long upper
 ) {
 
 }

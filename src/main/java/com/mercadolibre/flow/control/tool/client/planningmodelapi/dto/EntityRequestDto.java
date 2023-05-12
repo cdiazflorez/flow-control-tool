@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 public record EntityRequestDto(
-        PlanningWorkflow workflow,
-        List<EntityType> entityTypes,
-        String warehouseId,
-        Instant dateFrom,
-        Instant dateTo,
-        List<OutboundProcessName> processName,
-        Map<EntityType, Map<String, List<String>>> entityFilters
+    PlanningWorkflow workflow,
+    List<EntityType> entityTypes,
+    String warehouseId,
+    Instant dateFrom,
+    Instant dateTo,
+    List<OutboundProcessName> processName,
+    Map<EntityType, Map<String, List<String>>> entityFilters
 ) {
 }

@@ -21,4 +21,5 @@ public class EntityDataDto {
   private String metricUnit;
   private Source source;
   private long value;
+
 }
