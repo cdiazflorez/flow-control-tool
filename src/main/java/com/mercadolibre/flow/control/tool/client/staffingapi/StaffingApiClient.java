@@ -10,6 +10,7 @@ import com.mercadolibre.flow.control.tool.client.staffingapi.constant.StaffingWo
 import com.mercadolibre.flow.control.tool.client.staffingapi.dto.MetricHistoryDto;
 import com.mercadolibre.json.type.TypeReference;
 import com.mercadolibre.restclient.MeliRestClient;
+import com.newrelic.api.agent.Trace;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class StaffingApiClient extends HttpClient {
     super(client, STAFFING_API.name());
   }
 
+  @Trace
   public List<MetricHistoryDto> getMetricsHistory(final String logisticCenterId,
                                                   final StaffingWorkflow staffingWorkflow,
                                                   final Instant dateFrom,

@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 
 @RequiredArgsConstructor
-public enum StaffingType {
+public enum StaffingMetricType {
   HEADCOUNT(new HeadcountStaffingOperationStrategy()),
   PRODUCTIVITY(new ProductivityStaffingOperationStrategy()),
   THROUGHPUT(new ThrougputStaffingOperationStrategy());
@@ -20,7 +20,7 @@ public enum StaffingType {
     return staffingOperationStrategy;
   }
 
-  public static StaffingType from(final String value) {
+  public static StaffingMetricType from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));
   }
 

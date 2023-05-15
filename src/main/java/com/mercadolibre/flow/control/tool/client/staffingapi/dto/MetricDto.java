@@ -12,8 +12,8 @@ public class MetricDto {
 
   private Instant date;
 
-  private long effProductivity;
+  private Long effProductivity;
 
-  private long throughput;
+  private Long throughput;
 
 }

@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.feature.staffing.operation;
 
+import com.mercadolibre.flow.control.tool.feature.staffing.domain.MetricData;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.StaffingOperationValues;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.StaffingPlannedData;
 import java.util.List;
@@ -9,6 +10,6 @@ import java.util.List;
  */
 public interface StaffingOperationStrategy {
 
-  StaffingOperationValues getStaffingOperation(List<StaffingPlannedData> staffingPlannedData);
+  StaffingOperationValues getStaffingOperation(List<StaffingPlannedData> staffingPlannedData, List<MetricData> metricsData);
 
 }

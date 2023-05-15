@@ -201,11 +201,18 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   @DisplayName("A ForecastNotFound exception test")
   void testForecastNotFound() {
     //GIVEN
-    final String queryParams = "?workflow=fbm_wms_outbound&date_from=2023-03-28T08:00:00Z&date_to=2023-03-28T10:00:00Z";
     final Instant dateFrom = Instant.parse("2023-03-28T08:00:00Z");
     final Instant dateTo = Instant.parse("2023-03-28T10:00:00Z");
+    final Instant viewDate = Instant.parse("2023-03-28T09:00:00Z");
+    final String queryParams = String.format(
+        "?workflow=%s&date_from=%s&date_to=%s&view_date=%s",
+        TestUtils.FBM_WMS_OUTBOUND,
+        dateFrom.toString(),
+        dateTo.toString(),
+        viewDate.toString()
+    );
     doThrow(new ForecastNotFoundException(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND.getName()))
-        .when(staffingController).getStaffingOperation(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, dateFrom, dateTo);
+        .when(staffingController).getStaffingOperation(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, dateFrom, dateTo, viewDate);
 
     //WHEN
     final ResponseEntity<ApiError> responseEntity = this.testRestTemplate.exchange(
@@ -262,8 +269,10 @@ class ControllerExceptionHandlerTest extends ControllerTest {
         dateTo.toString(),
         viewDate.toString()
     );
+
     doThrow(new RealMetricsException(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND.getName(), new Throwable("Error"), 404))
-        .when(staffingController).getStaffingOperation(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, dateFrom, dateTo);
+        .when(staffingController).getStaffingOperation(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, dateFrom, dateTo, viewDate);
+
 
     //WHEN
     final ResponseEntity<ApiError> responseEntity = this.testRestTemplate.exchange(

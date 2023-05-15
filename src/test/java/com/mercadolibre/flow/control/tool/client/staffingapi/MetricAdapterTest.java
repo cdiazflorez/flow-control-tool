@@ -95,7 +95,7 @@ class MetricAdapterTest {
 
     when(client.getMetricsHistory(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND, DATE_FROM, DATE_TO)).thenReturn(
         List.of(
-            new MetricHistoryDto(FBM_WMS_OUTBOUND, PICKING, metricsDto)
+            new MetricHistoryDto(PICKING, metricsDto)
         )
     );
     //THEN

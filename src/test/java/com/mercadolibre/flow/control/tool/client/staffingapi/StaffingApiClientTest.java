@@ -59,7 +59,6 @@ class StaffingApiClientTest extends RestClientTestUtils {
     metricsHistory.forEach(
         metricHistory -> {
           assertAll(
-              () -> assertEquals(FBM_WMS_OUTBOUND, metricHistory.getWorkflow()),
               () -> assertFalse(metricHistory.getMetrics().isEmpty()),
               () -> IntStream.rangeClosed(0, 6).forEach(
                   iterator -> {

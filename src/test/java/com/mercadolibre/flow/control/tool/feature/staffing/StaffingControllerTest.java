@@ -8,9 +8,9 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICK
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
-import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType.HEADCOUNT;
-import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType.PRODUCTIVITY;
-import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType.THROUGHPUT;
+import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingMetricType.HEADCOUNT;
+import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingMetricType.PRODUCTIVITY;
+import static com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingMetricType.THROUGHPUT;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_FROM;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_TO;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
@@ -40,7 +40,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
-class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
+class StaffingControllerTest extends ControllerTest {
 
   private static final String STAFFING_OPERATION_URL = "/control_tool/logistic_center/%s/plan/staffing";
 
@@ -49,6 +49,10 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
   private static final String DATE_FROM_PARAM = "date_from";
 
   private static final String DATE_TO_PARAM = "date_to";
+
+  private static final String VIEW_DATE_PARAM = "view_date";
+
+  private static final Instant VIEW_DATE = DATE_TO;
 
   private static final List<ProcessName> STAFFING_PROCESS_NAMES = List.of(
       PICKING,
@@ -70,7 +74,7 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
   @DisplayName("Gets the operational staffing plan")
   void testGetStaffingOperationOk() throws Exception {
     //GIVEN
-    when(staffingPlanUseCase.getStaffing(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND, DATE_FROM, DATE_TO))
+    when(staffingPlanUseCase.getStaffing(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND, DATE_FROM, DATE_TO, VIEW_DATE))
         .thenReturn(mockStaffingOperationDto());
 
     //WHEN
@@ -79,6 +83,7 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
             .param(WORKFLOW_PARAM, TestUtils.FBM_WMS_OUTBOUND)
             .param(DATE_FROM_PARAM, DATE_FROM.toString())
             .param(DATE_TO_PARAM, DATE_TO.toString())
+            .param(VIEW_DATE_PARAM, VIEW_DATE.toString())
     );
 
     //THEN
@@ -113,6 +118,10 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
             .plannedSystemicEdited(false)
             .plannedNonSystemic(3L)
             .plannedNonSystemicEdited(false)
+            .presentSystemic(9L)
+            .presentNonSystemic(2L)
+            .deviationSystemic(1L)
+            .deviationNonSystemic(1L)
             .build())
         .toList();
 
@@ -121,6 +130,8 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
             .date(DATE_FROM.plus(iterator, HOURS))
             .planned(110L)
             .plannedEdited(false)
+            .real(100L)
+            .deviation(10L)
             .build())
         .toList();
 
@@ -128,6 +139,8 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
         .mapToObj(iterator -> StaffingOperationData.builder()
             .date(DATE_FROM.plus(iterator, HOURS))
             .planned(1100L)
+            .real(900L)
+            .deviation(200L)
             .build())
         .toList();
 
@@ -142,6 +155,16 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
                 .mapToLong(StaffingOperationData::getPlannedNonSystemic)
                 .sum()
         )
+        .presentSystemic(
+            allHeadcountValues.stream()
+                .mapToLong(StaffingOperationData::getPresentSystemic)
+                .sum()
+        )
+        .presentNonSystemic(
+            allHeadcountValues.stream()
+                .mapToLong(StaffingOperationData::getPresentNonSystemic)
+                .sum()
+        )
         .build();
 
     final StaffingOperationData allProductivityTotal = StaffingOperationData.builder()
@@ -151,12 +174,23 @@ class StaffingStaffingStatusMonitorControllerTest extends ControllerTest {
                 .average()
                 .orElse(0D)
         )
+        .real(
+            (long) allProductivityValues.stream()
+                .mapToLong(StaffingOperationData::getReal)
+                .average()
+                .orElse(0D)
+        )
         .build();
 
     final StaffingOperationData allThroughputTotal = StaffingOperationData.builder()
         .planned(
             allThroughputValues.stream()
                 .mapToLong(StaffingOperationData::getPlanned)
+                .sum()
+        )
+        .real(
+            allThroughputValues.stream()
+                .mapToLong(StaffingOperationData::getReal)
                 .sum()
         )
         .build();

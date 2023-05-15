@@ -14,5 +14,11 @@ public class StaffingOperationData {
   private Boolean plannedSystemicEdited;
   private Long plannedNonSystemic;
   private Boolean plannedNonSystemicEdited;
+  private Long presentSystemic;
+  private Long presentNonSystemic;
+  private Long deviationSystemic;
+  private Long deviationNonSystemic;
+  private Long real;
+  private Long deviation;
 
 }
