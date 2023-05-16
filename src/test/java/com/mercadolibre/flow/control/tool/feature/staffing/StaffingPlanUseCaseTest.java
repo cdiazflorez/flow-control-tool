@@ -236,8 +236,8 @@ class StaffingPlanUseCaseTest {
           if (!viewDate.isBefore(staffingDate)) {
             assertEquals(12L, staffingOperationData.getPresentSystemic());
             assertEquals(6L, staffingOperationData.getPresentNonSystemic());
-            assertEquals(-2L, staffingOperationData.getDeviationSystemic());
-            assertEquals(-1L, staffingOperationData.getDeviationNonSystemic());
+            assertEquals(2L, staffingOperationData.getDeviationSystemic());
+            assertEquals(1L, staffingOperationData.getDeviationNonSystemic());
           } else {
             assertNull(staffingOperationData.getPresentSystemic());
             assertNull(staffingOperationData.getPresentNonSystemic());
@@ -267,7 +267,7 @@ class StaffingPlanUseCaseTest {
           assertFalse(staffingOperationData.getPlannedEdited());
           if (!viewDate.isBefore(staffingDate)) {
             assertEquals(78L, staffingOperationData.getReal());
-            assertEquals(22L, staffingOperationData.getDeviation());
+            assertEquals(-22L, staffingOperationData.getDeviation());
           } else {
             assertNull(staffingOperationData.getReal());
             assertNull(staffingOperationData.getDeviation());
@@ -294,7 +294,7 @@ class StaffingPlanUseCaseTest {
           assertEquals(1000L, staffingOperationData.getPlanned());
           if (!viewDate.isBefore(staffingDate)) {
             assertEquals(945L, staffingOperationData.getReal());
-            assertEquals(55L, staffingOperationData.getDeviation());
+            assertEquals(-55L, staffingOperationData.getDeviation());
           } else {
             assertNull(staffingOperationData.getReal());
             assertNull(staffingOperationData.getDeviation());

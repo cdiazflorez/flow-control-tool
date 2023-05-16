@@ -46,7 +46,7 @@ public class ThrougputStaffingOperationStrategy implements StaffingOperationStra
                   .date(staffingPlanned.date())
                   .planned(planned)
                   .real(realOptional.orElse(null))
-                  .deviation(realOptional.map(real -> planned - real).orElse(null))
+                  .deviation(realOptional.map(real -> real - planned).orElse(null))
                   .build();
             })
             .toList()
