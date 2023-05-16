@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Locale;
 
 public enum EntityType {
-    HEADCOUNT,
-    PRODUCTIVITY,
-    THROUGHPUT;
+  HEADCOUNT,
+  PRODUCTIVITY,
+  THROUGHPUT,
+  BACKLOG_LOWER_LIMIT,
+  BACKLOG_UPPER_LIMIT;
 
-    @JsonValue
-    public String getName() {
-        return name().toLowerCase(Locale.getDefault());
-    }
+  @JsonValue
+  public String getName() {
+    return name().toLowerCase(Locale.getDefault());
+  }
 }

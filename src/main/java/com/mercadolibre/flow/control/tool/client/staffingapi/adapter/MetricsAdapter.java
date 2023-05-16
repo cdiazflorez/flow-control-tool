@@ -5,6 +5,7 @@ import com.mercadolibre.flow.control.tool.client.staffingapi.StaffingApiClient;
 import com.mercadolibre.flow.control.tool.client.staffingapi.constant.StaffingWorkflow;
 import com.mercadolibre.flow.control.tool.exception.RealMetricsException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.flow.control.tool.feature.staffing.StaffingPlanUseCase;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.MetricData;
 import java.time.Instant;
 import java.util.List;
@@ -13,10 +14,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class MetricsAdapter {
+public class MetricsAdapter implements StaffingPlanUseCase.StaffingMetricGateway {
 
   private final StaffingApiClient staffingApiClient;
 
+  @Override
   public List<MetricData> getMetrics(final String logisticCenterId,
                                      final Workflow workflow,
                                      final Instant dateFrom,

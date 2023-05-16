@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MetricHistoryDto {
 
-  private StaffingWorkflow workflow;
-
   private StaffingProcessName process;
 
   private List<MetricDto> metrics;

@@ -22,7 +22,7 @@ bootJar {
 
 dependencies {
     // Internal application dependencies
-    implementation platform('com.mercadolibre.library:java-melitk-bom:0.2.1')
+    implementation platform('com.mercadolibre.library:java-melitk-bom:1.1.9')
     implementation('com.mercadolibre.metrics:metrics-core')
     implementation('com.mercadolibre.metrics:datadog-metric-wrapper') {
         exclude module: 'org.apache.commons.io'
@@ -46,7 +46,7 @@ dependencies {
 
     // Test dependencies for all projects
     testImplementation('com.mercadolibre.restclient:restclient-core')
-    testImplementation('com.mercadolibre.restclient:restclient-core:0.5.5:tests')
+    testImplementation(group: 'com.mercadolibre.restclient', name: 'restclient-core', classifier: 'tests')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('uk.org.webcompere:system-stubs-jupiter:2.0.1')
 }

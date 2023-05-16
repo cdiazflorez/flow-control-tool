@@ -26,8 +26,8 @@ public class ForecastNotFoundException extends RuntimeException {
   public String getMessage() {
     return String.format(
         "Forecast not found for workflow [%s] and logistic center [%s]",
-        logisticCenterId,
-        workflow
+        workflow,
+        logisticCenterId
     );
   }
 }

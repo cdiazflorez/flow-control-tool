@@ -5,7 +5,9 @@
       "picking": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -13,56 +15,86 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       },
       "packing": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -70,56 +102,86 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       },
       "packing_wall": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -127,56 +189,86 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       },
       "batch_sorter": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -184,56 +276,86 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       },
       "wall_in": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -241,56 +363,86 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       },
       "hu_assembly": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -298,56 +450,86 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       },
       "shipping": {
         "total": {
           "planned_systemic": 70,
-          "planned_non_systemic": 21
+          "planned_non_systemic": 21,
+          "present_systemic": 63,
+          "present_non_systemic": 14
         },
         "values": [
           {
@@ -355,49 +537,77 @@
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned_systemic": 10,
             "planned_systemic_edited": false,
             "planned_non_systemic": 3,
-            "planned_non_systemic_edited": false
+            "planned_non_systemic_edited": false,
+            "present_systemic": 9,
+            "present_non_systemic": 2,
+            "deviation_systemic": 1,
+            "deviation_non_systemic": 1
           }
         ]
       }
@@ -405,295 +615,400 @@
     "productivity": {
       "picking": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       },
       "packing": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       },
       "packing_wall": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       },
       "batch_sorter": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       },
       "wall_in": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       },
       "hu_assembly": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       },
       "shipping": {
         "total": {
-          "planned": 110
+          "planned": 110,
+          "real": 100
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T13:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T14:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T15:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T16:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T17:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           },
           {
             "date": "2023-03-24T18:00:00Z",
             "planned": 110,
-            "planned_edited": false
+            "planned_edited": false,
+            "real": 100,
+            "deviation": 10
           }
         ]
       }
@@ -701,246 +1016,351 @@
     "throughput": {
       "picking": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       },
       "packing": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       },
       "packing_wall": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       },
       "batch_sorter": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       },
       "wall_in": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       },
       "hu_assembly": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       },
       "shipping": {
         "total": {
-          "planned": 7700
+          "planned": 7700,
+          "real": 6300
         },
         "values": [
           {
             "date": "2023-03-24T12:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T13:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T14:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T15:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T16:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T17:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           },
           {
             "date": "2023-03-24T18:00:00Z",
-            "planned": 1100
+            "planned": 1100,
+            "real": 900,
+            "deviation": 200
           }
         ]
       }

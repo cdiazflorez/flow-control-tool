@@ -33,7 +33,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequ
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
-import com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType;
+import com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingMetricType;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.StaffingPlannedData;
 import com.mercadolibre.restclient.Response;
 import com.mercadolibre.restclient.http.Headers;
@@ -151,7 +151,7 @@ class StaffingPlanAdapterTest {
         .thenReturn(mockEntitiesResponse());
 
     //WHEN
-    final var staffingPlannedByType = staffingPlanAdapter.getStaffingPlanned(
+    final var staffingPlannedByType = staffingPlanAdapter.getCurrentStaffing(
         Workflow.FBM_WMS_OUTBOUND,
         LOGISTIC_CENTER_ID,
         DATE_ONE,
@@ -159,8 +159,8 @@ class StaffingPlanAdapterTest {
     );
 
     //THEN
-    final var staffingPlannedHeadcount = staffingPlannedByType.get(StaffingType.HEADCOUNT);
-    final var staffingPlannedProductivity = staffingPlannedByType.get(StaffingType.PRODUCTIVITY);
+    final var staffingPlannedHeadcount = staffingPlannedByType.get(StaffingMetricType.HEADCOUNT);
+    final var staffingPlannedProductivity = staffingPlannedByType.get(StaffingMetricType.PRODUCTIVITY);
 
     final var staffingPlannedHeadcountDateOne = staffingPlannedHeadcount.stream()
         .filter(filterStaffingPlannedByDateAndProcess(DATE_ONE, ProcessName.PICKING))
@@ -235,32 +235,36 @@ class StaffingPlanAdapterTest {
   ) {
     //GIVEN
     when(client.searchEntities(
-             new EntityRequestDto(
-                 FBM_WMS_OUTBOUND,
-                 Arrays.stream(EntityType.values()).toList(),
-                 LOGISTIC_CENTER_ID,
-                 DATE_ONE,
-                 DATE_ONE,
-                 Arrays.stream(OutboundProcessName.values()).toList(),
-                 Map.of(
-                     HEADCOUNT, Map.of(
-                         PROCESSING_TYPE.getName(), List.of(
-                             EFFECTIVE_WORKERS.getName(),
-                             EFFECTIVE_WORKERS_NS.getName()
-                         )
-                     ),
-                     PRODUCTIVITY, Map.of(
-                         ABILITY_LEVEL.getName(), List.of("1")
-                     )
-                 )
-             )
-         )
+            new EntityRequestDto(
+                FBM_WMS_OUTBOUND,
+                List.of(
+                    HEADCOUNT,
+                    PRODUCTIVITY,
+                    THROUGHPUT
+                ),
+                LOGISTIC_CENTER_ID,
+                DATE_ONE,
+                DATE_ONE,
+                Arrays.stream(OutboundProcessName.values()).toList(),
+                Map.of(
+                    HEADCOUNT, Map.of(
+                        PROCESSING_TYPE.getName(), List.of(
+                            EFFECTIVE_WORKERS.getName(),
+                            EFFECTIVE_WORKERS_NS.getName()
+                        )
+                    ),
+                    PRODUCTIVITY, Map.of(
+                        ABILITY_LEVEL.getName(), List.of("1")
+                    )
+                )
+            )
+        )
     ).thenThrow(exception);
 
     //WHEN and THEN
     assertThrows(
         exceptionClass,
-        () -> staffingPlanAdapter.getStaffingPlanned(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_ONE, DATE_ONE)
+        () -> staffingPlanAdapter.getCurrentStaffing(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_ONE, DATE_ONE)
     );
   }
 
@@ -321,6 +325,7 @@ class StaffingPlanAdapterTest {
                                         final ProcessingType processingType,
                                         final Source source,
                                         final long quantity) {
+
     return new EntityDataDto(
         FBM_WMS_OUTBOUND,
         date,

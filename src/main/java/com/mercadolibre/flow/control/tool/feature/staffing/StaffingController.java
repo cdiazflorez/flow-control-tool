@@ -30,9 +30,10 @@ public class StaffingController {
   public StaffingOperationDto getStaffingOperation(@PathVariable final String logisticCenterId,
                                                     @RequestParam final Workflow workflow,
                                                     @RequestParam(name = "date_from") final Instant dateFrom,
-                                                    @RequestParam(name = "date_to") final Instant dateTo) {
+                                                    @RequestParam(name = "date_to") final Instant dateTo,
+                                                   @RequestParam(name = "view_date") final Instant viewDate) {
 
-    final StaffingOperation staffingOperation = staffingPlanUseCase.getStaffing(logisticCenterId, workflow, dateFrom, dateTo);
+    final StaffingOperation staffingOperation = staffingPlanUseCase.getStaffing(logisticCenterId, workflow, dateFrom, dateTo, viewDate);
     return new StaffingOperationDto(
         staffingOperation.lastModifiedDate(),
         staffingOperation.values().entrySet()
@@ -56,24 +57,9 @@ public class StaffingController {
                 v -> {
                   final var staffingOperationTotal = v.getValue().staffingOperationTotal();
                   return new StaffingOperationDto.StaffingOperationValuesDto(
-                      new StaffingOperationDto.StaffingOperationDataDto(
-                          staffingOperationTotal.getDate(),
-                          staffingOperationTotal.getPlanned(),
-                          staffingOperationTotal.getPlannedSystemic(),
-                          staffingOperationTotal.getPlannedEdited(),
-                          staffingOperationTotal.getPlannedSystemicEdited(),
-                          staffingOperationTotal.getPlannedNonSystemic(),
-                          staffingOperationTotal.getPlannedNonSystemicEdited()
-                      ),
+                      StaffingOperationDto.StaffingOperationDataDto.from(staffingOperationTotal),
                       v.getValue().staffingOperationValues().stream()
-                          .map(staffingOperationData -> new StaffingOperationDto.StaffingOperationDataDto(
-                              staffingOperationData.getDate(),
-                              staffingOperationData.getPlanned(),
-                              staffingOperationData.getPlannedSystemic(),
-                              staffingOperationData.getPlannedEdited(),
-                              staffingOperationData.getPlannedSystemicEdited(),
-                              staffingOperationData.getPlannedNonSystemic(),
-                              staffingOperationData.getPlannedNonSystemicEdited())
+                          .map(StaffingOperationDto.StaffingOperationDataDto::from
                           )
                           .sorted(Comparator.comparing(StaffingOperationDto.StaffingOperationDataDto::date))
                           .toList()

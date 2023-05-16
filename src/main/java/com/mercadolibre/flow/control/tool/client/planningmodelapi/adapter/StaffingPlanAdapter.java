@@ -25,7 +25,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequ
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.staffing.StaffingPlanUseCase;
-import com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingType;
+import com.mercadolibre.flow.control.tool.feature.staffing.constant.StaffingMetricType;
 import com.mercadolibre.flow.control.tool.feature.staffing.domain.StaffingPlannedData;
 import java.time.Instant;
 import java.util.Arrays;
@@ -74,10 +74,10 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
   private final PlanningModelApiClient planningModelApiClient;
 
   @Override
-  public Map<StaffingType, List<StaffingPlannedData>> getStaffingPlanned(final Workflow workflow,
-                                                                         final String logisticCenter,
-                                                                         final Instant dateFrom,
-                                                                         final Instant dateTo) {
+  public Map<StaffingMetricType, List<StaffingPlannedData>> getCurrentStaffing(final Workflow workflow,
+                                                                               final String logisticCenter,
+                                                                               final Instant dateFrom,
+                                                                               final Instant dateTo) {
 
     final PlanningWorkflow planningWorkflow = PlanningWorkflow.from(workflow.getName());
 
@@ -97,7 +97,7 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
       return entityResponse.entrySet().stream()
           .collect(
               toMap(
-                  k -> StaffingType.from(k.getKey().getName()),
+                  k -> StaffingMetricType.from(k.getKey().getName()),
                   v -> buildStaffingPlannedData(v.getKey(), v.getValue())
               )
           );

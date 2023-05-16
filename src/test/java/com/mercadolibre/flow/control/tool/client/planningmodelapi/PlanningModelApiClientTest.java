@@ -226,7 +226,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
         List.of(),
         Map.of()
     );
-
+    
     final EntityDataDto expectedHeadcountDataResponse = new EntityDataDto(
         FBM_WMS_OUTBOUND,
         DATE_FROM,
@@ -280,5 +280,4 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
     assertEquals(key, output.key());
     assertEquals(value, output.value());
   }
-
 }
