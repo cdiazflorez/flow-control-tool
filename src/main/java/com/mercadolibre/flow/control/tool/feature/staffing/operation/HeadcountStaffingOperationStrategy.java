@@ -90,8 +90,8 @@ public class HeadcountStaffingOperationStrategy implements StaffingOperationStra
         .plannedNonSystemicEdited(staffingPlanned.plannedNonSystemicEdited())
         .presentSystemic(presentSystemicOptional.orElse(null))
         .presentNonSystemic(presentNonSystemicOptional.orElse(null))
-        .deviationSystemic(presentSystemicOptional.map(presentSystemic -> plannedSystemic - presentSystemic).orElse(null))
-        .deviationNonSystemic(presentNonSystemicOptional.map(presentNonSystemic -> plannedNonSystemic - presentNonSystemic).orElse(null))
+        .deviationSystemic(presentSystemicOptional.map(presentSystemic -> presentSystemic - plannedSystemic).orElse(null))
+        .deviationNonSystemic(presentNonSystemicOptional.map(presentNonSystemic -> presentNonSystemic - plannedNonSystemic).orElse(null))
         .build();
   }
 }
