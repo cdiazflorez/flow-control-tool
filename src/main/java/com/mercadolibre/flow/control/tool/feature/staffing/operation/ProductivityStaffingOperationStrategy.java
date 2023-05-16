@@ -55,7 +55,7 @@ public class ProductivityStaffingOperationStrategy implements StaffingOperationS
                   .planned(planned)
                   .plannedEdited(staffingPlanned.plannedEdited())
                   .real(realOptional.orElse(null))
-                  .deviation(realOptional.map(real -> planned - real).orElse(null))
+                  .deviation(realOptional.map(real -> real - planned).orElse(null))
                   .build();
             })
             .toList()
