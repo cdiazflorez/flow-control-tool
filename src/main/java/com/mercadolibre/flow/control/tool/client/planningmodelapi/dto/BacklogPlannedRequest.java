@@ -4,8 +4,8 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Plann
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public record BacklogPlannedRequest(
 
@@ -13,7 +13,7 @@ public record BacklogPlannedRequest(
 
     PlanningWorkflow planningWorkflow,
 
-    List<ProcessPathName> processPathNames,
+    Set<ProcessPathName> processPathNames,
 
     Instant dateInFrom,
 
@@ -21,7 +21,7 @@ public record BacklogPlannedRequest(
 
     Instant viewDate,
 
-    List<PlannedGrouper> groupBy
+    Set<PlannedGrouper> groupBy
 
     ) {
 

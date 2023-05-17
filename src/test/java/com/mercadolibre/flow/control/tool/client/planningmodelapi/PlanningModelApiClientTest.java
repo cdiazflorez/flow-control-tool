@@ -21,11 +21,13 @@ import static com.mercadolibre.restclient.http.HttpMethod.GET;
 import static com.mercadolibre.restclient.http.HttpMethod.POST;
 import static java.lang.String.format;
 import static java.time.ZonedDateTime.now;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -54,6 +56,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -270,14 +273,14 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
   @DisplayName("Test that obtains the planned backlog.")
   void testGetBacklogPlanned() {
     //GIVEN
-    final List<ProcessPathName> processPathNames = List.of(
+    final Set<ProcessPathName> processPathNames = Set.of(
         TOT_MONO,
         NON_TOT_MONO,
         TOT_MULTI_BATCH,
         NON_TOT_MULTI_BATCH
     );
 
-    final List<PlannedGrouper> plannedGroupers = List.of(
+    final Set<PlannedGrouper> plannedGroupers = Set.of(
         PlannedGrouper.DATE_IN,
         PlannedGrouper.DATE_OUT,
         PROCESS_PATH
@@ -316,7 +319,37 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
     final List<BacklogPlannedResponse> responses = planningModelApiClient.getBacklogPlanned(request);
     //THEN
     assertFalse(responses.isEmpty());
-    assertEquals(expectedResponse, responses);
+    assertAll(
+        "Assert that the response is correct.",
+        () -> assertEquals(expectedResponse.size(), responses.size()),
+        () -> assertTrue(expectedResponse.containsAll(responses)),
+        () -> assertTrue(responses.containsAll(expectedResponse))
+    );
+  }
+
+  @Test
+  @DisplayName("Test that obtains the planned backlog with an exception.")
+  void testGetBacklogPlannedException() {
+    //GIVEN
+    final BacklogPlannedRequest request = new BacklogPlannedRequest(
+        LOGISTIC_CENTER_ID,
+        FBM_WMS_OUTBOUND,
+        Set.of(),
+        DATE_FROM,
+        DATE_TO,
+        VIEW_DATE,
+        Set.of()
+    );
+
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL + format(GET_BACKLOG_PLANNED_URL, LOGISTIC_CENTER_ID))
+        .withStatusCode(INTERNAL_SERVER_ERROR.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .shouldFail();
+
+    //WHEN - THEN
+    assertThrows(ClientException.class, () -> planningModelApiClient.getBacklogPlanned(request));
   }
 
   private BacklogProjectionRequest mockBacklogProjectionRequest() {
