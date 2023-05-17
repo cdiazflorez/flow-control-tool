@@ -25,15 +25,17 @@ public record BacklogPlannedRequest(
 
     ) {
 
+  private static final String DELIMITER = ",";
+
   public Map<String, String> getQueryParams() {
     return Map.of(
         "logistic_center", logisticCenter,
         "workflow", planningWorkflow.getName(),
-        "process_paths", String.join(",", processPathNames.stream().map(ProcessPathName::getName).toList()),
+        "process_paths", String.join(DELIMITER, processPathNames.stream().map(ProcessPathName::getName).toList()),
         "date_in_from", dateInFrom.toString(),
         "date_in_to", dateInTo.toString(),
         "view_date", viewDate.toString(),
-        "group_by", String.join(",", groupBy.stream().map(PlannedGrouper::getName).toList())
+        "group_by", String.join(DELIMITER, groupBy.stream().map(PlannedGrouper::getName).toList())
     );
   }
 }
