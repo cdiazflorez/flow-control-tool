@@ -4,10 +4,14 @@ import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constan
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.PRODUCTIVITY;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.THROUGHPUT;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName.PICKING;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.PROCESS_PATH;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.ProcessingType.EFFECTIVE_WORKERS;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Source.FORECAST;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MULTI_BATCH;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MONO;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MULTI_BATCH;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
@@ -17,11 +21,13 @@ import static com.mercadolibre.restclient.http.HttpMethod.GET;
 import static com.mercadolibre.restclient.http.HttpMethod.POST;
 import static java.lang.String.format;
 import static java.time.ZonedDateTime.now;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +36,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.config.RestClientTestUtils;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit;
@@ -41,13 +50,16 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPro
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.restclient.MockResponse;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class PlanningModelApiClientTest extends RestClientTestUtils {
@@ -58,9 +70,17 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
 
   private static final String GET_ALL_STAFFING_DATA_URL = "/planning/model/workflows/%s/entities/search";
 
+  private static final String GET_BACKLOG_PLANNED_URL = "/logistic_center/%s/plan/units";
+
   private static final Instant DATE_FROM = Instant.parse("2023-03-17T14:00:00Z");
 
   private static final Instant DATE_TO = Instant.parse("2023-03-17T15:00:00Z");
+
+  private static final Instant VIEW_DATE = DATE_FROM;
+
+  private static final Instant DATE_IN = DATE_FROM;
+
+  private static final Instant DATE_OUT = Instant.parse("2023-03-18T08:00:00Z");
 
   private static final Integer PICKING_TOTAL = 50;
 
@@ -247,6 +267,89 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
 
     assertFalse(response.get(PRODUCTIVITY).isEmpty());
     assertFalse(response.get(THROUGHPUT).isEmpty());
+  }
+
+  @Test
+  @DisplayName("Test that obtains the planned backlog.")
+  void testGetBacklogPlanned() {
+    //GIVEN
+    final Set<ProcessPathName> processPathNames = Set.of(
+        TOT_MONO,
+        NON_TOT_MONO,
+        TOT_MULTI_BATCH,
+        NON_TOT_MULTI_BATCH
+    );
+
+    final Set<PlannedGrouper> plannedGroupers = Set.of(
+        PlannedGrouper.DATE_IN,
+        PlannedGrouper.DATE_OUT,
+        PROCESS_PATH
+    );
+
+    final BacklogPlannedRequest request = new BacklogPlannedRequest(
+        LOGISTIC_CENTER_ID,
+        FBM_WMS_OUTBOUND,
+        processPathNames,
+        DATE_FROM,
+        DATE_TO,
+        VIEW_DATE,
+        plannedGroupers
+    );
+
+    final List<BacklogPlannedResponse> expectedResponse = processPathNames.stream()
+        .map(processPathName -> new BacklogPlannedResponse(
+            new BacklogPlannedResponse.GroupKey(
+                processPathName,
+                DATE_IN,
+                DATE_OUT
+            ),
+            35.55D
+        )).toList();
+
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL + format(GET_BACKLOG_PLANNED_URL, LOGISTIC_CENTER_ID))
+        .withStatusCode(OK.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .withResponseBody(
+            getResourceAsString("client/backlog_planned.json"))
+        .build();
+
+    //WHEN
+    final List<BacklogPlannedResponse> responses = planningModelApiClient.getBacklogPlanned(request);
+    //THEN
+    assertFalse(responses.isEmpty());
+    assertAll(
+        "Assert that the response is correct.",
+        () -> assertEquals(expectedResponse.size(), responses.size()),
+        () -> assertTrue(expectedResponse.containsAll(responses)),
+        () -> assertTrue(responses.containsAll(expectedResponse))
+    );
+  }
+
+  @Test
+  @DisplayName("Test that obtains the planned backlog with an exception.")
+  void testGetBacklogPlannedException() {
+    //GIVEN
+    final BacklogPlannedRequest request = new BacklogPlannedRequest(
+        LOGISTIC_CENTER_ID,
+        FBM_WMS_OUTBOUND,
+        Set.of(),
+        DATE_FROM,
+        DATE_TO,
+        VIEW_DATE,
+        Set.of()
+    );
+
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL + format(GET_BACKLOG_PLANNED_URL, LOGISTIC_CENTER_ID))
+        .withStatusCode(INTERNAL_SERVER_ERROR.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .shouldFail();
+
+    //WHEN - THEN
+    assertThrows(ClientException.class, () -> planningModelApiClient.getBacklogPlanned(request));
   }
 
   private BacklogProjectionRequest mockBacklogProjectionRequest() {
