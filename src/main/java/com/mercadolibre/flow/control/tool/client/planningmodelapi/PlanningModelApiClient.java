@@ -12,6 +12,8 @@ import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.RequestBodyHandler;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
@@ -38,6 +40,8 @@ public class PlanningModelApiClient extends HttpClient {
   private static final String GET_FORECAST_METADATA_URL = "/planning/model/workflows/%s/metadata";
 
   private static final String GET_ALL_STAFFING_DATA_URL = "/planning/model/workflows/%s/entities/search";
+
+  private static final String GET_BACKLOG_PLANNED_URL = "/logistic_center/%s/plan/units";
 
   private static final String WAREHOUSE_ID = "warehouse_id";
 
@@ -96,6 +100,21 @@ public class PlanningModelApiClient extends HttpClient {
         response -> response.getData(new TypeReference<>() {
         })
     );
+  }
+
+  @Trace
+  public List<BacklogPlannedResponse> getBacklogPlanned(final BacklogPlannedRequest backlogPlannedRequest) {
+    final HttpRequest request = HttpRequest.builder()
+        .url(format(GET_BACKLOG_PLANNED_URL, backlogPlannedRequest.logisticCenter()))
+        .GET()
+        .queryParams(backlogPlannedRequest.getQueryParams())
+        .acceptedHttpStatuses(Set.of(OK))
+        .build();
+
+    return send(
+        request,
+        response -> response.getData(new TypeReference<>() {
+        }));
   }
 
   private <T> RequestBodyHandler requestSupplier(final T requestBody) {
