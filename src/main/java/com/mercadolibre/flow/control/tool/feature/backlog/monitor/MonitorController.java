@@ -12,14 +12,18 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessLim
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.TotalBacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.editor.ProcessNameEditor;
 import com.mercadolibre.flow.control.tool.feature.editor.ProcessPathEditor;
+import com.mercadolibre.flow.control.tool.feature.editor.ValueTypeEditor;
 import com.mercadolibre.flow.control.tool.feature.editor.WorkflowEditor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.newrelic.api.agent.Trace;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -92,6 +96,45 @@ public class MonitorController {
     final var response = backlogProjectedUseCase.getBacklogProjected(dateFrom, dateTo, logisticCenterId, workflow, processes, viewDate);
 
     return ResponseEntity.ok(response);
+  }
+
+  @Trace
+  @GetMapping("/projections/total")
+  public ResponseEntity<List<TotalBacklogMonitor>> getTotalBacklogProjections(
+      @PathVariable final String logisticCenterId,
+      @RequestParam final Workflow workflow,
+      @RequestParam(name = "backlog_processes") final Set<ProcessName> processes,
+      @RequestParam(name = "throughput_processes") final Set<ProcessName> throughputProcesses,
+      @RequestParam(name = "value_type") final ValueType valueType,
+      @RequestParam(name = "date_from") final Instant dateFrom,
+      @RequestParam(name = "date_to") final Instant dateTo,
+      @RequestParam(name = "view_date") final Instant viewDate
+  ) {
+
+    validateDateRange(dateFrom, dateTo);
+
+    long hours = HOURS.between(dateFrom.truncatedTo(HOURS), dateTo.truncatedTo(HOURS));
+    List<TotalBacklogMonitor> totalBacklogResponse = new ArrayList<>();
+    for (int i = 0; i < hours; i++) {
+      totalBacklogResponse.add(
+          new TotalBacklogMonitor(
+              dateFrom.plus(i, HOURS),
+              20,
+              List.of(
+                  new SlasMonitor(dateFrom, 10, List.of(
+                      new ProcessPathMonitor(TOT_MONO, 5),
+                      new ProcessPathMonitor(NON_TOT_MONO, 5)
+                  )),
+                  new SlasMonitor(dateFrom.plus(2, HOURS), 10, List.of(
+                      new ProcessPathMonitor(TOT_MONO, 5),
+                      new ProcessPathMonitor(NON_TOT_MONO, 5)
+                  ))
+              )
+          )
+      );
+    }
+
+    return ResponseEntity.ok(totalBacklogResponse);
   }
 
   @Trace
@@ -188,5 +231,6 @@ public class MonitorController {
     dataBinder.registerCustomEditor(Workflow.class, new WorkflowEditor());
     dataBinder.registerCustomEditor(ProcessName.class, new ProcessNameEditor());
     dataBinder.registerCustomEditor(ProcessPathName.class, new ProcessPathEditor());
+    dataBinder.registerCustomEditor(ValueType.class, new ValueTypeEditor());
   }
 }

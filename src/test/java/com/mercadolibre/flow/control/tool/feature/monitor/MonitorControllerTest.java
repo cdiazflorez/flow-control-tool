@@ -49,13 +49,21 @@ public class MonitorControllerTest {
 
   private static final String LIMITS = "limits";
 
+  private static final String TOTAL = "total";
+
   private static final String WORKFLOW = "workflow";
 
   private static final String PROCESSES = "processes";
 
+  private static final String BACKLOG_PROCESSES = "backlog_processes";
+
+  private static final String THROUGHPUT_PROCESSES = "throughput_processes";
+
   private static final String PROCESS_PATHS = "process_paths";
 
   private static final String SLAS = "slas";
+
+  private static final String VALUE_TYPE = "value_type";
 
   private static final String VIEW_DATE = "view_date";
 
@@ -88,6 +96,8 @@ public class MonitorControllerTest {
   private static final String SHIPPING = "shipping";
 
   private static final String ERROR = "error";
+
+  private static final String UNITS = "units";
 
   private static final Set<ProcessName> PROCESS_NAMES = Set.of(
       ProcessName.PICKING,
@@ -597,6 +607,66 @@ public class MonitorControllerTest {
 
     // THEN
     result.andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testGetTotalBacklogProjection() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL + "/%s", LOGISTIC_CENTER_ID, PROJECTIONS, TOTAL))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(BACKLOG_PROCESSES, String.join(",", Arrays.asList(
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(THROUGHPUT_PROCESSES, String.join(",", Arrays.asList(
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(VALUE_TYPE, UNITS)
+            .param(VIEW_DATE, DATE_FROM_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, "2023-03-23T10:00:00Z")
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_total_backlog.json"))
+        );
+  }
+
+  @Test
+  void testGetTotalBacklogProjectionError() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL + "/%s", LOGISTIC_CENTER_ID, PROJECTIONS, TOTAL))
+            .param(WORKFLOW, "FBM-WMS-OUTBOUND")
+            .param(BACKLOG_PROCESSES, String.join(",", Arrays.asList(
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(THROUGHPUT_PROCESSES, String.join(",", Arrays.asList(
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(VALUE_TYPE, UNITS)
+            .param(VIEW_DATE, DATE_FROM_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().is4xxClientError()).andExpect(status().isBadRequest());
   }
 
   @Test
