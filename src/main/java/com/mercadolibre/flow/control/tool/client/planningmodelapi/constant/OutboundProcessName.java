@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum OutboundProcessName {
+  WAVING(ProcessName.WAVING),
   PICKING(ProcessName.PICKING),
   PACKING(ProcessName.PACKING),
   PACKING_WALL(ProcessName.PACKING_WALL),

@@ -3,15 +3,25 @@ package com.mercadolibre.flow.control.tool.client.planningmodelapi;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.HEADCOUNT;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.PRODUCTIVITY;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.THROUGHPUT;
-import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName.PICKING;
-import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.PROCESS_PATH;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.ProcessingType.EFFECTIVE_WORKERS;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Source.FORECAST;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.BATCH_SORTER;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.GLOBAL;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MULTI_BATCH;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MULTI_ORDER;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MULTI_BATCH;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MULTI_ORDER;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_SINGLE_SKU;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
@@ -21,6 +31,7 @@ import static com.mercadolibre.restclient.http.HttpMethod.GET;
 import static com.mercadolibre.restclient.http.HttpMethod.POST;
 import static java.lang.String.format;
 import static java.time.ZonedDateTime.now;
+import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,6 +40,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
+import static org.springframework.http.HttpStatus.REQUEST_TIMEOUT;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +48,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.config.RestClientTestUtils;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
@@ -50,10 +63,13 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPro
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.restclient.MockResponse;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,7 +78,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class PlanningModelApiClientTest extends RestClientTestUtils {
+class PlanningModelApiClientTest extends RestClientTestUtils {
+
+  private static final String GET_THROUGHPUT_BY_PP_PROCESS_DATE_URL = "/logistic_center/%s/plan/staffing/throughput";
 
   private static final String GET_BACKLOG_PROJECTION = "/logistic_center/%s/projections/backlog";
 
@@ -84,7 +102,31 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
 
   private static final Integer PICKING_TOTAL = 50;
 
+  private static final Integer WAVING_TOTAL = 25;
+
   private static final String ARTW01 = "ARTW01";
+
+  private static final Set<ProcessName> PROCESS_NAME_SET = Set.of(
+      WAVING,
+      PICKING,
+      BATCH_SORTER,
+      WALL_IN,
+      PACKING,
+      PACKING_WALL,
+      HU_ASSEMBLY,
+      SHIPPING
+  );
+
+  private static final Set<ProcessPathName> PROCESS_PATH_NAME_SET = Set.of(
+      TOT_MONO,
+      NON_TOT_MONO,
+      TOT_MULTI_BATCH,
+      NON_TOT_MULTI_BATCH,
+      TOT_MULTI_ORDER,
+      NON_TOT_MULTI_ORDER,
+      TOT_SINGLE_SKU,
+      GLOBAL
+  );
 
   private PlanningModelApiClient planningModelApiClient;
 
@@ -130,7 +172,6 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
     //THEN
     assertNotNull(response);
     assertEquals(expectedBacklogProjectionResponse, response);
-
   }
 
   /**
@@ -139,18 +180,12 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
   @Test
   void testGetBacklogProjectionException() {
     //GIVEN
-    final String jsonResponseBacklogProjection = getResourceAsString(
-        "client/response_get_backlog_projection.json"
-    );
-
     final String expectedMessage = "[http_method: POST] Error calling api.";
 
     MockResponse.builder()
         .withMethod(POST)
         .withURL(BASE_URL.concat(format(GET_BACKLOG_PROJECTION, ARTW01)))
-        .withStatusCode(OK.value())
-        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
-        .withResponseBody(jsonResponseBacklogProjection)
+        .withStatusCode(REQUEST_TIMEOUT.value())
         .shouldFail();
 
     final BacklogProjectionRequest request = mockBacklogProjectionRequest();
@@ -158,6 +193,132 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
     //WHEN
     final ClientException response = assertThrows(ClientException.class, () ->
         planningModelApiClient.getBacklogProjection(LOGISTIC_CENTER_ID, request)
+    );
+    //THEN
+    assertTrue(response.getMessage().contains(expectedMessage));
+  }
+
+  /**
+   * Test the getThroughputByPPAndProcessAndDate method in PlanningModelApiClient with happy ending.
+   * Where the total were set for WAVING -> TOT_MONO equals to 50.
+   */
+  @Test
+  void testGetThroughputByPPAndProcessAndDate() {
+    //GIVEN
+    final String jsonResponseBacklogProjection = getResourceAsString(
+        "client/response_get_papi_tph_by_pp_process_date.json"
+    );
+
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL.concat(format(GET_THROUGHPUT_BY_PP_PROCESS_DATE_URL, ARTW01)))
+        .withStatusCode(OK.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .withResponseBody(jsonResponseBacklogProjection)
+        .build();
+
+    //WHEN
+    final var response = planningModelApiClient.getThroughputByPPAndProcessAndDate(
+        Workflow.FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        DATE_FROM,
+        DATE_TO,
+        PROCESS_NAME_SET,
+        PROCESS_PATH_NAME_SET
+    );
+    //THEN
+    assertEquals(PROCESS_PATH_NAME_SET.size(), response.size());
+    assertEquals(PROCESS_NAME_SET.size(), response.get(GLOBAL).size());
+    assertEquals(WAVING_TOTAL, response.get(GLOBAL).get(OutboundProcessName.WAVING).get(DATE_FROM).quantity());
+    assertEquals(PICKING_TOTAL, response.get(GLOBAL).get(OutboundProcessName.PICKING).get(DATE_FROM).quantity());
+    assertEquals(PICKING_TOTAL, response.get(TOT_MONO).get(OutboundProcessName.WAVING).get(DATE_FROM).quantity());
+  }
+
+  /**
+   * Test the getThroughputByPPAndProcessAndDate method in PlanningModelApiClient with happy ending.
+   * Where the PP were set only for GLOBAL equals to 50.
+   */
+  @Test
+  void testGetThroughputByPPAndProcessAndDateNoPP() {
+    //GIVEN
+    final String jsonResponseThroughput = getResourceAsString(
+        "client/response_get_papi_tph_by_pp_process_date_no_pp.json"
+    );
+
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL.concat(format(GET_THROUGHPUT_BY_PP_PROCESS_DATE_URL, ARTW01)))
+        .withStatusCode(OK.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .withResponseBody(jsonResponseThroughput)
+        .build();
+
+    //WHEN
+    final var response = planningModelApiClient.getThroughputByPPAndProcessAndDate(
+        Workflow.FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        DATE_FROM,
+        DATE_TO,
+        PROCESS_NAME_SET,
+        null
+    );
+    //THEN
+    assertEquals(1, response.size());
+    assertEquals(PROCESS_NAME_SET.size(), response.get(GLOBAL).size());
+    assertEquals(WAVING_TOTAL, response.get(GLOBAL).get(OutboundProcessName.WAVING).get(DATE_FROM).quantity());
+    assertEquals(PICKING_TOTAL, response.get(GLOBAL).get(OutboundProcessName.PICKING).get(DATE_FROM).quantity());
+  }
+
+  /**
+   * Test the getThroughputByPPAndProcessAndDate method in PlanningModelApiClient when response is an empty {}.
+   */
+  @Test
+  void testGetThroughputByPPAndProcessAndDateEmptyResponse() {
+    //GIVEN
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL.concat(format(GET_THROUGHPUT_BY_PP_PROCESS_DATE_URL, ARTW01)))
+        .withStatusCode(OK.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .withResponseBody("{}")
+        .build();
+
+    //WHEN
+    final var response = planningModelApiClient.getThroughputByPPAndProcessAndDate(
+        Workflow.FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        DATE_FROM,
+        DATE_TO,
+        PROCESS_NAME_SET,
+        Set.of(GLOBAL)
+    );
+    //THEN
+    assertEquals(emptyMap(), response);
+  }
+
+  /**
+   * Test the getThroughputByPPAndProcessAndDate method in PlanningModelApiClient when the client fails
+   */
+  @Test
+  void testGetThroughputByPPAndProcessAndDateException() {
+    //GIVEN
+    final String expectedMessage = "[http_method: GET] Error calling api.";
+
+    MockResponse.builder()
+        .withMethod(GET)
+        .withURL(BASE_URL.concat(format(GET_THROUGHPUT_BY_PP_PROCESS_DATE_URL, ARTW01)))
+        .shouldFail();
+
+    //WHEN
+    final ClientException response = assertThrows(ClientException.class, () ->
+        planningModelApiClient.getThroughputByPPAndProcessAndDate(
+            Workflow.FBM_WMS_OUTBOUND,
+            LOGISTIC_CENTER_ID,
+            DATE_FROM,
+            DATE_TO,
+            PROCESS_NAME_SET,
+            PROCESS_PATH_NAME_SET
+        )
     );
     //THEN
     assertTrue(response.getMessage().contains(expectedMessage));
@@ -205,6 +366,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
   void testGetForecastMetadataException() {
 
     // GIVEN
+    final ZonedDateTime now = now();
     final String expectedMessage = "[http_method: GET] Error calling api.";
     MockResponse.builder()
         .withMethod(GET)
@@ -220,7 +382,8 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
         planningModelApiClient.getForecastMetadata(
             FBM_WMS_OUTBOUND,
             LOGISTIC_CENTER_ID,
-            now()));
+            now
+        ));
 
     //THEN
     assertTrue(response.getMessage().contains(expectedMessage));
@@ -246,12 +409,12 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
         List.of(),
         Map.of()
     );
-    
+
     final EntityDataDto expectedHeadcountDataResponse = new EntityDataDto(
         FBM_WMS_OUTBOUND,
         DATE_FROM,
         "global",
-        PICKING,
+        OutboundProcessName.PICKING,
         EFFECTIVE_WORKERS,
         "workers",
         FORECAST,
@@ -283,7 +446,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
     final Set<PlannedGrouper> plannedGroupers = Set.of(
         PlannedGrouper.DATE_IN,
         PlannedGrouper.DATE_OUT,
-        PROCESS_PATH
+        PlannedGrouper.PROCESS_PATH
     );
 
     final BacklogPlannedRequest request = new BacklogPlannedRequest(
@@ -356,7 +519,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
 
     final Quantity processQuantity = new Quantity(null, DATE_TO, PICKING_TOTAL);
     final ProcessPath processPath = new ProcessPath(TOT_MONO, List.of(processQuantity));
-    final Process process = new Process(PICKING, List.of(processPath), null);
+    final Process process = new Process(OutboundProcessName.PICKING, List.of(processPath), null);
     final Backlog backlog = new Backlog(List.of(process));
 
     final Quantity processPathQuantity = new Quantity(DATE_FROM, DATE_TO, PICKING_TOTAL);
@@ -364,7 +527,7 @@ public class PlanningModelApiClientTest extends RestClientTestUtils {
         new ProcessPath(TOT_MONO, List.of(processPathQuantity));
     final PlannedUnit plannedUnit = new PlannedUnit(List.of(plannedUnitProcessPath));
 
-    final Process throughputProcess = new Process(PICKING, null, PICKING_TOTAL);
+    final Process throughputProcess = new Process(OutboundProcessName.PICKING, null, PICKING_TOTAL);
     final Throughput throughput = new Throughput(DATE_FROM, List.of(throughputProcess));
 
     return new BacklogProjectionRequest(
