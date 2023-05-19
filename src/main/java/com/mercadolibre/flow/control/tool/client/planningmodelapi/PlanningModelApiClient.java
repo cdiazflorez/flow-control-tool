@@ -20,6 +20,8 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPro
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -51,6 +53,8 @@ public class PlanningModelApiClient extends HttpClient {
 
   private static final String GET_BACKLOG_PLANNED_URL = "/logistic_center/%s/plan/units";
 
+  private static final String GET_BACKLOG_PROJECTION_TOTAL_URL = GET_BACKLOG_PROJECTION_URL + "/total";
+
   private static final String WAREHOUSE_ID = "warehouse_id";
 
   private static final String DATE_TIME = "date_time";
@@ -80,6 +84,23 @@ public class PlanningModelApiClient extends HttpClient {
     final HttpRequest request = HttpRequest.builder()
         .url(format(GET_BACKLOG_PROJECTION_URL, logisticCenterId))
         .POST(requestSupplier(backlogProjectionRequest))
+        .acceptedHttpStatuses(Set.of(OK))
+        .build();
+
+    return send(
+        request,
+        response -> response.getData(new TypeReference<>() {
+        }));
+  }
+
+  @Trace
+  public List<TotalBacklogProjectionResponse> getTotalBacklogProjection(
+      final String logisticCenterId,
+      final TotalBacklogProjectionRequest totalBacklogProjectionRequest
+  ) {
+    final HttpRequest request = HttpRequest.builder()
+        .url(format(GET_BACKLOG_PROJECTION_TOTAL_URL, logisticCenterId))
+        .POST(requestSupplier(totalBacklogProjectionRequest))
         .acceptedHttpStatuses(Set.of(OK))
         .build();
 

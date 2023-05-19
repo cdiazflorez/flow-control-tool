@@ -63,6 +63,8 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPro
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.Metadata;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -89,6 +91,8 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
   private static final String GET_ALL_STAFFING_DATA_URL = "/planning/model/workflows/%s/entities/search";
 
   private static final String GET_BACKLOG_PLANNED_URL = "/logistic_center/%s/plan/units";
+
+  private static final String GET_BACKLOG_PROJECTION_TOTAL_URL = GET_BACKLOG_PROJECTION + "/total";
 
   private static final Instant DATE_FROM = Instant.parse("2023-03-17T14:00:00Z");
 
@@ -491,7 +495,7 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
   }
 
   @Test
-  @DisplayName("Test that obtains the planned backlog with an exception.")
+  @DisplayName("Test that obtains the total backlog projection.")
   void testGetBacklogPlannedException() {
     //GIVEN
     final BacklogPlannedRequest request = new BacklogPlannedRequest(
@@ -513,6 +517,65 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
 
     //WHEN - THEN
     assertThrows(ClientException.class, () -> planningModelApiClient.getBacklogPlanned(request));
+  }
+
+  @Test
+  @DisplayName("Test that obtains the total backlog projection with an exception.")
+  void testGetTotalBacklogProjection() {
+    //GIVEN
+    final String jsonResponseTotalBacklogProjection = getResourceAsString(
+        "client/response_get_total_backlog_projection.json"
+    );
+
+    MockResponse.builder()
+        .withMethod(POST)
+        .withURL(BASE_URL.concat(format(GET_BACKLOG_PROJECTION_TOTAL_URL, ARTW01)))
+        .withStatusCode(OK.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .withResponseBody(jsonResponseTotalBacklogProjection)
+        .build();
+
+    final TotalBacklogProjectionRequest request = mockTotalBacklogProjectionRequest();
+
+    //WHEN
+    List<TotalBacklogProjectionResponse> response = planningModelApiClient.getTotalBacklogProjection(LOGISTIC_CENTER_ID, request);
+    //THEN
+    assertNotNull(response);
+    assertEquals(Instant.parse("2023-03-17T14:00:00Z"), response.get(0).getDate());
+    assertEquals(Instant.parse("2023-03-17T15:00:00Z"), response.get(0).getSla().get(0).getDateOut());
+    assertEquals(50, response.get(0).getSla().get(0).getQuantity());
+    assertEquals(1, response.get(0).getSla().get(0).getProcessPath().size());
+    assertEquals(TOT_MONO, response.get(0).getSla().get(0).getProcessPath().get(0).getName());
+    assertEquals(50, response.get(0).getSla().get(0).getProcessPath().get(0).getQuantity());
+
+  }
+
+  @Test
+  @DisplayName("Test that obtains the total backlog projection with an exception.")
+  void testGetTotalBacklogProjectionException() {
+    //GIVEN
+    final String jsonResponseTotalBacklogProjection = getResourceAsString(
+        "client/response_get_total_backlog_projection.json"
+    );
+
+    final String expectedMessage = "[http_method: POST] Error calling api.";
+
+    MockResponse.builder()
+        .withMethod(POST)
+        .withURL(BASE_URL.concat(format(GET_BACKLOG_PROJECTION_TOTAL_URL, ARTW01)))
+        .withStatusCode(OK.value())
+        .withResponseHeader(HEADER_NAME, APPLICATION_JSON.toString())
+        .withResponseBody(jsonResponseTotalBacklogProjection)
+        .shouldFail();
+
+    final TotalBacklogProjectionRequest request = mockTotalBacklogProjectionRequest();
+
+    //WHEN
+    final ClientException response = assertThrows(ClientException.class, () ->
+        planningModelApiClient.getTotalBacklogProjection(LOGISTIC_CENTER_ID, request)
+    );
+    //THEN
+    assertTrue(response.getMessage().contains(expectedMessage));
   }
 
   private BacklogProjectionRequest mockBacklogProjectionRequest() {
@@ -537,6 +600,31 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
         DATE_FROM,
         DATE_TO,
         FBM_WMS_OUTBOUND
+    );
+  }
+
+  private TotalBacklogProjectionRequest mockTotalBacklogProjectionRequest() {
+
+    final TotalBacklogProjectionRequest.Quantity processQuantity = new TotalBacklogProjectionRequest.Quantity(null, DATE_TO, PICKING_TOTAL);
+    final TotalBacklogProjectionRequest.ProcessPath processPath =
+        new TotalBacklogProjectionRequest.ProcessPath(TOT_MONO, List.of(processQuantity));
+    final TotalBacklogProjectionRequest.Backlog backlog = new TotalBacklogProjectionRequest.Backlog(List.of(processPath));
+
+    final TotalBacklogProjectionRequest.Quantity processPathQuantity =
+        new TotalBacklogProjectionRequest.Quantity(DATE_FROM, DATE_TO, PICKING_TOTAL);
+    final TotalBacklogProjectionRequest.ProcessPath plannedUnitProcessPath =
+        new TotalBacklogProjectionRequest.ProcessPath(TOT_MONO, List.of(processPathQuantity));
+    final TotalBacklogProjectionRequest.PlannedUnit plannedUnit =
+        new TotalBacklogProjectionRequest.PlannedUnit(List.of(plannedUnitProcessPath));
+
+    final TotalBacklogProjectionRequest.Throughput throughput = new TotalBacklogProjectionRequest.Throughput(DATE_FROM, PICKING_TOTAL);
+
+    return new TotalBacklogProjectionRequest(
+        DATE_FROM,
+        DATE_TO,
+        backlog,
+        plannedUnit,
+        List.of(throughput)
     );
   }
 
