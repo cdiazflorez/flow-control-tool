@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
@@ -53,13 +54,10 @@ class BacklogProjectedUseCaseTest {
       new BacklogProjectedUseCase.PlannedBacklog(OP_DATE3, DATE_OUT, 100)
   );
 
-  private static final List<BacklogProjectedUseCase.Throughput> THROUGHPUT = List.of(
-      new BacklogProjectedUseCase.Throughput(OP_DATE1, ProcessPathName.TOT_MONO, ProcessName.PICKING, 100),
-      new BacklogProjectedUseCase.Throughput(OP_DATE2, ProcessPathName.TOT_MONO, ProcessName.PICKING, 75),
-      new BacklogProjectedUseCase.Throughput(OP_DATE3, ProcessPathName.TOT_MONO, ProcessName.PICKING, 50),
-      new BacklogProjectedUseCase.Throughput(OP_DATE1, ProcessPathName.TOT_MULTI_BATCH, ProcessName.PICKING, 50),
-      new BacklogProjectedUseCase.Throughput(OP_DATE2, ProcessPathName.TOT_MULTI_BATCH, ProcessName.PICKING, 75),
-      new BacklogProjectedUseCase.Throughput(OP_DATE3, ProcessPathName.TOT_MULTI_BATCH, ProcessName.PICKING, 100)
+  private static final Map<Instant, Map<ProcessName, Integer>> THROUGHPUT = Map.of(
+      OP_DATE1, Map.of(ProcessName.PICKING, 100),
+      OP_DATE2, Map.of(ProcessName.PICKING, 75),
+      OP_DATE3, Map.of(ProcessName.PICKING, 50)
   );
 
   private static final Map<ProcessPathName, Integer> BACKLOG_BY_PROCESS1 = Map.of(
@@ -129,7 +127,7 @@ class BacklogProjectedUseCaseTest {
   private BacklogProjectedUseCase.BacklogGateway backlogApiGateway;
 
   @Mock
-  private BacklogProjectedUseCase.PlanningEntitiesGateway planningEntitiesGateway;
+  private PlannedEntitiesGateway planningEntitiesGateway;
 
   @Mock
   private BacklogProjectedUseCase.BacklogProjectionGateway backlogProjectionGateway;
@@ -153,9 +151,9 @@ class BacklogProjectedUseCaseTest {
         new ParametersTest(CURRENT_BACKLOG, PLANNED_BACKLOGS, THROUGHPUT, BACKLOG, expected()),
         new ParametersTest(emptyMap(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyList()),
         new ParametersTest(emptyMap(), emptyList(), THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyMap(), emptyList(), emptyList(), emptyMap(), emptyList()),
+        new ParametersTest(emptyMap(), emptyList(), emptyMap(), emptyMap(), emptyList()),
         new ParametersTest(CURRENT_BACKLOG, emptyList(), THROUGHPUT, emptyMap(), emptyList()),
-        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, emptyList(), emptyMap(), emptyList())
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, emptyMap(), emptyMap(), emptyList())
     );
   }
 
@@ -295,7 +293,7 @@ class BacklogProjectedUseCaseTest {
   private record ParametersTest(
       Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
       List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs,
-      List<BacklogProjectedUseCase.Throughput> throughput,
+      Map<Instant, Map<ProcessName, Integer>> throughput,
       Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlog,
       List<BacklogMonitor> expected
   ) {

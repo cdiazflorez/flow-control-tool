@@ -22,7 +22,7 @@ public class BacklogProjectedUseCase {
 
   private final BacklogGateway backlogApiGateway;
 
-  private final PlanningEntitiesGateway planningApiGateway;
+  private final PlannedEntitiesGateway plannedEntitiesGateway;
 
   private final BacklogProjectionGateway backlogProjectionGateway;
 
@@ -37,9 +37,9 @@ public class BacklogProjectedUseCase {
       final Instant viewDate) {
     final var currentBacklog = backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(logisticCenterId, workflow, processes, dateFrom);
 
-    final var tph = planningApiGateway.getThroughput(workflow, logisticCenterId, dateFrom, dateTo, processes);
+    final var tph = plannedEntitiesGateway.getThroughput(workflow, logisticCenterId, dateFrom, dateTo, processes);
 
-    final var plannedBacklog = planningApiGateway.getPlannedBacklog(workflow, logisticCenterId, dateFrom, dateTo);
+    final var plannedBacklog = plannedEntitiesGateway.getPlannedBacklog(workflow, logisticCenterId, dateFrom, dateTo);
 
     final var backlogProjection =
         backlogProjectionGateway.executeBacklogProjection(dateFrom, dateTo, processes, currentBacklog, tph, plannedBacklog);
@@ -86,8 +86,12 @@ public class BacklogProjectedUseCase {
   /**
    * Gateway planning api to obtain tph, plannedBacklog.
    */
-  public interface PlanningEntitiesGateway {
-    List<Throughput> getThroughput(Workflow workflow, String logisticCenterId, Instant dateFrom, Instant dateTo, Set<ProcessName> process);
+  public interface PlannedEntitiesGateway {
+    Map<Instant, Map<ProcessName, Integer>> getThroughput(Workflow workflow,
+                                                          String logisticCenterId,
+                                                          Instant dateFrom,
+                                                          Instant dateTo,
+                                                          Set<ProcessName> process);
 
     List<PlannedBacklog> getPlannedBacklog(Workflow workflow, String logisticCenterId, Instant dateFrom, Instant dateTo);
   }
@@ -101,17 +105,10 @@ public class BacklogProjectedUseCase {
         Instant dateTo,
         Set<ProcessName> process,
         Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
-        List<Throughput> throughput,
+        Map<Instant, Map<ProcessName, Integer>> throughput,
         List<PlannedBacklog> plannedBacklogs);
   }
 
-  public record Throughput(
-      Instant date,
-      ProcessPathName processPathName,
-      ProcessName processName,
-      Integer quantity
-  ) {
-  }
 
   public record PlannedBacklog(
       Instant dateIn,
