@@ -1,14 +1,22 @@
-package com.mercadolibre.flow.control.tool.client;
+package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
+
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.DATE_IN;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.DATE_OUT;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.PROCESS_PATH;
 
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase.PlannedEntitiesGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,9 +30,17 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @Component
 public class PlannedEntitiesAdapter
-    implements PlannedEntitiesGateway, BacklogProjectedUseCase.BacklogProjectionGateway {
+    implements BacklogProjectedUseCase.PlannedEntitiesGateway, BacklogProjectedUseCase.BacklogProjectionGateway {
 
   private static final Set<ProcessPathName> PROCESS_PATH_GLOBAL = Set.of(ProcessPathName.GLOBAL);
+
+  private static final Set<PlannedGrouper> PLANNED_GROUPERS = Set.of(
+      PROCESS_PATH,
+      DATE_IN,
+      DATE_OUT
+  );
+
+  private static final Set<ProcessPathName> PROCESS_PATH_NAMES = new HashSet<>(ProcessPathName.allPaths());
 
   private final PlanningModelApiClient planningModelApiClient;
 
@@ -75,9 +91,24 @@ public class PlannedEntitiesAdapter
   }
 
   @Override
-  public List<BacklogProjectedUseCase.PlannedBacklog> getPlannedBacklog(Workflow workflow, String logisticCenterId, Instant dateFrom,
-                                                                        Instant dateTo) {
-    return Collections.emptyList();
+  public List<PlannedBacklog> getPlannedBacklog(final Workflow workflow,
+                                                final String logisticCenterId,
+                                                final Instant dateFrom,
+                                                final Instant dateTo) {
+    return planningModelApiClient.getBacklogPlanned(
+            new BacklogPlannedRequest(
+                logisticCenterId,
+                PlanningWorkflow.from(workflow.getName()),
+                PROCESS_PATH_NAMES,
+                dateFrom,
+                dateTo,
+                PLANNED_GROUPERS)).stream()
+        .map(backlogPlannedResponse -> new PlannedBacklog(
+            backlogPlannedResponse.group().processPath(),
+            backlogPlannedResponse.group().dateIn(),
+            backlogPlannedResponse.group().dateOut(),
+            (int) Math.round(backlogPlannedResponse.total()))
+        ).toList();
   }
 
   @Override
@@ -87,7 +118,7 @@ public class PlannedEntitiesAdapter
       Set<ProcessName> process,
       Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
       Map<Instant, Map<ProcessName, Integer>> throughput,
-      List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs) {
+      List<PlannedBacklog> plannedBacklogs) {
     return Collections.emptyMap();
   }
 

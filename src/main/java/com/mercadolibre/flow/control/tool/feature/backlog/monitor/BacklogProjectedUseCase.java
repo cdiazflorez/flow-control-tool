@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
@@ -109,11 +110,4 @@ public class BacklogProjectedUseCase {
         List<PlannedBacklog> plannedBacklogs);
   }
 
-
-  public record PlannedBacklog(
-      Instant dateIn,
-      Instant dateOut,
-      Integer quantity
-  ) {
-  }
 }

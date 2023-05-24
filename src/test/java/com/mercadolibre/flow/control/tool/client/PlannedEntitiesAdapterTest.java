@@ -1,20 +1,31 @@
 package com.mercadolibre.flow.control.tool.client;
 
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient.Throughput;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter.PlannedEntitiesAdapter;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -32,6 +43,8 @@ class PlannedEntitiesAdapterTest {
   private static final Throughput THROUGHPUT_PICKING = new Throughput(100);
   private static final Instant SLA_1 = Instant.parse("2023-08-08T10:00:00Z");
   private static final Instant SLA_2 = Instant.parse("2023-08-08T11:00:00Z");
+  private static final Instant DATE_FROM = Instant.parse("2023-05-18T08:00:00Z");
+  private static final Instant DATE_TO = Instant.parse("2023-05-18T10:00:00Z");
   private static final Set<ProcessName> PROCESSES = Set.of(ProcessName.PICKING, ProcessName.PACKING);
 
   @InjectMocks
@@ -96,4 +109,39 @@ class PlannedEntitiesAdapterTest {
         SLA_1, Map.of(ProcessName.PICKING, 100),
         SLA_2, Map.of(ProcessName.PACKING, 200));
   }
+
+  @Test
+  void testBacklogPlanUnitAdapter() {
+    //GIVEN
+    final int hours = (int) HOURS.between(DATE_FROM, DATE_TO);
+
+    final List<BacklogPlannedResponse> plannedMock = IntStream.rangeClosed(0, hours)
+        .mapToObj(hour -> new BacklogPlannedResponse(
+            new BacklogPlannedResponse.GroupKey(
+                NON_TOT_MONO,
+                DATE_FROM.plus(hour, HOURS),
+                DATE_TO.plus(hour, HOURS)),
+            50.55D
+        )).toList();
+
+    final List<PlannedBacklog> expectedPlanUnits = IntStream.rangeClosed(0, hours)
+        .mapToObj(hour -> new PlannedBacklog(
+            NON_TOT_MONO,
+            DATE_FROM.plus(hour, HOURS),
+            DATE_TO.plus(hour, HOURS),
+            51
+        )).toList();
+
+    when(planningModelApiClient.getBacklogPlanned(any(BacklogPlannedRequest.class))).thenReturn(plannedMock);
+
+    //WHEN
+    final List<PlannedBacklog> planUnits = plannedEntitiesAdapter.getPlannedBacklog(FBM_WMS_OUTBOUND,
+                                                                                     LOGISTIC_CENTER_ID,
+                                                                                     DATE_FROM,
+                                                                                     DATE_TO);
+    //THEN
+    assertFalse(planUnits.isEmpty());
+    assertEquals(expectedPlanUnits, planUnits);
+  }
+
 }

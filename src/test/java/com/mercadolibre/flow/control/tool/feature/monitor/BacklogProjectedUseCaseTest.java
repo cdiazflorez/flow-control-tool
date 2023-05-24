@@ -10,6 +10,7 @@ import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase.PlannedEntitiesGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
@@ -48,10 +49,10 @@ class BacklogProjectedUseCaseTest {
 
   private static final Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> CURRENT_BACKLOG = Map.of(ProcessName.PICKING,
       Map.of(ProcessPathName.TOT_MONO, Map.of(DATE_OUT, 100)));
-  private static final List<BacklogProjectedUseCase.PlannedBacklog> PLANNED_BACKLOGS = List.of(
-      new BacklogProjectedUseCase.PlannedBacklog(OP_DATE1, DATE_OUT, 25),
-      new BacklogProjectedUseCase.PlannedBacklog(OP_DATE2, DATE_OUT, 22),
-      new BacklogProjectedUseCase.PlannedBacklog(OP_DATE3, DATE_OUT, 100)
+  private static final List<PlannedBacklog> PLANNED_BACKLOGS = List.of(
+      new PlannedBacklog(ProcessPathName.TOT_MONO, OP_DATE1, DATE_OUT, 25),
+      new PlannedBacklog(ProcessPathName.TOT_MONO, OP_DATE2, DATE_OUT, 22),
+      new PlannedBacklog(ProcessPathName.TOT_MONO, OP_DATE3, DATE_OUT, 100)
   );
 
   private static final Map<Instant, Map<ProcessName, Integer>> THROUGHPUT = Map.of(
@@ -292,7 +293,7 @@ class BacklogProjectedUseCaseTest {
 
   private record ParametersTest(
       Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
-      List<BacklogProjectedUseCase.PlannedBacklog> plannedBacklogs,
+      List<PlannedBacklog> plannedBacklogs,
       Map<Instant, Map<ProcessName, Integer>> throughput,
       Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlog,
       List<BacklogMonitor> expected

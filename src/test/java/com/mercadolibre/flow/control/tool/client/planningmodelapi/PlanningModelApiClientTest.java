@@ -459,7 +459,6 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
         processPathNames,
         DATE_FROM,
         DATE_TO,
-        VIEW_DATE,
         plannedGroupers
     );
 
@@ -504,7 +503,6 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
         Set.of(),
         DATE_FROM,
         DATE_TO,
-        VIEW_DATE,
         Set.of()
     );
 

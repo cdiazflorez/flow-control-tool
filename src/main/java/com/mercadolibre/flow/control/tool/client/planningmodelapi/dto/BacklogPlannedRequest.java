@@ -19,8 +19,6 @@ public record BacklogPlannedRequest(
 
     Instant dateInTo,
 
-    Instant viewDate,
-
     Set<PlannedGrouper> groupBy
 
     ) {
@@ -34,7 +32,6 @@ public record BacklogPlannedRequest(
         "process_paths", String.join(DELIMITER, processPathNames.stream().map(ProcessPathName::getName).toList()),
         "date_in_from", dateInFrom.toString(),
         "date_in_to", dateInTo.toString(),
-        "view_date", viewDate.toString(),
         "group_by", String.join(DELIMITER, groupBy.stream().map(PlannedGrouper::getName).toList())
     );
   }
