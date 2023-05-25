@@ -240,4 +240,21 @@ public class ControllerExceptionHandler {
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
   }
+
+  /**
+   * Handler for Total backlog projection exceptions.
+   *
+   * @param ex the exception thrown during a request to external API.
+   * @return {@link ResponseEntity} status code and description.
+   */
+  @ExceptionHandler(TotalProjectionException.class)
+  public ResponseEntity<ApiError> handleTotalProjectionException(final TotalProjectionException ex) {
+    final ApiError apiError = new ApiError(
+        "total_projection_exception",
+        ex.getMessage(),
+        ex.getStatus()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
 }

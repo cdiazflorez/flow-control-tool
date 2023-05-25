@@ -3,29 +3,33 @@ package com.mercadolibre.flow.control.tool.client.planningmodelapi.dto;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
 import java.util.List;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class TotalBacklogProjectionResponse {
 
-  Instant date;
-  List<Sla> sla;
+  private Instant date;
+  private List<Sla> sla;
 
   @Data
+  @AllArgsConstructor
   @NoArgsConstructor
   public static class Sla {
-    Instant dateOut;
-    Integer quantity;
-    List<ProcessPath> processPath;
+    private Instant dateOut;
+    private Integer quantity;
+    private List<ProcessPath> processPath;
   }
 
   @Data
+  @AllArgsConstructor
   @NoArgsConstructor
   public static class ProcessPath {
-    ProcessPathName name;
-    Integer quantity;
+    private ProcessPathName name;
+    private Integer quantity;
   }
 
 }
