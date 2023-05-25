@@ -9,30 +9,12 @@
           {
             "date": "2023-03-23T07:00:00Z",
             "quantity": 0,
-            "processPaths": [
-              {
-                "name": "tot_mono",
-                "quantity": 0
-              },
-              {
-                "name": "non_tot_mono",
-                "quantity": 0
-              }
-            ]
+            "processPaths": []
           },
           {
             "date": "2023-03-23T08:00:00Z",
             "quantity": 5,
-            "processPaths": [
-              {
-                "name": "tot_mono",
-                "quantity": 2
-              },
-              {
-                "name": "non_tot_mono",
-                "quantity": 3
-              }
-            ]
+            "processPaths": []
           }
         ]
       }

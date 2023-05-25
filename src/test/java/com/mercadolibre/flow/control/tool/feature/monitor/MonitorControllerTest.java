@@ -6,6 +6,7 @@ import static com.mercadolibre.flow.control.tool.util.TestUtils.FBM_WMS_OUTBOUND
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.util.Collections.emptyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -166,18 +167,12 @@ public class MonitorControllerTest {
                           new SlasMonitor(
                               Instant.parse(DATE_FROM_STRING),
                               0,
-                              List.of(
-                                  new ProcessPathMonitor(TOT_MONO, 0),
-                                  new ProcessPathMonitor(NON_TOT_MONO, 0)
-                              )
+                              emptyList()
                           ),
                           new SlasMonitor(
                               Instant.parse(DATE_FROM_STRING).plus(1, HOURS),
                               5,
-                              List.of(
-                                  new ProcessPathMonitor(TOT_MONO, 2),
-                                  new ProcessPathMonitor(NON_TOT_MONO, 3)
-                              )
+                              emptyList()
                           )
                       )
                   )
@@ -449,6 +444,16 @@ public class MonitorControllerTest {
     )).thenReturn(BACKLOG_PROJECTED_MOCK);
   }
 
+  private void whenBacklogProjectionUseCaseEmptyPP() {
+    when(backlogProjectedUseCase.getBacklogProjected(Instant.parse(DATE_FROM_STRING),
+        Instant.parse(DATE_TO_STRING),
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        PROCESS_NAMES,
+        Instant.parse(VIEW_DATE_STRING)
+    )).thenReturn(BACKLOG_PROJECTED_MOCK);
+  }
+
   @Test
   void testGetBacklogProjections() throws Exception {
 
@@ -493,7 +498,7 @@ public class MonitorControllerTest {
   void testGetBacklogProjectionsWithoutParams() throws Exception {
 
     // WHEN
-    whenBacklogProjectionUseCase();
+    whenBacklogProjectionUseCaseEmptyPP();
 
     final var result = mvc.perform(
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))

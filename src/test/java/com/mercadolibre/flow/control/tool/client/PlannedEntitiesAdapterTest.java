@@ -23,6 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -38,13 +39,21 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PlannedEntitiesAdapterTest {
 
   private static final Workflow WORKFLOW = FBM_WMS_OUTBOUND;
+
   private static final String LOGISTIC_CENTER_ID = "ARBA01";
+
   private static final Throughput THROUGHPUT_PACKING = new Throughput(200);
+
   private static final Throughput THROUGHPUT_PICKING = new Throughput(100);
+
   private static final Instant SLA_1 = Instant.parse("2023-08-08T10:00:00Z");
+
   private static final Instant SLA_2 = Instant.parse("2023-08-08T11:00:00Z");
+
   private static final Instant DATE_FROM = Instant.parse("2023-05-18T08:00:00Z");
+
   private static final Instant DATE_TO = Instant.parse("2023-05-18T10:00:00Z");
+
   private static final Set<ProcessName> PROCESSES = Set.of(ProcessName.PICKING, ProcessName.PACKING);
 
   @InjectMocks
@@ -52,27 +61,6 @@ class PlannedEntitiesAdapterTest {
 
   @Mock
   private PlanningModelApiClient planningModelApiClient;
-
-  @ParameterizedTest
-  @MethodSource("provideThroughputData")
-  void testGetThroughput(
-      final Map<ProcessPathName, Map<OutboundProcessName, Map<Instant, PlanningModelApiClient.Throughput>>> throughputData,
-      final Map<Instant, Map<ProcessName, Integer>> throughputExpected
-  ) {
-    when(planningModelApiClient.getThroughputByPPAndProcessAndDate(
-        FBM_WMS_OUTBOUND,
-        LOGISTIC_CENTER_ID,
-        SLA_1,
-        SLA_2,
-        PROCESSES,
-        Set.of(ProcessPathName.GLOBAL))).thenReturn(throughputData);
-
-    final Map<Instant, Map<ProcessName, Integer>> result = plannedEntitiesAdapter.getThroughput(
-        WORKFLOW, LOGISTIC_CENTER_ID, SLA_1, SLA_2, PROCESSES);
-
-    assertEquals(throughputExpected.size(), result.size());
-    assertEquals(throughputExpected, result);
-  }
 
   private static Stream<Arguments> provideThroughputData() {
     return Stream.of(
@@ -110,8 +98,35 @@ class PlannedEntitiesAdapterTest {
         SLA_2, Map.of(ProcessName.PACKING, 200));
   }
 
+  @ParameterizedTest
+  @MethodSource("provideThroughputData")
+  void testGetThroughput(
+      final Map<ProcessPathName, Map<OutboundProcessName, Map<Instant, PlanningModelApiClient.Throughput>>> throughputData,
+      final Map<Instant, Map<ProcessName, Integer>> throughputExpected
+  ) {
+    when(planningModelApiClient.getThroughputByPPAndProcessAndDate(
+        FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        SLA_1,
+        SLA_2,
+        PROCESSES,
+        Set.of(ProcessPathName.GLOBAL))
+    ).thenReturn(throughputData);
+
+    final Map<Instant, Map<ProcessName, Integer>> result = plannedEntitiesAdapter.getThroughputByDateAndProcess(
+        WORKFLOW,
+        LOGISTIC_CENTER_ID,
+        SLA_1,
+        SLA_2,
+        PROCESSES
+    );
+
+    assertEquals(throughputExpected.size(), result.size());
+    assertEquals(throughputExpected, result);
+  }
+
   @Test
-  void testBacklogPlanUnitAdapter() {
+  void testGetPlannedUnitByPPDateInAndDateOut() {
     //GIVEN
     final int hours = (int) HOURS.between(DATE_FROM, DATE_TO);
 
@@ -124,7 +139,7 @@ class PlannedEntitiesAdapterTest {
             50.55D
         )).toList();
 
-    final List<PlannedBacklog> expectedPlanUnits = IntStream.rangeClosed(0, hours)
+    final List<PlannedBacklog> expectedPlannedBacklog = IntStream.rangeClosed(0, hours)
         .mapToObj(hour -> new PlannedBacklog(
             NON_TOT_MONO,
             DATE_FROM.plus(hour, HOURS),
@@ -132,16 +147,31 @@ class PlannedEntitiesAdapterTest {
             51
         )).toList();
 
+    final Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> expectedPlannedUnits = expectedPlannedBacklog.stream()
+        .collect(
+            Collectors.groupingBy(
+                PlannedBacklog::processPath,
+                Collectors.groupingBy(PlannedBacklog::dateIn,
+                    Collectors.groupingBy(PlannedBacklog::dateOut,
+                        Collectors.summingInt(PlannedBacklog::total)
+                    )
+                )
+            )
+        );
+
     when(planningModelApiClient.getBacklogPlanned(any(BacklogPlannedRequest.class))).thenReturn(plannedMock);
 
     //WHEN
-    final List<PlannedBacklog> planUnits = plannedEntitiesAdapter.getPlannedBacklog(FBM_WMS_OUTBOUND,
-                                                                                     LOGISTIC_CENTER_ID,
-                                                                                     DATE_FROM,
-                                                                                     DATE_TO);
-    //THEN
-    assertFalse(planUnits.isEmpty());
-    assertEquals(expectedPlanUnits, planUnits);
-  }
+    final Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> plannedUnits =
+        plannedEntitiesAdapter.getPlannedUnitByPPDateInAndDateOut(
+            FBM_WMS_OUTBOUND,
+            LOGISTIC_CENTER_ID,
+            DATE_FROM,
+            DATE_TO
+        );
 
+    //THEN
+    assertFalse(plannedUnits.isEmpty());
+    assertEquals(expectedPlannedUnits, plannedUnits);
+  }
 }

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class BacklogByProcessAdapter implements BacklogStatusUseCase.BacklogGateway {
+
   private final BacklogApiClient backlogApiClient;
 
   @Override

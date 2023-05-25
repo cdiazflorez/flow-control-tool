@@ -2,7 +2,6 @@ package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
@@ -35,18 +34,46 @@ public class BacklogProjectedUseCase {
       final String logisticCenterId,
       final Workflow workflow,
       final Set<ProcessName> processes,
-      final Instant viewDate) {
-    final var currentBacklog = backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(logisticCenterId, workflow, processes, dateFrom);
+      final Instant viewDate
+  ) {
 
-    final var tph = plannedEntitiesGateway.getThroughput(workflow, logisticCenterId, dateFrom, dateTo, processes);
+    final var currentBacklog = backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(
+        logisticCenterId,
+        workflow,
+        processes,
+        dateFrom
+    );
 
-    final var plannedBacklog = plannedEntitiesGateway.getPlannedBacklog(workflow, logisticCenterId, dateFrom, dateTo);
+    final var tph = plannedEntitiesGateway.getThroughputByDateAndProcess(
+        workflow,
+        logisticCenterId,
+        dateFrom,
+        dateTo,
+        processes
+    );
 
-    final var backlogProjection =
-        backlogProjectionGateway.executeBacklogProjection(dateFrom, dateTo, processes, currentBacklog, tph, plannedBacklog);
+    final var plannedBacklog = plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(
+        workflow,
+        logisticCenterId,
+        dateFrom,
+        dateTo
+    );
 
-    final Optional<Double> getUnitsPerOrderRatio =
-        unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate);
+    final var backlogProjection = backlogProjectionGateway.executeBacklogProjection(
+        logisticCenterId,
+        dateFrom,
+        dateTo,
+        processes,
+        currentBacklog,
+        plannedBacklog,
+        tph
+    );
+
+    final Optional<Double> getUnitsPerOrderRatio = unitsPerOrderRatioGateway.getUnitsPerOrderRatio(
+        workflow,
+        logisticCenterId,
+        viewDate
+    );
 
     final Double unitsPerOrderRatio = getUnitsPerOrderRatio
         .filter(ratio -> ratio >= MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO)
@@ -54,7 +81,7 @@ public class BacklogProjectedUseCase {
             () -> new NoUnitsPerOrderRatioFound(logisticCenterId)
         );
 
-    List<BacklogMonitor> backlogMonitors = BacklogProjectionUtil.sumBacklogProjection(backlogProjection, unitsPerOrderRatio);
+    final List<BacklogMonitor> backlogMonitors = BacklogProjectionUtil.sumBacklogProjectionNullPP(backlogProjection, unitsPerOrderRatio);
 
     BacklogProjectionUtil.order(backlogMonitors);
 
@@ -88,26 +115,36 @@ public class BacklogProjectedUseCase {
    * Gateway planning api to obtain tph, plannedBacklog.
    */
   public interface PlannedEntitiesGateway {
-    Map<Instant, Map<ProcessName, Integer>> getThroughput(Workflow workflow,
-                                                          String logisticCenterId,
-                                                          Instant dateFrom,
-                                                          Instant dateTo,
-                                                          Set<ProcessName> process);
+    Map<Instant, Map<ProcessName, Integer>> getThroughputByDateAndProcess(
+        Workflow workflow,
+        String logisticCenterId,
+        Instant dateFrom,
+        Instant dateTo,
+        Set<ProcessName> process
+    );
 
-    List<PlannedBacklog> getPlannedBacklog(Workflow workflow, String logisticCenterId, Instant dateFrom, Instant dateTo);
+    Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> getPlannedUnitByPPDateInAndDateOut(
+        Workflow workflow,
+        String logisticCenterId,
+        Instant dateFrom,
+        Instant dateTo
+    );
   }
 
   /**
    * Gateway planning api to execute backlog projection.
    */
   public interface BacklogProjectionGateway {
-    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> executeBacklogProjection(
+
+    Map<Instant, Map<ProcessName, Map<Instant, Integer>>> executeBacklogProjection(
+        String logisticCenterId,
         Instant dateFrom,
         Instant dateTo,
         Set<ProcessName> process,
         Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
-        Map<Instant, Map<ProcessName, Integer>> throughput,
-        List<PlannedBacklog> plannedBacklogs);
+        Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> plannedBacklogs,
+        Map<Instant, Map<ProcessName, Integer>> throughput
+    );
   }
 
 }

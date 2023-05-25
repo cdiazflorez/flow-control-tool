@@ -1,8 +1,8 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.dto;
 
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName.PICKING;
-import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MONO;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse.Backlog;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse.Process;
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse.ProcessPath;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse.Sla;
 import java.time.Instant;
 import java.util.List;
@@ -42,8 +41,7 @@ class BacklogProjectionResponseTest {
 
   private Backlog mockBacklogForProjectionResponse() {
 
-    final ProcessPath processPath = new ProcessPath(TOT_MONO, QUANTITY);
-    final Sla sla = new Sla(DATE_OUT, List.of(processPath));
+    final Sla sla = new Sla(DATE_OUT, 50, emptyList());
     final Process process = new Process(PICKING, List.of(sla));
 
     return new Backlog(List.of(process));
@@ -62,8 +60,10 @@ class BacklogProjectionResponseTest {
         expectedBacklog.process().get(0).sla().get(0).processPath(),
         backlogInProjectionResponse.process().get(0).sla().get(0).processPath()
     );
-    assertEquals(TOT_MONO, backlogInProjectionResponse.process().get(0).sla().get(0).processPath().get(0).name());
-    assertEquals(QUANTITY, backlogInProjectionResponse.process().get(0).sla().get(0).processPath().get(0).quantity());
+    assertEquals(
+        expectedBacklog.process().get(0).sla().get(0).quantity(),
+        backlogInProjectionResponse.process().get(0).sla().get(0).quantity()
+    );
   }
 
 }

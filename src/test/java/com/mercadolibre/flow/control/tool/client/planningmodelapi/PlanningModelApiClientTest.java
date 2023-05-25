@@ -579,22 +579,22 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
   private BacklogProjectionRequest mockBacklogProjectionRequest() {
 
     final Quantity processQuantity = new Quantity(null, DATE_TO, PICKING_TOTAL);
-    final ProcessPath processPath = new ProcessPath(TOT_MONO, List.of(processQuantity));
-    final Process process = new Process(OutboundProcessName.PICKING, List.of(processPath), null);
-    final Backlog backlog = new Backlog(List.of(process));
+    final ProcessPath processPath = new ProcessPath(TOT_MONO, Set.of(processQuantity));
+    final Process process = new Process(OutboundProcessName.PICKING, Set.of(processPath), null);
+    final Backlog backlog = new Backlog(Set.of(process));
 
     final Quantity processPathQuantity = new Quantity(DATE_FROM, DATE_TO, PICKING_TOTAL);
     final ProcessPath plannedUnitProcessPath =
-        new ProcessPath(TOT_MONO, List.of(processPathQuantity));
-    final PlannedUnit plannedUnit = new PlannedUnit(List.of(plannedUnitProcessPath));
+        new ProcessPath(TOT_MONO, Set.of(processPathQuantity));
+    final PlannedUnit plannedUnit = new PlannedUnit(Set.of(plannedUnitProcessPath));
 
     final Process throughputProcess = new Process(OutboundProcessName.PICKING, null, PICKING_TOTAL);
-    final Throughput throughput = new Throughput(DATE_FROM, List.of(throughputProcess));
+    final Throughput throughput = new Throughput(DATE_FROM, Set.of(throughputProcess));
 
     return new BacklogProjectionRequest(
         backlog,
         plannedUnit,
-        List.of(throughput),
+        Set.of(throughput),
         DATE_FROM,
         DATE_TO,
         FBM_WMS_OUTBOUND

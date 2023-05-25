@@ -9,13 +9,13 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Outbo
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +29,7 @@ import org.springframework.stereotype.Component;
  */
 @AllArgsConstructor
 @Component
-public class PlannedEntitiesAdapter
-    implements BacklogProjectedUseCase.PlannedEntitiesGateway, BacklogProjectedUseCase.BacklogProjectionGateway {
+public class PlannedEntitiesAdapter implements BacklogProjectedUseCase.PlannedEntitiesGateway {
 
   private static final Set<ProcessPathName> PROCESS_PATH_GLOBAL = Set.of(ProcessPathName.GLOBAL);
 
@@ -55,7 +54,7 @@ public class PlannedEntitiesAdapter
    * @return A map containing the throughput by date, process name, and the total quantity.
    */
   @Override
-  public Map<Instant, Map<ProcessName, Integer>> getThroughput(
+  public Map<Instant, Map<ProcessName, Integer>> getThroughputByDateAndProcess(
       final Workflow workflow,
       final String logisticCenterId,
       final Instant dateFrom,
@@ -91,18 +90,49 @@ public class PlannedEntitiesAdapter
   }
 
   @Override
-  public List<PlannedBacklog> getPlannedBacklog(final Workflow workflow,
+  public Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> getPlannedUnitByPPDateInAndDateOut(
+      final Workflow workflow,
+      final String logisticCenterId,
+      final Instant dateFrom,
+      final Instant dateTo
+  ) {
+
+    final List<PlannedBacklog> plannedBacklogs = getPlannedBacklog(
+        workflow,
+        logisticCenterId,
+        dateFrom,
+        dateTo
+    );
+
+    return plannedBacklogs.stream().collect(
+        Collectors.groupingBy(
+            PlannedBacklog::processPath,
+            Collectors.groupingBy(
+                PlannedBacklog::dateIn,
+                Collectors.groupingBy(
+                    PlannedBacklog::dateOut,
+                    Collectors.summingInt(PlannedBacklog::total)
+                )
+            )
+        )
+    );
+  }
+
+  private List<PlannedBacklog> getPlannedBacklog(final Workflow workflow,
                                                 final String logisticCenterId,
                                                 final Instant dateFrom,
                                                 final Instant dateTo) {
-    return planningModelApiClient.getBacklogPlanned(
-            new BacklogPlannedRequest(
-                logisticCenterId,
-                PlanningWorkflow.from(workflow.getName()),
-                PROCESS_PATH_NAMES,
-                dateFrom,
-                dateTo,
-                PLANNED_GROUPERS)).stream()
+
+    final List<BacklogPlannedResponse> plannedBacklog = planningModelApiClient.getBacklogPlanned(
+        new BacklogPlannedRequest(
+            logisticCenterId,
+            PlanningWorkflow.from(workflow.getName()),
+            PROCESS_PATH_NAMES,
+            dateFrom,
+            dateTo,
+            PLANNED_GROUPERS));
+
+    return plannedBacklog.stream()
         .map(backlogPlannedResponse -> new PlannedBacklog(
             backlogPlannedResponse.group().processPath(),
             backlogPlannedResponse.group().dateIn(),
@@ -111,22 +141,10 @@ public class PlannedEntitiesAdapter
         ).toList();
   }
 
-  @Override
-  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> executeBacklogProjection(
-      Instant dateFrom,
-      Instant dateTo,
-      Set<ProcessName> process,
-      Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs,
-      Map<Instant, Map<ProcessName, Integer>> throughput,
-      List<PlannedBacklog> plannedBacklogs) {
-    return Collections.emptyMap();
-  }
-
   public record ThroughputAux(
       Instant date,
       ProcessName processName,
       Integer total
   ) {
   }
-
 }

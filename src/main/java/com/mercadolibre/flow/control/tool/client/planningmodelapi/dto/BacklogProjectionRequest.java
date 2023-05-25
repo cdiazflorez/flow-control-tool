@@ -4,36 +4,42 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Outbo
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 public record BacklogProjectionRequest(
     Backlog backlog,
     PlannedUnit plannedUnit,
-    List<Throughput> throughput,
+    Set<Throughput> throughput,
     Instant dateFrom,
     Instant dateTo,
     PlanningWorkflow workflow
 ) {
   public record Backlog(
-      List<Process> process
+      Set<Process> process
   ) {
   }
 
   public record PlannedUnit(
-      List<ProcessPath> processPath
+      Set<ProcessPath> processPath
+  ) {
+  }
+
+  public record Throughput(
+      Instant operationHour,
+      Set<Process> process
   ) {
   }
 
   public record Process(
       OutboundProcessName name,
-      List<ProcessPath> processPath,
+      Set<ProcessPath> processPath,
       Integer total
   ) {
   }
 
   public record ProcessPath(
       ProcessPathName name,
-      List<Quantity> quantity
+      Set<Quantity> quantity
   ) {
   }
 
@@ -43,11 +49,4 @@ public record BacklogProjectionRequest(
       Integer total
   ) {
   }
-
-  public record Throughput(
-      Instant operationHour,
-      List<Process> process
-  ) {
-  }
 }
-

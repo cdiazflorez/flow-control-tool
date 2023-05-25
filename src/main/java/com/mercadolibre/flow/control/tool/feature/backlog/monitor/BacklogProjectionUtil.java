@@ -10,9 +10,11 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class BacklogProjectionUtil {
@@ -29,7 +31,15 @@ public final class BacklogProjectionUtil {
             .map(processesMonitor -> orderSla(processesMonitor.slas())))
         .forEach(backlogMonitor -> backlogMonitor
             .forEach(processesMonitor -> processesMonitor
-                .forEach(slaMonitor -> orderProcessPath(slaMonitor.processPaths()))));
+                .forEach(slaMonitor -> {
+                  final List<ProcessPathMonitor> processPaths = Optional.ofNullable(slaMonitor.processPaths())
+                      .orElse(Collections.emptyList());
+                  if (!processPaths.isEmpty()) {
+                    orderProcessPath(processPaths);
+                  }
+                })
+            )
+        );
   }
 
   private static List<ProcessesMonitor> orderProcess(List<ProcessesMonitor> processesMonitors) {
@@ -46,6 +56,63 @@ public final class BacklogProjectionUtil {
     processPaths.sort(Comparator.comparing(ProcessPathMonitor::name));
   }
 
+
+  public static List<BacklogMonitor> sumBacklogProjectionNullPP(
+      final Map<Instant, Map<ProcessName, Map<Instant, Integer>>> backlogProjection,
+      final Double unitsPerOrderRatio
+  ) {
+    return backlogProjection.entrySet().stream().map(
+            backlogHistoricalEntry ->
+                new BacklogMonitor(
+                    backlogHistoricalEntry.getKey(),
+                    mapToProcessesMonitorListNullPP(backlogHistoricalEntry.getValue(), unitsPerOrderRatio)
+                )
+        ).sorted(Comparator.comparing(BacklogMonitor::date))
+        .collect(Collectors.toList());
+  }
+
+  private static List<ProcessesMonitor> mapToProcessesMonitorListNullPP(
+      final Map<ProcessName, Map<Instant, Integer>> backlogByProcess,
+      final Double unitsPerOrderRatio
+  ) {
+    return backlogByProcess.entrySet().stream()
+        .map(backlogByProcessEntry -> resultProcessesMonitorNullPP(backlogByProcessEntry, unitsPerOrderRatio))
+        .collect(Collectors.toList());
+  }
+
+  private static ProcessesMonitor resultProcessesMonitorNullPP(
+      final Map.Entry<ProcessName, Map<Instant, Integer>> backlogByProcess,
+      final Double unitsPerOrderRatio
+  ) {
+    final var process = backlogByProcess.getKey();
+    final var quantities = sumProcessMonitorQuantityNullPP(backlogByProcess.getValue());
+
+    return new ProcessesMonitor(
+        process,
+        getShippingProcess().contains(process)
+            ? (int) (quantities / unitsPerOrderRatio)
+            : quantities,
+        mapToSlasMonitorNullPPList(backlogByProcess.getValue())
+    );
+  }
+
+  private static Integer sumProcessMonitorQuantityNullPP(final Map<Instant, Integer> backlogBySla) {
+    return backlogBySla.values().stream()
+        .mapToInt(Integer::intValue)
+        .sum();
+  }
+
+  private static List<SlasMonitor> mapToSlasMonitorNullPPList(final Map<Instant, Integer> backlogBySla) {
+    return backlogBySla.entrySet().stream()
+        .map(backlogBySlaEntry -> new SlasMonitor(
+                backlogBySlaEntry.getKey(),
+                backlogBySlaEntry.getValue(),
+                Collections.emptyList()
+            )
+        ).collect(Collectors.toList());
+  }
+
+  // TODO: These methods are defined to handle when the historic/projection is opened by the process path.
   public static List<BacklogMonitor> sumBacklogProjection(
       final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogProjection,
       final Double unitsPerOrderRatio
@@ -62,7 +129,8 @@ public final class BacklogProjectionUtil {
 
   private static List<ProcessesMonitor> mapToProcessesMonitorList(
       final Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>> backlogByProcess,
-      final Double unitsPerOrderRatio) {
+      final Double unitsPerOrderRatio
+  ) {
     return backlogByProcess.entrySet().stream()
         .map(backlogByProcessEntry -> resultProcessesMonitor(backlogByProcessEntry, unitsPerOrderRatio))
         .collect(Collectors.toList());

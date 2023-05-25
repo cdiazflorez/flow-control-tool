@@ -93,7 +93,14 @@ public class MonitorController {
 
     validateDateRange(dateFrom, dateTo);
 
-    final var response = backlogProjectedUseCase.getBacklogProjected(dateFrom, dateTo, logisticCenterId, workflow, processes, viewDate);
+    final var response = backlogProjectedUseCase.getBacklogProjected(
+        dateFrom,
+        dateTo,
+        logisticCenterId,
+        workflow,
+        processes,
+        viewDate
+    );
 
     return ResponseEntity.ok(response);
   }
