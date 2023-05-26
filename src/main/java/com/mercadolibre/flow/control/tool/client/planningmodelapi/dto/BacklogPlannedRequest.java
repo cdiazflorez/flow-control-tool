@@ -30,6 +30,7 @@ public record BacklogPlannedRequest(
         "logistic_center", logisticCenter,
         "workflow", planningWorkflow.getName(),
         "process_paths", String.join(DELIMITER, processPathNames.stream().map(ProcessPathName::getName).toList()),
+        "view_date", dateInFrom.toString(),
         "date_in_from", dateInFrom.toString(),
         "date_in_to", dateInTo.toString(),
         "group_by", String.join(DELIMITER, groupBy.stream().map(PlannedGrouper::getName).toList())

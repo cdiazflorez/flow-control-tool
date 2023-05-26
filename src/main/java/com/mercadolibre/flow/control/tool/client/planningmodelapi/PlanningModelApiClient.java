@@ -59,6 +59,8 @@ public class PlanningModelApiClient extends HttpClient {
 
   private static final String DATE_TIME = "date_time";
 
+  private static final String VIEW_DATE = "view_date";
+
   private static final String WORKFLOW = "workflow";
 
   private static final String DATE_FROM = "date_from";
@@ -68,6 +70,8 @@ public class PlanningModelApiClient extends HttpClient {
   private static final String PROCESS_PATHS = "process_paths";
 
   private static final String PROCESSES = "processes";
+
+  private static final String COMMA_SEPARATOR = ",";
 
   private final ObjectMapper objectMapper;
 
@@ -212,23 +216,17 @@ public class PlanningModelApiClient extends HttpClient {
   ) {
     final Map<String, String> params = new ConcurrentHashMap<>();
     params.put(WORKFLOW, workflow.getName());
-    params.put(DATE_TIME, dateFrom.toString());
+    params.put(VIEW_DATE, dateFrom.toString());
     params.put(DATE_FROM, dateFrom.toString());
     params.put(DATE_TO, dateTo.toString());
     params.put(
         PROCESSES,
-        process.stream()
-            .map(ProcessName::getName)
-            .collect(Collectors.toSet())
-            .toString()
+        String.join(COMMA_SEPARATOR, process.stream().map(processName -> OutboundProcessName.fromProcessName(processName).name()).toList())
     );
     if (processPathNames != null) {
       params.put(
           PROCESS_PATHS,
-          processPathNames.stream()
-              .map(ProcessPathName::getName)
-              .collect(Collectors.toSet())
-              .toString());
+          String.join(COMMA_SEPARATOR, processPathNames.stream().map(ProcessPathName::name).toList()));
     }
     return params;
   }

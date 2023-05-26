@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.client.planningmodelapi.constant;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import java.util.Arrays;
 import java.util.Locale;
 import lombok.RequiredArgsConstructor;
 
@@ -25,5 +26,14 @@ public enum OutboundProcessName {
   @JsonValue
   public String getName() {
     return name().toLowerCase(Locale.getDefault());
+  }
+
+  public static OutboundProcessName fromProcessName(ProcessName processName) {
+    return Arrays.stream(OutboundProcessName.values())
+        .filter(outboundProcessName -> outboundProcessName.processName == processName)
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(
+            "No matching value was found in enum OutboundProcessName for the value of enum ProcessName: " + processName
+        ));
   }
 }
