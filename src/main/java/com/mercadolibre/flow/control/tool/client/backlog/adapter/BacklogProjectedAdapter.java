@@ -12,7 +12,7 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class BacklogProjectedAdapter implements BacklogProjectedUseCase.BacklogGateway {
+public class BacklogProjectedAdapter implements BacklogProjectedGateway {
 
   private final BacklogApiClient backlogApiClient;
 

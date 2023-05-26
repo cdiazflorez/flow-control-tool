@@ -15,7 +15,6 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter.Planne
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -139,25 +138,17 @@ class PlannedEntitiesAdapterTest {
             50.55D
         )).toList();
 
-    final List<PlannedBacklog> expectedPlannedBacklog = IntStream.rangeClosed(0, hours)
-        .mapToObj(hour -> new PlannedBacklog(
-            NON_TOT_MONO,
-            DATE_FROM.plus(hour, HOURS),
-            DATE_TO.plus(hour, HOURS),
-            51
-        )).toList();
-
-    final Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> expectedPlannedUnits = expectedPlannedBacklog.stream()
+    final Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> expectedPlannedUnits = plannedMock.stream()
         .collect(
             Collectors.groupingBy(
-                PlannedBacklog::processPath,
-                Collectors.groupingBy(PlannedBacklog::dateIn,
-                    Collectors.groupingBy(PlannedBacklog::dateOut,
-                        Collectors.summingInt(PlannedBacklog::total)
-                    )
+                planned -> planned.group().processPath(),
+                Collectors.groupingBy(planned -> planned.group().dateIn(),
+                                      Collectors.groupingBy(planned -> planned.group().dateOut(),
+                                                            Collectors.summingInt(planned -> Math.toIntExact(Math.round(planned.total()))
+                                                            )
+                                      )
                 )
-            )
-        );
+            ));
 
     when(planningModelApiClient.getBacklogPlanned(any(BacklogPlannedRequest.class))).thenReturn(plannedMock);
 

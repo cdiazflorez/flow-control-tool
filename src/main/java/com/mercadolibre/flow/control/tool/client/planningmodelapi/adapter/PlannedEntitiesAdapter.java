@@ -10,8 +10,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Plann
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.PlannedBacklog;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -29,7 +28,7 @@ import org.springframework.stereotype.Component;
  */
 @AllArgsConstructor
 @Component
-public class PlannedEntitiesAdapter implements BacklogProjectedUseCase.PlannedEntitiesGateway {
+public class PlannedEntitiesAdapter implements PlannedEntitiesGateway {
 
   private static final Set<ProcessPathName> PROCESS_PATH_GLOBAL = Set.of(ProcessPathName.GLOBAL);
 
@@ -97,48 +96,27 @@ public class PlannedEntitiesAdapter implements BacklogProjectedUseCase.PlannedEn
       final Instant dateTo
   ) {
 
-    final List<PlannedBacklog> plannedBacklogs = getPlannedBacklog(
-        workflow,
+    final List<BacklogPlannedResponse> backlogPlannedResponses = planningModelApiClient.getBacklogPlanned(new BacklogPlannedRequest(
         logisticCenterId,
+        PlanningWorkflow.from(workflow.getName()),
+        PROCESS_PATH_NAMES,
         dateFrom,
-        dateTo
-    );
+        dateTo,
+        PLANNED_GROUPERS));
 
-    return plannedBacklogs.stream().collect(
+    return backlogPlannedResponses.stream().collect(
         Collectors.groupingBy(
-            PlannedBacklog::processPath,
+            grouper -> grouper.group().processPath(),
             Collectors.groupingBy(
-                PlannedBacklog::dateIn,
+                grouper -> grouper.group().dateIn(),
                 Collectors.groupingBy(
-                    PlannedBacklog::dateOut,
-                    Collectors.summingInt(PlannedBacklog::total)
+                    grouper -> grouper.group().dateOut(),
+                    Collectors.summingInt(response -> Math.toIntExact(Math.round(response.total()))
+                    )
                 )
             )
         )
     );
-  }
-
-  private List<PlannedBacklog> getPlannedBacklog(final Workflow workflow,
-                                                final String logisticCenterId,
-                                                final Instant dateFrom,
-                                                final Instant dateTo) {
-
-    final List<BacklogPlannedResponse> plannedBacklog = planningModelApiClient.getBacklogPlanned(
-        new BacklogPlannedRequest(
-            logisticCenterId,
-            PlanningWorkflow.from(workflow.getName()),
-            PROCESS_PATH_NAMES,
-            dateFrom,
-            dateTo,
-            PLANNED_GROUPERS));
-
-    return plannedBacklog.stream()
-        .map(backlogPlannedResponse -> new PlannedBacklog(
-            backlogPlannedResponse.group().processPath(),
-            backlogPlannedResponse.group().dateIn(),
-            backlogPlannedResponse.group().dateOut(),
-            (int) Math.round(backlogPlannedResponse.total()))
-        ).toList();
   }
 
   public record ThroughputAux(

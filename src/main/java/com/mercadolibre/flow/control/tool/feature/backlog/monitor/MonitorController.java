@@ -23,7 +23,6 @@ import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.newrelic.api.agent.Trace;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -46,6 +45,8 @@ public class MonitorController {
   private GetHistoricalBacklogUseCase getHistoricalBacklogUseCase;
 
   private BacklogProjectedUseCase backlogProjectedUseCase;
+
+  private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
 
   private static Instant processDateTo(final Instant dateFrom, final Instant dateTo) {
     if (isDifferenceBetweenDateBiggestThan(dateFrom, dateTo, MAX_HOURS)) {
@@ -120,26 +121,14 @@ public class MonitorController {
 
     validateDateRange(dateFrom, dateTo);
 
-    long hours = HOURS.between(dateFrom.truncatedTo(HOURS), dateTo.truncatedTo(HOURS));
-    List<TotalBacklogMonitor> totalBacklogResponse = new ArrayList<>();
-    for (int i = 0; i < hours; i++) {
-      totalBacklogResponse.add(
-          new TotalBacklogMonitor(
-              dateFrom.plus(i, HOURS),
-              20,
-              List.of(
-                  new SlasMonitor(dateFrom, 10, List.of(
-                      new ProcessPathMonitor(TOT_MONO, 5),
-                      new ProcessPathMonitor(NON_TOT_MONO, 5)
-                  )),
-                  new SlasMonitor(dateFrom.plus(2, HOURS), 10, List.of(
-                      new ProcessPathMonitor(TOT_MONO, 5),
-                      new ProcessPathMonitor(NON_TOT_MONO, 5)
-                  ))
-              )
-          )
-      );
-    }
+    final List<TotalBacklogMonitor> totalBacklogResponse = backlogProjectedTotalUseCase.getTotalProjection(logisticCenterId,
+                                                                                                           workflow,
+                                                                                                           processes,
+                                                                                                           throughputProcesses,
+                                                                                                           valueType,
+                                                                                                           dateFrom,
+                                                                                                           dateTo,
+                                                                                                           viewDate);
 
     return ResponseEntity.ok(totalBacklogResponse);
   }

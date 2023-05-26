@@ -8,8 +8,9 @@ import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase.PlannedEntitiesGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
@@ -212,7 +213,7 @@ class BacklogProjectedUseCaseTest {
   );
 
   @Mock
-  private BacklogProjectedUseCase.BacklogGateway backlogApiGateway;
+  private BacklogProjectedGateway backlogProjectedGateway;
 
   @Mock
   private PlannedEntitiesGateway plannedEntitiesGateway;
@@ -359,7 +360,7 @@ class BacklogProjectedUseCaseTest {
 
     final Set<ProcessName> processNames = Set.of(ProcessName.PICKING);
 
-    when(backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER, WORKFLOW, processNames, OP_DATE1))
+    when(backlogProjectedGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER, WORKFLOW, processNames, OP_DATE1))
         .thenReturn(parameters.currentBacklogs);
 
     when(plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))
@@ -396,7 +397,7 @@ class BacklogProjectedUseCaseTest {
   }
 
   private void whenGateways(final ParametersTest parameters) {
-    when(backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
+    when(backlogProjectedGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER, WORKFLOW, Set.of(ProcessName.PICKING), OP_DATE1))
         .thenReturn(parameters.currentBacklogs);
 
     when(plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(WORKFLOW, LOGISTIC_CENTER, OP_DATE1, OP_DATE3))

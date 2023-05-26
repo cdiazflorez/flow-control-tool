@@ -20,7 +20,7 @@ public class BacklogProjectedUseCase {
 
   private static final double MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO = 1;
 
-  private final BacklogGateway backlogApiGateway;
+  private final BacklogProjectedGateway backlogProjectedGateway;
 
   private final PlannedEntitiesGateway plannedEntitiesGateway;
 
@@ -37,7 +37,7 @@ public class BacklogProjectedUseCase {
       final Instant viewDate
   ) {
 
-    final var currentBacklog = backlogApiGateway.getBacklogTotalsByProcessAndPPandSla(
+    final var currentBacklog = backlogProjectedGateway.getBacklogTotalsByProcessAndPPandSla(
         logisticCenterId,
         workflow,
         processes,
@@ -86,49 +86,6 @@ public class BacklogProjectedUseCase {
     BacklogProjectionUtil.order(backlogMonitors);
 
     return backlogMonitors;
-  }
-
-
-  /**
-   * Interface for methods used across the Backlog Status.
-   */
-  public interface BacklogGateway {
-
-    /**
-     * The implementation should return the backlog given by process and its total units|orders.
-     *
-     * @param logisticCenterId logistic center id.
-     * @param workflow         outbound
-     * @param processes        list of processes to be requested.
-     * @param viewDate         base date to backlog.
-     * @return map with amount of units by each process.
-     */
-    Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> getBacklogTotalsByProcessAndPPandSla(
-        String logisticCenterId,
-        Workflow workflow,
-        Set<ProcessName> processes,
-        Instant viewDate
-    );
-  }
-
-  /**
-   * Gateway planning api to obtain tph, plannedBacklog.
-   */
-  public interface PlannedEntitiesGateway {
-    Map<Instant, Map<ProcessName, Integer>> getThroughputByDateAndProcess(
-        Workflow workflow,
-        String logisticCenterId,
-        Instant dateFrom,
-        Instant dateTo,
-        Set<ProcessName> process
-    );
-
-    Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> getPlannedUnitByPPDateInAndDateOut(
-        Workflow workflow,
-        String logisticCenterId,
-        Instant dateFrom,
-        Instant dateTo
-    );
   }
 
   /**
