@@ -26,7 +26,7 @@ public record BacklogProjectionRequest(
 
   public record Throughput(
       Instant operationHour,
-      Set<Process> process
+      Set<Process> quantityByProcessName
   ) {
   }
 

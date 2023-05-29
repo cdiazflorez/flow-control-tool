@@ -107,7 +107,7 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
       final Map<ProcessPathName, Map<Instant, Integer>> processPathMap
   ) {
     return new BacklogProjectionRequest.Process(
-        OutboundProcessName.valueOf(processName.name()),
+        OutboundProcessName.fromProcessName(processName),
         getProcessPathsSetForBacklogInProjectionRequest(processPathMap),
         null
     );
@@ -250,7 +250,7 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
   ) {
     return tphByProcess.entrySet().stream().map(
         processEntry -> new BacklogProjectionRequest.Process(
-            OutboundProcessName.valueOf(processEntry.getKey().name()),
+            OutboundProcessName.fromProcessName(processEntry.getKey()),
             Collections.emptySet(),
             processEntry.getValue()
         )
@@ -288,7 +288,7 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
     return projectionResponseBacklog.stream()
         .flatMap(backlog -> backlog.process().stream())
         .collect(Collectors.toMap(
-            processEntry -> ProcessName.valueOf(processEntry.name().name()),
+            processEntry -> processEntry.name().translateProcessName(),
             processEntry -> processEntry.sla().stream()
                 .collect(Collectors.toMap(
                     BacklogProjectionResponse.Sla::dateOut,
