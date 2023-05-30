@@ -2,6 +2,7 @@ package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.getShippingProcess;
 
+import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
@@ -18,6 +19,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class BacklogProjectionUtil {
+
+  private static final double MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO = 1;
 
   private BacklogProjectionUtil() {
   }
@@ -69,6 +72,13 @@ public final class BacklogProjectionUtil {
                 )
         ).sorted(Comparator.comparing(BacklogMonitor::date))
         .collect(Collectors.toList());
+  }
+
+  public static Double validateUnitsPerOrderRatio(final Optional<Double> unitsPerOrderRatio, final String logisticCenterId) {
+    return unitsPerOrderRatio.filter(ratio -> ratio >= MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO)
+        .orElseThrow(
+            () -> new NoUnitsPerOrderRatioFound(logisticCenterId)
+        );
   }
 
   private static List<ProcessesMonitor> mapToProcessesMonitorListNullPP(

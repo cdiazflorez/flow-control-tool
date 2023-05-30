@@ -4,8 +4,10 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.BATC
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ValueType.ORDERS;
 import static com.mercadolibre.flow.control.tool.feature.entity.ValueType.UNITS;
 import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_FROM;
@@ -20,6 +22,7 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedTotalUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
@@ -29,22 +32,75 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonito
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.TotalBacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class BacklogProjectedTotalUseCaseTest {
+
+  private static final int QUANTITY = 10;
+
+  private static final int DISPATCH_QUANTITY = 20;
+
+  private static final int NUMBER_OF_HOURS = (int) HOURS.between(DATE_FROM, DATE_TO);
+
+  private static final int NUMBER_OF_PATHS = ProcessPathName.allPaths().size();
+
+  private static final List<Integer> QUANTITY_VALUES = List.of(10, 20, 30, 40, 50);
+
+  private static final List<ProcessPathMonitor> PROCESS_PATH_MONITORS = IntStream.range(0, NUMBER_OF_PATHS)
+      .mapToObj(i -> new ProcessPathMonitor(ProcessPathName.allPaths().get(i), QUANTITY_VALUES.get(i % QUANTITY_VALUES.size())))
+      .toList();
+
+  private static final Integer PROCESS_PATH_QUANTITY = PROCESS_PATH_MONITORS.stream().mapToInt(ProcessPathMonitor::quantity).sum();
+
+  private static final List<SlasMonitor> SLAS_MONITORS = IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
+      .mapToObj(hour -> new SlasMonitor(DATE_FROM.plus(hour, HOURS),
+          PROCESS_PATH_QUANTITY,
+          PROCESS_PATH_MONITORS))
+      .toList();
+
+  private static final Integer SLAS_QUANTITY = SLAS_MONITORS.stream().mapToInt(SlasMonitor::quantity).sum();
+
+  private static final List<TotalBacklogMonitor> EXPECTED_TOTAL_MONITOR = IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
+      .mapToObj(hour -> new TotalBacklogMonitor(DATE_FROM.plus(hour, HOURS),
+          SLAS_QUANTITY,
+          SLAS_MONITORS))
+      .toList();
+
+  private static final List<ProjectionTotal> EXPECTED_DISPATCH_TOTAL = List.of(
+      new ProjectionTotal(
+          DATE_FROM,
+          List.of(
+              new ProjectionTotal.SlaProjected(
+                  DATE_FROM,
+                  DISPATCH_QUANTITY,
+                  List.of(
+                      new ProjectionTotal.Path(
+                          ProcessPathName.TOT_MONO,
+                          DISPATCH_QUANTITY
+                      )
+                  )
+              )
+          )
+      )
+  );
 
   private static final Set<ProcessName> PROCESSES = Set.of(
       WAVING,
@@ -55,16 +111,17 @@ class BacklogProjectedTotalUseCaseTest {
       PACKING_WALL
   );
 
-  private static final Set<ProcessName> THROUGHPUT_PROCESS = Set.of(
-      PACKING,
-      PACKING_WALL
-  );
+  private static final List<SlasMonitor> SLAS_DISPATCH_MONITOR = List.of(new SlasMonitor(
+      DATE_FROM,
+      QUANTITY,
+      List.of(new ProcessPathMonitor(ProcessPathName.TOT_MONO, QUANTITY))));
 
-  private static final int NUMBER_OF_HOURS = (int) HOURS.between(DATE_FROM, DATE_TO);
+  private static final List<TotalBacklogMonitor> EXPECTED_DISPATCH_TOTAL_MONITOR =
+      List.of(new TotalBacklogMonitor(DATE_FROM, QUANTITY, SLAS_DISPATCH_MONITOR));
 
-  private static final int NUMBER_OF_PATHS = ProcessPathName.allPaths().size();
 
-  private static final int QUANTITY = 10;
+  @InjectMocks
+  private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
 
   @Mock
   private BacklogProjectedGateway backlogProjectedGateway;
@@ -75,28 +132,44 @@ class BacklogProjectedTotalUseCaseTest {
   @Mock
   private BacklogProjectedTotalUseCase.TotalBacklogProjectionGateway totalBacklogProjectionGateway;
 
-  @InjectMocks
-  private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
+  @Mock
+  private UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
-  @Test
+  private static Stream<Arguments> provideThroughputData() {
+    return Stream.of(
+        Arguments.of(
+            Set.of(
+                PACKING,
+                PACKING_WALL
+            ),
+            UNITS,
+            EXPECTED_TOTAL_MONITOR,
+            mockProjectionTotal()
+        ),
+        Arguments.of(
+            Set.of(
+                SHIPPING
+            ),
+            ORDERS,
+            EXPECTED_DISPATCH_TOTAL_MONITOR,
+            EXPECTED_DISPATCH_TOTAL
+        )
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("provideThroughputData")
   @DisplayName("Should get total backlog projection")
-  void testGetTotalProjectionOk() {
+  void testGetTotalProjectionWhenIsOrderValueOk(
+      final Set<ProcessName> throughputProcess,
+      final ValueType valueType,
+      final List<TotalBacklogMonitor> expectedTotalMonitor,
+      final List<ProjectionTotal> mockProjectionTotal
+  ) {
     //GIVEN
-    final List<ProcessPathMonitor> processPathMonitors = ProcessPathName.allPaths().stream()
-        .map(processPath -> new ProcessPathMonitor(processPath, QUANTITY))
-        .toList();
 
-    final List<SlasMonitor> slasMonitors = IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
-        .mapToObj(hour -> new SlasMonitor(DATE_FROM.plus(hour, HOURS),
-                                          processPathMonitors.stream().mapToInt(ProcessPathMonitor::quantity).sum(),
-                                          processPathMonitors))
-        .toList();
-
-    final List<TotalBacklogMonitor> expectedTotalMonitor = IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
-        .mapToObj(hour -> new TotalBacklogMonitor(DATE_FROM.plus(hour, HOURS),
-                                                  slasMonitors.stream().mapToInt(SlasMonitor::quantity).sum(),
-                                                  slasMonitors))
-        .toList();
+    when(unitsPerOrderRatioGateway.getUnitsPerOrderRatio(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_FROM))
+        .thenReturn(mockUnitsPerOrderRatio());
 
     when(backlogProjectedGateway.getBacklogTotalsByProcessAndPPandSla(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND, PROCESSES, DATE_FROM))
         .thenReturn(mockBacklogTotalsByProcessAndPPandSla());
@@ -104,25 +177,26 @@ class BacklogProjectedTotalUseCaseTest {
     when(plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_FROM, DATE_TO))
         .thenReturn(mockPlannedBacklog());
 
-    when(plannedEntitiesGateway.getThroughputByDateAndProcess(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_FROM, DATE_TO, THROUGHPUT_PROCESS))
+    when(plannedEntitiesGateway.getThroughputByDateAndProcess(FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_FROM, DATE_TO,
+        throughputProcess))
         .thenReturn(mockThroughput());
 
     when(totalBacklogProjectionGateway.getTotalProjection(eq(LOGISTIC_CENTER_ID),
-                                                          eq(DATE_FROM),
-                                                          eq(DATE_TO),
-                                                          anyMap(),
-                                                          anyMap(),
-                                                          anyMap())).thenReturn(mockProjectionTotal());
+        eq(DATE_FROM),
+        eq(DATE_TO),
+        anyMap(),
+        anyMap(),
+        anyMap())).thenReturn(mockProjectionTotal);
 
     //WHEN
     final List<TotalBacklogMonitor> totalBacklogMonitors = backlogProjectedTotalUseCase.getTotalProjection(LOGISTIC_CENTER_ID,
-                                                                                                           FBM_WMS_OUTBOUND,
-                                                                                                           PROCESSES,
-                                                                                                           THROUGHPUT_PROCESS,
-                                                                                                           UNITS,
-                                                                                                           DATE_FROM,
-                                                                                                           DATE_TO,
-                                                                                                           DATE_FROM);
+        FBM_WMS_OUTBOUND,
+        PROCESSES,
+        throughputProcess,
+        valueType,
+        DATE_FROM,
+        DATE_TO,
+        DATE_FROM);
     //THEN
     assertFalse(totalBacklogMonitors.isEmpty());
     assertAll(
@@ -132,6 +206,10 @@ class BacklogProjectedTotalUseCaseTest {
         () -> assertTrue(totalBacklogMonitors.containsAll(expectedTotalMonitor))
     );
 
+  }
+
+  private Optional<Double> mockUnitsPerOrderRatio() {
+    return Optional.of(2.0);
   }
 
   private Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> mockBacklogTotalsByProcessAndPPandSla() {
@@ -185,19 +263,21 @@ class BacklogProjectedTotalUseCaseTest {
     return quantityByDateAndProcess;
   }
 
-  private List<ProjectionTotal> mockProjectionTotal() {
+  private static List<ProjectionTotal> mockProjectionTotal() {
+
     final List<ProjectionTotal.Path> paths = ProcessPathName.allPaths().stream()
-        .map(path -> new ProjectionTotal.Path(path, QUANTITY))
+        .map(path -> new ProjectionTotal.Path(path, QUANTITY_VALUES.get(ProcessPathName.allPaths().indexOf(path) % QUANTITY_VALUES.size())))
         .toList();
+
     final List<ProjectionTotal.SlaProjected> slasProjected = IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
-        .mapToObj(iterator -> new ProjectionTotal.SlaProjected(
-            DATE_FROM.plus(iterator, HOURS),
+        .mapToObj(index -> new ProjectionTotal.SlaProjected(
+            DATE_FROM.plus(index, HOURS),
             paths.stream().mapToInt(ProjectionTotal.Path::quantity).sum(),
             paths))
         .toList();
+
     return IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
-        .mapToObj(iterator -> new ProjectionTotal(DATE_FROM.plus(iterator, HOURS), slasProjected))
+        .mapToObj(index -> new ProjectionTotal(DATE_FROM.plus(index, HOURS), slasProjected))
         .toList();
   }
-
 }

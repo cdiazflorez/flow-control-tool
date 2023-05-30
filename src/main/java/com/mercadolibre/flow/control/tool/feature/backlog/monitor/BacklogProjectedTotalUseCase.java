@@ -4,9 +4,9 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingInt;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.ProjectionTotal;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.SlaQuantity;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
@@ -33,6 +33,8 @@ public class BacklogProjectedTotalUseCase {
 
   private final TotalBacklogProjectionGateway totalBacklogProjectionGateway;
 
+  private final UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
+
   public List<TotalBacklogMonitor> getTotalProjection(final String logisticCenterId,
                                                       final Workflow workflow,
                                                       final Set<ProcessName> backlogProcesses,
@@ -43,57 +45,54 @@ public class BacklogProjectedTotalUseCase {
                                                       final Instant viewDate) {
 
     final Map<ProcessPathName, List<SlaQuantity>> backlogSlaQuantityByProcessPath = getBacklogSlaQuantityByProcessPath(logisticCenterId,
-                                                                                                                       workflow,
-                                                                                                                       backlogProcesses,
-                                                                                                                       dateFrom);
+        workflow,
+        backlogProcesses,
+        dateFrom);
 
     final Map<ProcessPathName, List<SlaQuantity>> plannedSlaQuantityByProcessPath =
         getBacklogPlannedSlaQuantityByProcessPath(workflow,
-                                                  logisticCenterId,
-                                                  dateFrom,
-                                                  dateTo);
+            logisticCenterId,
+            dateFrom,
+            dateTo);
+
+    final double unitsPerOrderRatio = unitsPerOrderRatioGateway.getUnitsPerOrderRatio(workflow, logisticCenterId, viewDate).orElseThrow();
 
     final Map<Instant, Integer> throughputByDate = plannedEntitiesGateway.getThroughputByDateAndProcess(workflow,
-                                                                                                        logisticCenterId,
-                                                                                                        dateFrom,
-                                                                                                        dateTo,
-                                                                                                        throughputProcesses).entrySet()
+            logisticCenterId,
+            dateFrom,
+            dateTo,
+            throughputProcesses).entrySet()
         .stream()
         .collect(
             toMap(
                 Map.Entry::getKey,
-                entry -> entry.getValue().values().stream().mapToInt(Integer::intValue).sum()
+                entry -> {
+                  final var quantity = entry.getValue().values().stream().mapToInt(Integer::intValue).sum();
+                  return valueType == ValueType.UNITS
+                      ? quantity : Math.toIntExact(Math.round(quantity * unitsPerOrderRatio));
+                }
             )
         );
 
     final List<ProjectionTotal> projection = totalBacklogProjectionGateway.getTotalProjection(logisticCenterId,
-                                                                                              dateFrom,
-                                                                                              dateTo,
-                                                                                              backlogSlaQuantityByProcessPath,
-                                                                                              plannedSlaQuantityByProcessPath,
-                                                                                              throughputByDate);
+        dateFrom,
+        dateTo,
+        backlogSlaQuantityByProcessPath,
+        plannedSlaQuantityByProcessPath,
+        throughputByDate);
 
     return projection.stream()
-        .collect(
-            collectingAndThen(
-                groupingBy(
-                    ProjectionTotal::dateOperation,
-                    toList()
-                ),
-                projectionTotalByDateOperation -> projectionTotalByDateOperation.entrySet().stream()
-                    .flatMap(
-                        projectionTotalByDateOperationEntry -> projectionTotalByDateOperationEntry.getValue()
-                            .stream()
-                            .map(
-                                projectionTotal -> new TotalBacklogMonitor(
-                                    projectionTotalByDateOperationEntry.getKey(),
-                                    getProjectionTotalQuantity(projectionTotalByDateOperationEntry.getValue()),
-                                    getSlaMonitor(projectionTotal.slas())
-                                )))
-                    .toList()
-            )
-        );
-
+        .map(
+            projectionTotal -> new TotalBacklogMonitor(
+                projectionTotal.dateOperation(),
+                getProjectionTotalQuantity(
+                    projectionTotal,
+                    unitsPerOrderRatio,
+                    valueType),
+                getSlaMonitor(projectionTotal.slas(),
+                    unitsPerOrderRatio,
+                    valueType)
+            )).toList();
   }
 
   private Map<ProcessPathName, List<SlaQuantity>> getBacklogSlaQuantityByProcessPath(final String logisticCenterId,
@@ -136,9 +135,9 @@ public class BacklogProjectedTotalUseCase {
 
     final Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> plannedUnitByPPDateInAndDateOut = plannedEntitiesGateway
         .getPlannedUnitByPPDateInAndDateOut(workflow,
-                                            logisticCenterId,
-                                            dateFrom,
-                                            dateTo);
+            logisticCenterId,
+            dateFrom,
+            dateTo);
 
     return plannedUnitByPPDateInAndDateOut.entrySet()
         .stream()
@@ -160,23 +159,30 @@ public class BacklogProjectedTotalUseCase {
 
   }
 
-  private Integer getProjectionTotalQuantity(final List<ProjectionTotal> projectionTotals) {
-    return projectionTotals.stream()
-        .mapToInt(projectionTotal -> projectionTotal.slas().stream()
-            .mapToInt(ProjectionTotal.SlaProjected::quantity)
-            .sum())
+  private Integer getProjectionTotalQuantity(final ProjectionTotal projectionTotals,
+                                             final Double unitsPerOrderRatio,
+                                             final ValueType valueType) {
+    final var quantity = projectionTotals.slas().stream()
+        .mapToInt(ProjectionTotal.SlaProjected::quantity)
         .sum();
+    return convertUnitsToOrders(quantity, unitsPerOrderRatio, valueType);
   }
 
-  private List<SlasMonitor> getSlaMonitor(final List<ProjectionTotal.SlaProjected> slaProjected) {
+  private List<SlasMonitor> getSlaMonitor(final List<ProjectionTotal.SlaProjected> slaProjected,
+                                          final Double unitsPerOrderRatio,
+                                          final ValueType valueType) {
     return slaProjected.stream()
         .map(sla -> new SlasMonitor(sla.date(),
-                                    sla.quantity(),
-                                    sla.processPaths().stream()
-                                        .map(path -> new ProcessPathMonitor(path.name(),
-                                                                            path.quantity()))
-                                        .toList()))
+            convertUnitsToOrders(sla.quantity(), unitsPerOrderRatio, valueType),
+            sla.processPaths().stream()
+                .map(path -> new ProcessPathMonitor(path.name(),
+                    convertUnitsToOrders(path.quantity(), unitsPerOrderRatio, valueType)))
+                .toList()))
         .toList();
+  }
+
+  private int convertUnitsToOrders(final int units, final double ratio, final ValueType valueType) {
+    return valueType == ValueType.UNITS ? units : Math.toIntExact(Math.round(units / ratio));
   }
 
   /**

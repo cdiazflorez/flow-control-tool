@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
-import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
+import static com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectionUtil.validateUnitsPerOrderRatio;
+
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class BacklogProjectedUseCase {
 
-  private static final double MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO = 1;
 
   private final BacklogProjectedGateway backlogProjectedGateway;
 
@@ -75,11 +75,7 @@ public class BacklogProjectedUseCase {
         viewDate
     );
 
-    final Double unitsPerOrderRatio = getUnitsPerOrderRatio
-        .filter(ratio -> ratio >= MIN_VALUE_FOR_UNIT_PER_ORDER_RATIO)
-        .orElseThrow(
-            () -> new NoUnitsPerOrderRatioFound(logisticCenterId)
-        );
+    final Double unitsPerOrderRatio = validateUnitsPerOrderRatio(getUnitsPerOrderRatio, logisticCenterId);
 
     final List<BacklogMonitor> backlogMonitors = BacklogProjectionUtil.sumBacklogProjectionNullPP(backlogProjection, unitsPerOrderRatio);
 
