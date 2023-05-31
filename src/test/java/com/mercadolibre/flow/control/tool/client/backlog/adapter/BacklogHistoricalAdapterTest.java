@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 
+import static com.mercadolibre.flow.control.tool.client.backlog.adapter.Util.toSteps;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.PATH;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper.STEP;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep.PENDING;
@@ -14,10 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClient;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -124,6 +127,79 @@ class BacklogHistoricalAdapterTest {
   }
 
   @Test
+  void lastBacklogByDateProcessDateOutAndProcessPathNormalCase() {
+    final PhotoResponse mockBacklogsAPI = new PhotoResponse(
+        PHOTO_DATE,
+        List.of(
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_1), 500),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "to_pack", DATE_OUT, DATE_OUT_1), 1000),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "pending", DATE_OUT, DATE_OUT_1), 700),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_2), 500),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "to_pack", DATE_OUT, DATE_OUT_2), 1000),
+            new PhotoResponse.Group(Map.of(PATH.getName(), TOT_MULTI_BATCH, STEP.getName(), "pending", DATE_OUT, DATE_OUT_2), 700),
+            new PhotoResponse.Group(Map.of(PATH.getName(), NON_TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_1), 500),
+            new PhotoResponse.Group(Map.of(PATH.getName(), NON_TOT_MULTI_BATCH, STEP.getName(), PICKED, DATE_OUT, DATE_OUT_1), 500)
+
+        ));
+
+    final Set<ProcessName> processes = Set.of(WAVING, BATCH_SORTER, PACKING_WALL);
+
+    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)),
+        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
+        toSteps(processes),
+        PHOTO_DATE
+    );
+
+    when(backlogApiClient.getLastPhoto(backlogPhotosLastRequest)).thenReturn(mockBacklogsAPI);
+
+    final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> response =
+        backlogHistoricalAdapter.getLastBacklogByDateProcessAndPP(
+            Workflow.FBM_WMS_OUTBOUND,
+            LOGISTIC_CENTER_ID,
+            Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
+            PHOTO_DATE);
+
+    final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> expected =
+        Map.of(
+            PHOTO_DATE, Map.of(
+                WAVING, Map.of(
+                    Instant.parse(DATE_OUT_1),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 700),
+                    Instant.parse(DATE_OUT_2),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 700)),
+                BATCH_SORTER, Map.of(
+                    Instant.parse(DATE_OUT_1),
+                    Map.of(
+                        ProcessPathName.TOT_MULTI_BATCH, 500,
+                        ProcessPathName.NON_TOT_MULTI_BATCH, 1000),
+                    Instant.parse(DATE_OUT_2),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 500)),
+                PACKING_WALL, Map.of(
+                    Instant.parse(DATE_OUT_1),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 1000),
+                    Instant.parse(DATE_OUT_2),
+                    Map.of(ProcessPathName.TOT_MULTI_BATCH, 1000))
+            )
+        );
+    assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.NON_TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_1)).get(ProcessPathName.NON_TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(WAVING).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(PACKING_WALL).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH));
+    assertEquals(expected.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH),
+        response.get(PHOTO_DATE).get(BATCH_SORTER).get(Instant.parse(DATE_OUT_2)).get(ProcessPathName.TOT_MULTI_BATCH));
+  }
+
+  @Test
   void backlogByDateProcessDateOutAndProcessPathPWhenGetsNullResponse() {
     final PhotoRequest request = new PhotoRequest(
         LOGISTIC_CENTER_ID,
@@ -143,6 +219,31 @@ class BacklogHistoricalAdapterTest {
             Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
             PHOTO_DATE,
             DATE_TO);
+
+    assertEquals(Map.of(), response);
+  }
+
+  @Test
+  void lastBacklogByDateProcessDateOutAndProcessPathPWhenGetsNullResponse() {
+    final Set<ProcessName> processes = Set.of(WAVING, BATCH_SORTER, PACKING_WALL);
+
+    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)),
+        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
+        toSteps(processes),
+        PHOTO_DATE
+    );
+
+    when(backlogApiClient.getLastPhoto(backlogPhotosLastRequest)).thenReturn(null);
+
+    final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> response =
+        backlogHistoricalAdapter.getLastBacklogByDateProcessAndPP(
+            Workflow.FBM_WMS_OUTBOUND,
+            LOGISTIC_CENTER_ID,
+            Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
+            PHOTO_DATE);
+
     assertEquals(Map.of(), response);
   }
 
@@ -166,6 +267,30 @@ class BacklogHistoricalAdapterTest {
             Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
             PHOTO_DATE,
             DATE_TO);
+    assertEquals(Map.of(PHOTO_DATE, Map.of()), response);
+  }
+
+  @Test
+  void lastBacklogByDateProcessDateOutAndProcessPathWhenGetsEmptyResponse() {
+    final Set<ProcessName> processes = Set.of(WAVING, BATCH_SORTER, PACKING_WALL);
+
+    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
+        LOGISTIC_CENTER_ID,
+        Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)),
+        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
+        toSteps(processes),
+        PHOTO_DATE
+    );
+
+    when(backlogApiClient.getLastPhoto(backlogPhotosLastRequest)).thenReturn(new PhotoResponse(PHOTO_DATE, List.of()));
+
+    final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> response =
+        backlogHistoricalAdapter.getLastBacklogByDateProcessAndPP(
+            Workflow.FBM_WMS_OUTBOUND,
+            LOGISTIC_CENTER_ID,
+            Set.of(WAVING, BATCH_SORTER, PACKING_WALL),
+            PHOTO_DATE);
+
     assertEquals(Map.of(PHOTO_DATE, Map.of()), response);
   }
 }

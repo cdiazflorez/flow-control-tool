@@ -1,4 +1,4 @@
-pull_request_template.md## Descripción y contexto
+## Descripción y contexto
 <!---
 ¿Por qué hay que hacer este cambio?
 ¿Qué problema resuelve?

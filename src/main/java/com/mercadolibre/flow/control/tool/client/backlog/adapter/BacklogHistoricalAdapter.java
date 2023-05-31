@@ -1,9 +1,11 @@
 package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 
 import static com.mercadolibre.flow.control.tool.client.backlog.adapter.StepAndPathToProcessMapper.pathAndStepToProcessName;
+import static com.mercadolibre.flow.control.tool.client.backlog.adapter.Util.filterExistingProcessPathAndSteps;
 import static com.mercadolibre.flow.control.tool.client.backlog.adapter.Util.toSteps;
 
 import com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClient;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
@@ -72,4 +74,52 @@ public class BacklogHistoricalAdapter implements GetHistoricalBacklogUseCase.Bac
                 ))
         ));
   }
+
+  @Override
+  public Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> getLastBacklogByDateProcessAndPP(
+      final Workflow workflow,
+      final String logisticCenter,
+      final Set<ProcessName> processes,
+      final Instant viewDate) {
+
+    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
+        logisticCenter,
+        Set.of(PhotoWorkflow.from(workflow)),
+        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH, PhotoGrouper.DATE_OUT),
+        toSteps(processes),
+        viewDate
+    );
+
+    final PhotoResponse lastPhoto = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);
+
+    if (lastPhoto == null) {
+      return Map.of();
+    }
+
+    return Map.of(
+        lastPhoto.takenOn(),
+        filterExistingProcessPathAndSteps(lastPhoto.groups())
+            .map(group -> new Group(
+                    pathAndStepToProcessName(ProcessPathName.from(group.key().get(PATH)),
+                        PhotoStep.from(group.key().get(STEP))).orElseThrow(),
+                    ProcessPathName.from(group.key().get(PATH)),
+                    Instant.parse(group.key().get(DATE_OUT)),
+                    group.total()
+                )
+            )
+            .collect(
+                Collectors.groupingBy(Group::processName,
+                    Collectors.groupingBy(Group::dateOut,
+                        Collectors.groupingBy(Group::path,
+                            Collectors.summingInt(Group::total))))
+            ));
+  }
+
+  private record Group(
+      ProcessName processName,
+      ProcessPathName path,
+      Instant dateOut,
+      Integer total) {
+  }
+
 }
