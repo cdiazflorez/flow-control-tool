@@ -14,6 +14,7 @@ import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_FROM;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_TO;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -78,14 +79,16 @@ class BacklogProjectedTotalUseCaseTest {
 
   private static final Integer SLAS_QUANTITY = SLAS_MONITORS.stream().mapToInt(SlasMonitor::quantity).sum();
 
-  private static final List<TotalBacklogMonitor> EXPECTED_TOTAL_MONITOR = IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
-      .mapToObj(hour -> new TotalBacklogMonitor(DATE_FROM.plus(hour, HOURS),
-          SLAS_QUANTITY,
-          SLAS_MONITORS))
+  private static final List<TotalBacklogMonitor> EXPECTED_TOTAL_MONITOR = IntStream.rangeClosed(0, NUMBER_OF_HOURS)
+      .mapToObj(hour -> NUMBER_OF_HOURS == hour
+          ? new TotalBacklogMonitor(DATE_FROM.plus(hour, HOURS), 0, emptyList())
+          : new TotalBacklogMonitor(DATE_FROM.plus(hour, HOURS), SLAS_QUANTITY, SLAS_MONITORS))
       .toList();
 
-  private static final List<ProjectionTotal> EXPECTED_DISPATCH_TOTAL = List.of(
-      new ProjectionTotal(
+  private static final List<ProjectionTotal> EXPECTED_DISPATCH_TOTAL = IntStream.rangeClosed(0, NUMBER_OF_HOURS)
+      .mapToObj(hour -> hour != 0
+          ? new ProjectionTotal(DATE_FROM.plus(hour, HOURS), emptyList())
+          : new ProjectionTotal(
           DATE_FROM,
           List.of(
               new ProjectionTotal.SlaProjected(
@@ -99,8 +102,7 @@ class BacklogProjectedTotalUseCaseTest {
                   )
               )
           )
-      )
-  );
+      )).collect(Collectors.toList());
 
   private static final Set<ProcessName> PROCESSES = Set.of(
       WAVING,
@@ -116,8 +118,11 @@ class BacklogProjectedTotalUseCaseTest {
       QUANTITY,
       List.of(new ProcessPathMonitor(ProcessPathName.TOT_MONO, QUANTITY))));
 
-  private static final List<TotalBacklogMonitor> EXPECTED_DISPATCH_TOTAL_MONITOR =
-      List.of(new TotalBacklogMonitor(DATE_FROM, QUANTITY, SLAS_DISPATCH_MONITOR));
+  private static final List<TotalBacklogMonitor> EXPECTED_DISPATCH_TOTAL_MONITOR = IntStream.rangeClosed(0, NUMBER_OF_HOURS)
+      .mapToObj(hour -> hour != 0
+          ? new TotalBacklogMonitor(DATE_FROM.plus(hour, HOURS), 0, emptyList())
+          : new TotalBacklogMonitor(DATE_FROM, QUANTITY, SLAS_DISPATCH_MONITOR))
+      .collect(Collectors.toList());
 
 
   @InjectMocks
@@ -276,8 +281,10 @@ class BacklogProjectedTotalUseCaseTest {
             paths))
         .toList();
 
-    return IntStream.rangeClosed(0, NUMBER_OF_HOURS - 1)
-        .mapToObj(index -> new ProjectionTotal(DATE_FROM.plus(index, HOURS), slasProjected))
+    return IntStream.rangeClosed(0, NUMBER_OF_HOURS)
+        .mapToObj(index -> NUMBER_OF_HOURS == index
+            ? new ProjectionTotal(DATE_FROM.plus(index, HOURS), emptyList())
+            : new ProjectionTotal(DATE_FROM.plus(index, HOURS), slasProjected))
         .toList();
   }
 }

@@ -19,10 +19,13 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -237,20 +240,33 @@ class BacklogProjectedUseCaseTest {
 
   private static List<BacklogMonitor> expectedNullPP() {
     return List.of(
-        backlogMonitorMockNullPP(OP_DATE1, PICKING_TOTAL),
         backlogMonitorMockNullPP(OP_DATE2, 100),
         backlogMonitorMockNullPP(OP_DATE3, 150)
     );
   }
 
+  private static List<BacklogMonitor> expectedEmpty() {
+    return List.of(
+        new BacklogMonitor(OP_DATE2, createEmptyProcessesList()),
+        new BacklogMonitor(OP_DATE3, createEmptyProcessesList())
+    );
+  }
+
+  private static List<ProcessesMonitor> createEmptyProcessesList() {
+
+    return Arrays.stream(ProcessName.values())
+        .map(processName -> new ProcessesMonitor(processName, 0, emptyList()))
+        .collect(Collectors.toList());
+  }
+
   private static Stream<ParametersTest> parameterBacklog() {
     return Stream.of(
         new ParametersTest(CURRENT_BACKLOG, PLANNED_BACKLOGS, THROUGHPUT, BACKLOG_PP, BACKLOG, expectedNullPP()),
-        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyMap(), emptyList()),
-        new ParametersTest(emptyMap(), emptyMap(), THROUGHPUT, emptyMap(), emptyMap(), emptyList()),
-        new ParametersTest(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyList()),
-        new ParametersTest(CURRENT_BACKLOG, emptyMap(), THROUGHPUT, emptyMap(), emptyMap(), emptyList()),
-        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, emptyMap(), emptyMap(), emptyMap(), emptyList())
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, THROUGHPUT, emptyMap(), emptyMap(), expectedEmpty()),
+        new ParametersTest(emptyMap(), emptyMap(), THROUGHPUT, emptyMap(), emptyMap(), expectedEmpty()),
+        new ParametersTest(emptyMap(), emptyMap(), emptyMap(), emptyMap(), emptyMap(), expectedEmpty()),
+        new ParametersTest(CURRENT_BACKLOG, emptyMap(), THROUGHPUT, emptyMap(), emptyMap(), expectedEmpty()),
+        new ParametersTest(emptyMap(), PLANNED_BACKLOGS, emptyMap(), emptyMap(), emptyMap(), expectedEmpty())
     );
   }
 
@@ -301,22 +317,31 @@ class BacklogProjectedUseCaseTest {
       final Integer totalQuantity
   ) {
 
-    return new BacklogMonitor(date,
-        List.of(new ProcessesMonitor(
-                ProcessName.PICKING,
+    final ProcessesMonitor expectedMonitor = new ProcessesMonitor(
+        ProcessName.PICKING,
+        totalQuantity,
+        List.of(
+            new SlasMonitor(
+                DATE_OUT,
                 totalQuantity,
-                List.of(
-                    new SlasMonitor(
-                        DATE_OUT,
-                        totalQuantity,
-                        emptyList()
-                    )
-                )
-
+                emptyList()
             )
         )
     );
 
+    return new BacklogMonitor(date, createFullProcessesMonitorList(expectedMonitor));
+  }
+
+  private static List<ProcessesMonitor> createFullProcessesMonitorList(ProcessesMonitor processesMonitor) {
+
+    final var processesMonitors = Arrays.stream(ProcessName.values())
+        .filter(processName -> !processName.equals(processesMonitor.name()))
+        .map(processName -> new ProcessesMonitor(processName, 0, emptyList()))
+        .collect(Collectors.toList());
+
+    processesMonitors.add(processesMonitor);
+
+    return processesMonitors.stream().sorted(Comparator.comparing(ProcessesMonitor::name)).toList();
   }
 
   @ParameterizedTest
