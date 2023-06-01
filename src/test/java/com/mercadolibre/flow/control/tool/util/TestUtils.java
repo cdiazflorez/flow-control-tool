@@ -26,6 +26,9 @@ public class TestUtils {
 
   public static final Instant DATE_FROM = Instant.parse("2023-03-24T12:00:00Z");
 
+  public static final Instant DATE_FROM_RESPONSE_PROJECTION = Instant.parse("2023-03-24T13:00:00Z");
+
+
   public static final Instant DATE_TO = DATE_FROM.plus(6, HOURS);
 
   /**

@@ -101,7 +101,7 @@ public class BacklogProjectedTotalUseCase {
         .toList();
 
     final Stream<TotalBacklogMonitor> responseTotalBacklogMonitor = completeTotalBacklogMonitors(totalBacklogMonitors,
-        dateFrom.truncatedTo(ChronoUnit.HOURS),
+        dateFrom.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1)),
         dateTo.truncatedTo(ChronoUnit.HOURS));
 
     return responseTotalBacklogMonitor
