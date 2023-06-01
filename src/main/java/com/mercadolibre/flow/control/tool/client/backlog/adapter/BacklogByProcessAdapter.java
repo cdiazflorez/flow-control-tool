@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class BacklogByProcessAdapter implements BacklogStatusUseCase.BacklogGateway {
+
   private final BacklogApiClient backlogApiClient;
 
   @Override
@@ -46,6 +47,7 @@ public class BacklogByProcessAdapter implements BacklogStatusUseCase.BacklogGate
     if (groups == null) {
       return Map.of();
     }
+
     final var unitsByProcess = filterExistingProcessPathAndSteps(groups.groups())
         .collect(Collectors.toMap(
             group -> pathAndStepToProcessName(ProcessPathName.from(group.key().get(PATH.getName())),

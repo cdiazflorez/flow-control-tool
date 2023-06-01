@@ -6,11 +6,13 @@ import static com.mercadolibre.flow.control.tool.util.TestUtils.FBM_WMS_OUTBOUND
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.getResourceAsString;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.util.Collections.emptyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedTotalUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
@@ -18,13 +20,16 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMon
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.TotalBacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
@@ -49,13 +54,21 @@ public class MonitorControllerTest {
 
   private static final String LIMITS = "limits";
 
+  private static final String TOTAL = "total";
+
   private static final String WORKFLOW = "workflow";
 
   private static final String PROCESSES = "processes";
 
+  private static final String BACKLOG_PROCESSES = "backlog_processes";
+
+  private static final String THROUGHPUT_PROCESSES = "throughput_processes";
+
   private static final String PROCESS_PATHS = "process_paths";
 
   private static final String SLAS = "slas";
+
+  private static final String VALUE_TYPE = "value_type";
 
   private static final String VIEW_DATE = "view_date";
 
@@ -88,6 +101,8 @@ public class MonitorControllerTest {
   private static final String SHIPPING = "shipping";
 
   private static final String ERROR = "error";
+
+  private static final String UNITS = "units";
 
   private static final Set<ProcessName> PROCESS_NAMES = Set.of(
       ProcessName.PICKING,
@@ -156,18 +171,12 @@ public class MonitorControllerTest {
                           new SlasMonitor(
                               Instant.parse(DATE_FROM_STRING),
                               0,
-                              List.of(
-                                  new ProcessPathMonitor(TOT_MONO, 0),
-                                  new ProcessPathMonitor(NON_TOT_MONO, 0)
-                              )
+                              emptyList()
                           ),
                           new SlasMonitor(
                               Instant.parse(DATE_FROM_STRING).plus(1, HOURS),
                               5,
-                              List.of(
-                                  new ProcessPathMonitor(TOT_MONO, 2),
-                                  new ProcessPathMonitor(NON_TOT_MONO, 3)
-                              )
+                              emptyList()
                           )
                       )
                   )
@@ -184,16 +193,19 @@ public class MonitorControllerTest {
   @MockBean
   private BacklogProjectedUseCase backlogProjectedUseCase;
 
+  @MockBean
+  private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
+
   private static Stream<Arguments> backlogLimitsProvider() {
     return Stream.of(
         Arguments.of("FBM_WMS_OUTBOUND",
-            Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
-            DATE_FROM_STRING,
-            DATE_TO_STRING),
+                     Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+                     DATE_FROM_STRING,
+                     DATE_TO_STRING),
         Arguments.of("FBM_WM_OUTBOUND",
-            Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
-            DATE_FROM_STRING,
-            DATE_TO_STRING)
+                     Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+                     DATE_FROM_STRING,
+                     DATE_TO_STRING)
     );
   }
 
@@ -424,12 +436,22 @@ public class MonitorControllerTest {
     // THEN
     result.andExpect(status().isBadRequest());
     result.andExpect(r ->
-        Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
-            Objects.requireNonNull(r.getResolvedException()).getMessage())
+                         Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
+                                                 Objects.requireNonNull(r.getResolvedException()).getMessage())
     );
   }
 
   private void whenBacklogProjectionUseCase() {
+    when(backlogProjectedUseCase.getBacklogProjected(Instant.parse(DATE_FROM_STRING),
+                                                     Instant.parse(DATE_TO_STRING),
+                                                     LOGISTIC_CENTER_ID,
+                                                     Workflow.FBM_WMS_OUTBOUND,
+                                                     PROCESS_NAMES,
+                                                     Instant.parse(VIEW_DATE_STRING)
+    )).thenReturn(BACKLOG_PROJECTED_MOCK);
+  }
+
+  private void whenBacklogProjectionUseCaseEmptyPP() {
     when(backlogProjectedUseCase.getBacklogProjected(Instant.parse(DATE_FROM_STRING),
         Instant.parse(DATE_TO_STRING),
         LOGISTIC_CENTER_ID,
@@ -483,7 +505,7 @@ public class MonitorControllerTest {
   void testGetBacklogProjectionsWithoutParams() throws Exception {
 
     // WHEN
-    whenBacklogProjectionUseCase();
+    whenBacklogProjectionUseCaseEmptyPP();
 
     final var result = mvc.perform(
         get(String.format(BACKLOG_MONITOR_URL, LOGISTIC_CENTER_ID, PROJECTIONS))
@@ -569,8 +591,8 @@ public class MonitorControllerTest {
     // THEN
     result.andExpect(status().isBadRequest());
     result.andExpect(r ->
-        Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
-            Objects.requireNonNull(r.getResolvedException()).getMessage())
+                         Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
+                                                 Objects.requireNonNull(r.getResolvedException()).getMessage())
     );
   }
 
@@ -597,6 +619,121 @@ public class MonitorControllerTest {
 
     // THEN
     result.andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void testGetTotalBacklogProjection() throws Exception {
+    //GIVEN
+    final Instant dateFromValue = Instant.parse(DATE_FROM_STRING);
+    final Instant dateToValue = Instant.parse(DATE_TO_STRING);
+
+    final Set<ProcessName> processes = Set.of(
+        ProcessName.PICKING,
+        ProcessName.BATCH_SORTER,
+        ProcessName.WALL_IN,
+        ProcessName.PACKING,
+        ProcessName.PACKING_WALL);
+
+    final Set<ProcessName> throughputProcess = Set.of(ProcessName.PACKING, ProcessName.PACKING_WALL);
+
+    final List<ProcessPathMonitor> processPathMonitors = List.of(
+        new ProcessPathMonitor(
+            TOT_MONO,
+            5
+        ),
+        new ProcessPathMonitor(
+            NON_TOT_MONO,
+            5
+        )
+    );
+
+    final List<SlasMonitor> slasMonitors = List.of(
+        new SlasMonitor(
+            Instant.parse("2023-03-23T07:00:00Z"),
+            10,
+            processPathMonitors
+        ),
+        new SlasMonitor(
+            Instant.parse("2023-03-23T09:00:00Z"),
+            10,
+            processPathMonitors
+        )
+    );
+
+    final List<TotalBacklogMonitor> totalBacklogResponse = IntStream.rangeClosed(0, 2)
+        .mapToObj(
+            iterator -> new TotalBacklogMonitor(
+                dateFromValue.plus(iterator, HOURS),
+                20,
+                slasMonitors
+            ))
+        .toList();
+
+    when(backlogProjectedTotalUseCase.getTotalProjection(LOGISTIC_CENTER_ID,
+                                                         Workflow.FBM_WMS_OUTBOUND,
+                                                         processes,
+                                                         throughputProcess,
+                                                         ValueType.UNITS,
+                                                         dateFromValue,
+                                                         dateToValue,
+                                                         dateFromValue))
+        .thenReturn(totalBacklogResponse);
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL + "/%s", LOGISTIC_CENTER_ID, PROJECTIONS, TOTAL))
+            .param(WORKFLOW, FBM_WMS_OUTBOUND)
+            .param(BACKLOG_PROCESSES, String.join(",", Arrays.asList(
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(THROUGHPUT_PROCESSES, String.join(",", Arrays.asList(
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(VALUE_TYPE, UNITS)
+            .param(VIEW_DATE, DATE_FROM_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().isOk())
+        .andExpect(
+            content()
+                .json(getResourceAsString("monitor/controller_response_get_total_backlog.json"))
+        );
+  }
+
+  @Test
+  void testGetTotalBacklogProjectionError() throws Exception {
+
+    // WHEN
+    final var result = mvc.perform(
+        get(String.format(BACKLOG_MONITOR_URL + "/%s", LOGISTIC_CENTER_ID, PROJECTIONS, TOTAL))
+            .param(WORKFLOW, "FBM-WMS-OUTBOUND")
+            .param(BACKLOG_PROCESSES, String.join(",", Arrays.asList(
+                PICKING,
+                BATCH_SORTER,
+                WALL_IN,
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(THROUGHPUT_PROCESSES, String.join(",", Arrays.asList(
+                PACKING,
+                PACKING_WALL
+            )))
+            .param(VALUE_TYPE, UNITS)
+            .param(VIEW_DATE, DATE_FROM_STRING)
+            .param(DATE_FROM, DATE_FROM_STRING)
+            .param(DATE_TO, DATE_TO_STRING)
+    );
+
+    // THEN
+    result.andExpect(status().is4xxClientError()).andExpect(status().isBadRequest());
   }
 
   @Test
@@ -708,8 +845,8 @@ public class MonitorControllerTest {
     final String expectedMessage = new JSONObject()
         .put("error", "bad_request")
         .put("message",
-            "bad request /control_tool/logistic_center/ARTW01/backlog/historical. "
-                + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPING]")
+             "bad request /control_tool/logistic_center/ARTW01/backlog/historical. "
+                 + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPING]")
         .put("status", 400)
         .toString();
 

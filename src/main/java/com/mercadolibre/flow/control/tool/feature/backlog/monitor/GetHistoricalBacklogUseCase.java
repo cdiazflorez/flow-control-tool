@@ -6,11 +6,13 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -41,8 +43,15 @@ public class GetHistoricalBacklogUseCase {
     final Set<ProcessName> historicalProcesses =
         getCalculableProcesses(processes, getUnitsPerOrderRatio);
 
-    final var backlogHistorical = backlogGateway.getBacklogByDateProcessAndPP(
-        workflow, logisticCenterId, historicalProcesses, dateFrom, dateTo);
+    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogHistorical =
+        backlogGateway.getBacklogByDateProcessAndPP(workflow, logisticCenterId, historicalProcesses, dateFrom, dateTo);
+
+    if (viewDate.truncatedTo(ChronoUnit.MINUTES).equals(dateTo.truncatedTo(ChronoUnit.MINUTES))) {
+      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> lastBacklogHistorical =
+          backlogGateway.getLastBacklogByDateProcessAndPP(workflow, logisticCenterId, historicalProcesses, viewDate);
+
+      backlogHistorical = mergeMaps(backlogHistorical, lastBacklogHistorical);
+    }
 
     List<BacklogMonitor> response = BacklogProjectionUtil.sumBacklogProjection(backlogHistorical, unitsPerOrderRatio);
 
@@ -59,11 +68,22 @@ public class GetHistoricalBacklogUseCase {
         );
   }
 
+  private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> mergeMaps(
+      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> photos,
+      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> lastPhoto
+  ) {
+    return Stream.concat(photos.entrySet().stream(), lastPhoto.entrySet().stream())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+  }
+
   /**
    * Get map backlog by date, process, sla and process path.
    */
   public interface BacklogGateway {
     Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> getBacklogByDateProcessAndPP(
         Workflow workflow, String logisticCenter, Set<ProcessName> processes, Instant dateFrom, Instant dateTo);
+
+    Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> getLastBacklogByDateProcessAndPP(
+        Workflow workflow, String logisticCenter, Set<ProcessName> processes, Instant viewDate);
   }
 }

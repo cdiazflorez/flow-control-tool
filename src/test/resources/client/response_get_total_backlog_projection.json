@@ -1,0 +1,17 @@
+[
+  {
+    "date": "2023-03-17T14:00:00Z",
+    "sla": [
+      {
+        "date_out": "2023-03-17T15:00:00Z",
+        "quantity": "50",
+        "process_path": [
+          {
+            "name": "tot_mono",
+            "quantity": 50
+          }
+        ]
+      }
+    ]
+  }
+]

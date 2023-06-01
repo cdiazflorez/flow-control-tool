@@ -1,0 +1,93 @@
+{
+  "global": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 25
+      }
+    },
+    "picking": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    },
+    "batch_sorter": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 75
+      }
+    },
+    "wall_in": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 100
+      }
+    },
+    "packing": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 125
+      }
+    },
+    "packing_wall": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 150
+      }
+    },
+    "hu_assembly": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 175
+      }
+    },
+    "sales_dispatch": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 200
+      }
+    }
+  },
+  "tot_mono": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  },
+  "non_tot_mono": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  },
+  "tot_multi_batch": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  },
+  "non_tot_multi_batch": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  },
+  "tot_multi_order": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  },
+  "non_tot_multi_order": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  },
+  "tot_single_sku": {
+    "waving": {
+      "2023-03-17T14:00:00Z": {
+        "quantity": 50
+      }
+    }
+  }
+}

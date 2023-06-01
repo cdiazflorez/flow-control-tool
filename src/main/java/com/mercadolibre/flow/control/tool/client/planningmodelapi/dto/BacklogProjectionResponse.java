@@ -32,6 +32,7 @@ public record BacklogProjectionResponse(
   public record Sla(
       @JsonProperty("date_out")
       Instant dateOut,
+      Integer quantity,
       @JsonProperty("process_path")
       List<ProcessPath> processPath
   ) {

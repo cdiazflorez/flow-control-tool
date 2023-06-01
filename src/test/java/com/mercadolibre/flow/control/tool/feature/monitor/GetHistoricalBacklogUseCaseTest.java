@@ -84,7 +84,7 @@ class GetHistoricalBacklogUseCaseTest {
 
   private static final Instant DATE1 = Instant.parse("2023-04-14T18:00:00Z");
 
-  private static final Instant DATE2 = Instant.parse("2023-04-14T19:00:00Z");
+  private static final Instant DATE2 = Instant.parse("2023-05-03T08:00:00Z");
 
   private static final String LOGISTIC_CENTER_ID = "ARTW01";
 

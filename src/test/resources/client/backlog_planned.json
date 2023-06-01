@@ -1,0 +1,34 @@
+[
+  {
+    "group": {
+      "process_path": "tot_mono",
+      "date_in": "2023-03-17T14:00:00Z",
+      "date_out": "2023-03-18T08:00:00Z"
+    },
+    "total": 35.55
+  },
+  {
+    "group": {
+      "process_path": "non_tot_mono",
+      "date_in": "2023-03-17T14:00:00Z",
+      "date_out": "2023-03-18T08:00:00Z"
+    },
+    "total": 35.55
+  },
+  {
+    "group": {
+      "process_path": "tot_multi_batch",
+      "date_in": "2023-03-17T14:00:00Z",
+      "date_out": "2023-03-18T08:00:00Z"
+    },
+    "total": 35.55
+  },
+  {
+    "group": {
+      "process_path": "non_tot_multi_batch",
+      "date_in": "2023-03-17T14:00:00Z",
+      "date_out": "2023-03-18T08:00:00Z"
+    },
+    "total": 35.55
+  }
+]

@@ -5,7 +5,7 @@ import java.util.List;
 
 public record ProcessesMonitor(
     ProcessName name,
-    Integer quantity,
+    int quantity,
     List<SlasMonitor> slas
 ) {
 }
