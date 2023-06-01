@@ -5,7 +5,9 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Plann
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public record BacklogPlannedRequest(
 
@@ -19,21 +21,34 @@ public record BacklogPlannedRequest(
 
     Instant dateInTo,
 
+    Optional<Instant> dateOutFrom,
+
+    Optional<Instant> dateOutTo,
+
     Set<PlannedGrouper> groupBy
 
-    ) {
+) {
 
   private static final String DELIMITER = ",";
 
   public Map<String, String> getQueryParams() {
-    return Map.of(
-        "logistic_center", logisticCenter,
-        "workflow", planningWorkflow.getName(),
-        "process_paths", String.join(DELIMITER, processPathNames.stream().map(ProcessPathName::getName).toList()),
-        "view_date", dateInFrom.toString(),
-        "date_in_from", dateInFrom.toString(),
-        "date_in_to", dateInTo.toString(),
-        "group_by", String.join(DELIMITER, groupBy.stream().map(PlannedGrouper::getName).toList())
-    );
+    final Map<String, String> queryParams = new ConcurrentHashMap<>();
+    queryParams.put("logistic_center", logisticCenter);
+    queryParams.put("workflow", planningWorkflow.getName());
+    queryParams.put("date_in_from", dateInFrom.toString());
+    queryParams.put("date_in_to", dateInTo.toString());
+    queryParams.put("view_date", dateInTo.toString());
+    queryParams.put("group_by", String.join(DELIMITER, groupBy.stream().map(PlannedGrouper::getName).toList()));
+
+    if (dateOutFrom.isPresent() && dateOutTo.isPresent()) {
+      queryParams.put("date_out_from", dateOutFrom.toString());
+      queryParams.put("date_out_to", dateOutTo.toString());
+    }
+
+    if (!processPathNames.isEmpty()) {
+      queryParams.put("process_paths", String.join(DELIMITER, processPathNames.stream().map(ProcessPathName::getName).toList()));
+    }
+
+    return queryParams;
   }
 }

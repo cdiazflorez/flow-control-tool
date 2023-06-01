@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -102,6 +103,8 @@ public class PlannedEntitiesAdapter implements PlannedEntitiesGateway {
         PROCESS_PATH_NAMES,
         dateFrom,
         dateTo,
+        Optional.empty(),
+        Optional.empty(),
         PLANNED_GROUPERS));
 
     return backlogPlannedResponses.stream().collect(
