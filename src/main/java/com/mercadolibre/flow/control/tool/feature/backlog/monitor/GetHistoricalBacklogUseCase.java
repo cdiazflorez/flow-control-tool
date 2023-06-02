@@ -1,5 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
+import static com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectionUtil.fillBacklogMonitorsMissingDatesAndProcesses;
+
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
@@ -12,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -46,17 +47,25 @@ public class GetHistoricalBacklogUseCase {
     Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogHistorical =
         backlogGateway.getBacklogByDateProcessAndPP(workflow, logisticCenterId, historicalProcesses, dateFrom, dateTo);
 
+    final List<BacklogMonitor> backlogHistoricalMonitors = fillBacklogMonitorsMissingDatesAndProcesses(
+        BacklogProjectionUtil.sumBacklogProjection(backlogHistorical, unitsPerOrderRatio),
+        dateFrom,
+        dateTo
+    );
+
     if (viewDate.truncatedTo(ChronoUnit.MINUTES).equals(dateTo.truncatedTo(ChronoUnit.MINUTES))) {
       final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> lastBacklogHistorical =
           backlogGateway.getLastBacklogByDateProcessAndPP(workflow, logisticCenterId, historicalProcesses, viewDate);
 
-      backlogHistorical = mergeMaps(backlogHistorical, lastBacklogHistorical);
+      final List<BacklogMonitor> lastBacklogHistoricalMonitor = BacklogProjectionUtil.sumBacklogProjection(
+          lastBacklogHistorical,
+          unitsPerOrderRatio
+      );
+
+      backlogHistoricalMonitors.addAll(lastBacklogHistoricalMonitor);
     }
 
-    List<BacklogMonitor> response = BacklogProjectionUtil.sumBacklogProjection(backlogHistorical, unitsPerOrderRatio);
-
-    BacklogProjectionUtil.order(response);
-    return response;
+    return BacklogProjectionUtil.orderMonitorsByDate(backlogHistoricalMonitors);
   }
 
   private Set<ProcessName> getCalculableProcesses(final Set<ProcessName> processes, final Optional<Double> getUnitsPerOrderRatio) {
@@ -66,14 +75,6 @@ public class GetHistoricalBacklogUseCase {
                 .filter(processName -> !ProcessName.getShippingProcess().contains(processName))
                 .collect(Collectors.toSet())
         );
-  }
-
-  private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> mergeMaps(
-      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> photos,
-      final Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> lastPhoto
-  ) {
-    return Stream.concat(photos.entrySet().stream(), lastPhoto.entrySet().stream())
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
   }
 
   /**
