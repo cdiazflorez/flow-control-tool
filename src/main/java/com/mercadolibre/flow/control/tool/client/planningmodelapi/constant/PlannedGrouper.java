@@ -8,6 +8,10 @@ public enum PlannedGrouper {
   DATE_OUT,
   PROCESS_PATH;
 
+  public static PlannedGrouper from(final String value) {
+    return valueOf(value.toUpperCase(Locale.getDefault()));
+  }
+
   public String getName() {
     return name().toLowerCase(Locale.getDefault());
   }
