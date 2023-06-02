@@ -11,6 +11,7 @@ import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.Forec
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
@@ -57,7 +58,7 @@ public class ForecastDeviationUseCase {
                                                                        dateFilter.dateOutTo,
                                                                        dateTo);
 
-    final Map<Instant, ForecastDeviationQuantity> deviationDetailByDate = new HashMap<>();
+    final Map<Instant, ForecastDeviationQuantity> deviationDetailByDate = new ConcurrentHashMap<>();
 
     IntStream.range(0, Math.toIntExact(HOURS.between(dateFrom, dateTo)) + 1)
         .forEach(hour -> {
@@ -131,7 +132,23 @@ public class ForecastDeviationUseCase {
   private record DateFilter(Instant dateInFrom, Instant dateInTo, Instant dateOutFrom, Instant dateOutTo) {
   }
 
+  /**
+   * Gateway to get sales distribution planned.
+   */
   public interface SalesDistributionPlanGateway {
+
+    /**
+     * Get sales distribution planned.
+     *
+     * @param logisticCenterId logistic center id
+     * @param workflow workflow
+     * @param groupBy group by
+     * @param dateInFrom date in from
+     * @param dateInTo date in to
+     * @param dateOutFrom date out from
+     * @param dateOutTo date out to
+     * @return sales distribution planned
+     */
     Map<Instant, Double> getSalesDistributionPlanned(
         String logisticCenterId,
         Workflow workflow,
@@ -144,7 +161,23 @@ public class ForecastDeviationUseCase {
 
   }
 
+  /**
+   * Gateway to get real sales.
+   */
   public interface RealSalesGateway {
+    /**
+     * Get real sales.
+     *
+     * @param logisticCenterId logistic center id
+     * @param workflow workflow
+     * @param groupBy group by
+     * @param dateInFrom date in from
+     * @param dateInTo date in to
+     * @param dateOutFrom date out from
+     * @param dateOutTo date out to
+     * @param dateTo date to
+     * @return real sales
+     */
     Map<Instant, Long> getRealSales(
         String logisticCenterId,
         Workflow workflow,
