@@ -4,7 +4,6 @@ import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS
 import static com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter.DATE_IN;
 import static com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter.DATE_OUT;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
-import static java.lang.Math.round;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,41 +35,41 @@ class ForecastDeviationUseCaseTest {
 
   private static final Instant DATE_THREE = Instant.parse("2023-06-02T14:00:00Z");
 
-  private static final double SALES_DISTRIBUTION_ONE = 5.0;
+  private static final int SALES_DISTRIBUTION_ONE = 5;
 
-  private static final double SALES_DISTRIBUTION_TWO = 0.0;
+  private static final int SALES_DISTRIBUTION_TWO = 0;
 
-  private static final double SALES_DISTRIBUTION_THREE = 15.0;
+  private static final int SALES_DISTRIBUTION_THREE = 15;
 
-  private static final long REAL_SALES_ONE = 10L;
+  private static final int REAL_SALES_ONE = 10;
 
-  private static final long REAL_SALES_TWO = 15L;
+  private static final int REAL_SALES_TWO = 15;
 
-  private static final long REAL_SALES_THREE = 5L;
+  private static final int REAL_SALES_THREE = 5;
 
-  private static final long DEVIATION_ONE = REAL_SALES_ONE - round(SALES_DISTRIBUTION_ONE);
+  private static final int DEVIATION_ONE = REAL_SALES_ONE - SALES_DISTRIBUTION_ONE;
 
-  private static final long DEVIATION_TWO = REAL_SALES_TWO - round(SALES_DISTRIBUTION_TWO);
+  private static final int DEVIATION_TWO = REAL_SALES_TWO - SALES_DISTRIBUTION_TWO;
 
-  private static final long DEVIATION_THREE = REAL_SALES_THREE - round(SALES_DISTRIBUTION_THREE);
+  private static final int DEVIATION_THREE = REAL_SALES_THREE - SALES_DISTRIBUTION_THREE;
 
-  private static final double DEVIATION_PERCENTAGE_ONE = DEVIATION_ONE / SALES_DISTRIBUTION_ONE;
+  private static final double DEVIATION_PERCENTAGE_ONE = (double) DEVIATION_ONE / (double) SALES_DISTRIBUTION_ONE;
 
   private static final double DEVIATION_PERCENTAGE_TWO = 0;
 
-  private static final double DEVIATION_PERCENTAGE_THREE = DEVIATION_THREE / SALES_DISTRIBUTION_THREE;
+  private static final double DEVIATION_PERCENTAGE_THREE = (double) DEVIATION_THREE / (double) SALES_DISTRIBUTION_THREE;
 
-  private static final long TOTAL_PLANNED_ONE = round(SALES_DISTRIBUTION_ONE + SALES_DISTRIBUTION_TWO + SALES_DISTRIBUTION_THREE);
+  private static final int TOTAL_PLANNED_ONE = SALES_DISTRIBUTION_ONE + SALES_DISTRIBUTION_TWO + SALES_DISTRIBUTION_THREE;
 
-  private static final long TOTAL_PLANNED_TWO = round(SALES_DISTRIBUTION_ONE + SALES_DISTRIBUTION_TWO);
+  private static final int TOTAL_PLANNED_TWO = SALES_DISTRIBUTION_ONE + SALES_DISTRIBUTION_TWO;
 
-  private static final long TOTAL_REAL_ONE = REAL_SALES_ONE + REAL_SALES_TWO + REAL_SALES_THREE;
+  private static final int TOTAL_REAL_ONE = REAL_SALES_ONE + REAL_SALES_TWO + REAL_SALES_THREE;
 
-  private static final long TOTAL_REAL_TWO = REAL_SALES_ONE + REAL_SALES_TWO;
+  private static final int TOTAL_REAL_TWO = REAL_SALES_ONE + REAL_SALES_TWO;
 
-  private static final long TOTAL_DEVIATION_ONE = TOTAL_REAL_ONE - TOTAL_PLANNED_ONE;
+  private static final int TOTAL_DEVIATION_ONE = TOTAL_REAL_ONE - TOTAL_PLANNED_ONE;
 
-  private static final long TOTAL_DEVIATION_TWO = TOTAL_REAL_TWO - TOTAL_PLANNED_TWO;
+  private static final int TOTAL_DEVIATION_TWO = TOTAL_REAL_TWO - TOTAL_PLANNED_TWO;
 
   private static final double TOTAL_DEVIATION_PERCENTAGE_ONE = (double) TOTAL_DEVIATION_ONE / (double) TOTAL_PLANNED_ONE;
 
@@ -92,7 +91,7 @@ class ForecastDeviationUseCaseTest {
   void testForecastDeviationOk(final Instant viewDate,
                                final Filter filter,
                                final Map<Instant, Double> mockSalesDistribution,
-                               final Map<Instant, Long> mockRealSales,
+                               final Map<Instant, Integer> mockRealSales,
                                final ForecastDeviationQuantity expectedForecastQuantityTotal,
                                final Map<Instant, ForecastDeviationQuantity> expectedForecastQuantityDetails) {
     //GIVEN
@@ -165,19 +164,19 @@ class ForecastDeviationUseCaseTest {
         .build();
     final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = Map.of(
         DATE_ONE, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_ONE))
+            .planned(SALES_DISTRIBUTION_ONE)
             .real(REAL_SALES_ONE)
             .deviation(DEVIATION_ONE)
             .deviationPercentage(DEVIATION_PERCENTAGE_ONE)
             .build(),
         DATE_TWO, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_TWO))
+            .planned(SALES_DISTRIBUTION_TWO)
             .real(REAL_SALES_TWO)
             .deviation(DEVIATION_TWO)
             .deviationPercentage(DEVIATION_PERCENTAGE_TWO)
             .build(),
         DATE_THREE, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_THREE))
+            .planned(SALES_DISTRIBUTION_THREE)
             .real(REAL_SALES_THREE)
             .deviation(DEVIATION_THREE)
             .deviationPercentage(DEVIATION_PERCENTAGE_THREE)
@@ -199,19 +198,19 @@ class ForecastDeviationUseCaseTest {
         .build();
     final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = Map.of(
         DATE_ONE, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_ONE))
+            .planned(SALES_DISTRIBUTION_ONE)
             .real(REAL_SALES_ONE)
             .deviation(DEVIATION_ONE)
             .deviationPercentage(DEVIATION_PERCENTAGE_ONE)
             .build(),
         DATE_TWO, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_TWO))
+            .planned(SALES_DISTRIBUTION_TWO)
             .real(REAL_SALES_TWO)
             .deviation(DEVIATION_TWO)
             .deviationPercentage(DEVIATION_PERCENTAGE_TWO)
             .build(),
         DATE_THREE, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_THREE))
+            .planned(SALES_DISTRIBUTION_THREE)
             .build()
     );
     return new ForecastDeviationData(
@@ -226,13 +225,13 @@ class ForecastDeviationUseCaseTest {
         .build();
     final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = Map.of(
         DATE_ONE, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_ONE))
+            .planned(SALES_DISTRIBUTION_ONE)
             .build(),
         DATE_TWO, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_TWO))
+            .planned(SALES_DISTRIBUTION_TWO)
             .build(),
         DATE_THREE, ForecastDeviationQuantity.builder()
-            .planned(round(SALES_DISTRIBUTION_THREE))
+            .planned(SALES_DISTRIBUTION_THREE)
             .build()
     );
     return new ForecastDeviationData(
@@ -243,13 +242,13 @@ class ForecastDeviationUseCaseTest {
 
   private static Map<Instant, Double> mockSalesDistribution() {
     return Map.of(
-        DATE_ONE, SALES_DISTRIBUTION_ONE,
-        DATE_TWO, SALES_DISTRIBUTION_TWO,
-        DATE_THREE, SALES_DISTRIBUTION_THREE
+        DATE_ONE, (double) SALES_DISTRIBUTION_ONE,
+        DATE_TWO, (double) SALES_DISTRIBUTION_TWO,
+        DATE_THREE, (double) SALES_DISTRIBUTION_THREE
     );
   }
 
-  private static Map<Instant, Long> mockRealSales() {
+  private static Map<Instant, Integer> mockRealSales() {
     return Map.of(
         DATE_ONE, REAL_SALES_ONE,
         DATE_TWO, REAL_SALES_TWO,

@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ForecastDeviationQuantity {
-    private final Long planned;
-    private final Long real;
-    private final Long deviation;
+    private final Integer planned;
+    private final Integer real;
+    private final Integer deviation;
     private final Double deviationPercentage;
 }

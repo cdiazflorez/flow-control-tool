@@ -2,6 +2,8 @@ package com.mercadolibre.flow.control.tool.feature.forecastdeviation;
 
 import static com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter.DATE_IN;
 import static com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter.DATE_OUT;
+import static java.lang.Math.round;
+import static java.lang.Math.toIntExact;
 import static java.time.temporal.ChronoUnit.HOURS;
 
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -48,7 +50,7 @@ public class ForecastDeviationUseCase {
         dateFilter.dateOutTo
     );
 
-    final Map<Instant, Long> realSales = realSalesGateway.getRealSales(logisticCenterId,
+    final Map<Instant, Integer> realSales = realSalesGateway.getRealSales(logisticCenterId,
                                                                        workflow,
                                                                        filter,
                                                                        dateFilter.dateInFrom,
@@ -59,32 +61,32 @@ public class ForecastDeviationUseCase {
 
     final Map<Instant, ForecastDeviationQuantity> deviationDetailByDate = new ConcurrentHashMap<>();
 
-    IntStream.range(0, Math.toIntExact(HOURS.between(dateFrom, dateTo)) + 1)
+    IntStream.range(0, toIntExact(HOURS.between(dateFrom, dateTo)) + 1)
         .forEach(hour -> {
           final Instant hourInstant = dateFrom.plus(hour, HOURS);
           final ForecastDeviationQuantity deviationDetail = buildForecastDeviationDetail(
               salesDistributionPlanned.getOrDefault(hourInstant, 0D),
-              realSales.getOrDefault(hourInstant, 0L),
+              realSales.getOrDefault(hourInstant, 0),
               !hourInstant.isAfter(viewDate)
           );
           deviationDetailByDate.put(hourInstant, deviationDetail);
         });
 
-    final long totalPlanned = !dateFrom.isAfter(viewDate)
+    final int totalPlanned = !dateFrom.isAfter(viewDate)
         ? deviationDetailByDate.entrySet().stream()
         .filter(entry -> !entry.getKey().isAfter(viewDate))
-        .mapToLong(entry -> entry.getValue().getPlanned())
+        .mapToInt(entry -> entry.getValue().getPlanned())
         .sum()
         : deviationDetailByDate.values().stream()
-        .mapToLong(ForecastDeviationQuantity::getPlanned)
+        .mapToInt(ForecastDeviationQuantity::getPlanned)
         .sum();
 
-    final long totalReal = deviationDetailByDate.entrySet().stream()
+    final int totalReal = deviationDetailByDate.entrySet().stream()
         .filter(entry -> !entry.getKey().isAfter(viewDate) && entry.getValue().getReal() != null)
-        .mapToLong(entry -> entry.getValue().getReal())
+        .mapToInt(entry -> entry.getValue().getReal())
         .sum();
 
-    final long deviation = totalReal - totalPlanned;
+    final int deviation = totalReal - totalPlanned;
 
     final double deviationPercentage = totalPlanned == 0 ? 0 : (double) deviation / (double) totalPlanned;
 
@@ -104,10 +106,10 @@ public class ForecastDeviationUseCase {
   }
 
   private ForecastDeviationQuantity buildForecastDeviationDetail(final double planned,
-                                                                 final long real,
+                                                                 final int real,
                                                                  final boolean isNecessaryToFillRealInfo) {
-    final long plannedRounded = Math.round(planned);
-    final long deviation = real - plannedRounded;
+    final int plannedRounded = toIntExact(round(planned));
+    final int deviation = real - plannedRounded;
     final double deviationPercentage = planned == 0 ? 0 : deviation / planned;
 
     return isNecessaryToFillRealInfo
@@ -177,7 +179,7 @@ public class ForecastDeviationUseCase {
      * @param dateTo date to
      * @return real sales
      */
-    Map<Instant, Long> getRealSales(
+    Map<Instant, Integer> getRealSales(
         String logisticCenterId,
         Workflow workflow,
         Filter groupBy,
