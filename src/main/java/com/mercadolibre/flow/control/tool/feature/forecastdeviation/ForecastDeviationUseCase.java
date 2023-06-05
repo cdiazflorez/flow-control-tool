@@ -9,7 +9,6 @@ import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Fil
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationData;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationQuantity;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
