@@ -1,10 +1,12 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
@@ -57,24 +59,29 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
 
     final Set<BacklogProjectionRequest.Throughput> throughputForProjection = getThroughputSetForProjectionRequest(throughput);
 
-    final List<BacklogProjectionResponse> backlogProjection = planningModelApiClient.getBacklogProjection(
-        logisticCenterId,
-        new BacklogProjectionRequest(
-            backlogForProjection,
-            plannedUnitForProjection,
-            throughputForProjection,
-            dateFrom,
-            dateTo,
-            PlanningWorkflow.FBM_WMS_OUTBOUND
-        )
-    );
+    try {
+      final List<BacklogProjectionResponse> backlogProjection = planningModelApiClient.getBacklogProjection(
+          logisticCenterId,
+          new BacklogProjectionRequest(
+              backlogForProjection,
+              plannedUnitForProjection,
+              throughputForProjection,
+              dateFrom,
+              dateTo,
+              PlanningWorkflow.FBM_WMS_OUTBOUND
+          )
+      );
 
-    if (backlogProjection == null) {
-      return Collections.emptyMap();
+      if (backlogProjection == null) {
+        return Collections.emptyMap();
+      }
+
+      return getMonitorMapFromBacklogProjection(backlogProjection);
+    } catch (ClientException ce) {
+      throw new ProjectionInputsNotFoundException("Projection", logisticCenterId, PlanningWorkflow.FBM_WMS_OUTBOUND.getName(), ce);
     }
-
-    return getMonitorMapFromBacklogProjection(backlogProjection);
   }
+
 
   /**
    * This method creates a Set of Processes for (current) Backlog in BacklogProjectionRequest.

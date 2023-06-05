@@ -39,6 +39,12 @@ public class BacklogProjectedUseCase {
       final Set<ProcessName> processes,
       final Instant viewDate
   ) {
+    final var plannedBacklog = plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(
+        workflow,
+        logisticCenterId,
+        dateFrom,
+        dateTo
+    );
 
     final var currentBacklog = backlogProjectedGateway.getBacklogTotalsByProcessAndPPandSla(
         logisticCenterId,
@@ -53,13 +59,6 @@ public class BacklogProjectedUseCase {
         dateFrom,
         dateTo,
         processes
-    );
-
-    final var plannedBacklog = plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(
-        workflow,
-        logisticCenterId,
-        dateFrom,
-        dateTo
     );
 
     final var backlogProjection = backlogProjectionGateway.executeBacklogProjection(

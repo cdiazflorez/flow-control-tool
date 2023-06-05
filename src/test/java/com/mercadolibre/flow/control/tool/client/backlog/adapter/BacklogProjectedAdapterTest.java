@@ -1,23 +1,39 @@
 package com.mercadolibre.flow.control.tool.client.backlog.adapter;
 
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.BATCH_SORTER;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.VIEW_DATE_INSTANT;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.backlog.BacklogApiClient;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
+import com.mercadolibre.restclient.Response;
+import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -115,5 +131,30 @@ class BacklogProjectedAdapterTest {
 
     assertEquals(expected.size(), response.size());
     assertEquals(expected, response);
+  }
+
+  @Test
+  void testGetForecastSalesError() throws JsonProcessingException {
+    // GIVEN
+
+    final ClientException ce = new ClientException(
+        "PLANNING_MODEL_API",
+        HttpRequest.builder()
+            .url("URL")
+            .build(),
+        new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("projection_inputs_exception"))
+    );
+    when(backlogApiClient.getLastPhoto(any(LastPhotoRequest.class)))
+        .thenThrow(ce);
+
+    assertThrows(
+        ProjectionInputsNotFoundException.class,
+        () -> backlogProjectedAdapter.getBacklogTotalsByProcessAndPPandSla(
+            LOGISTIC_CENTER_ID,
+            FBM_WMS_OUTBOUND,
+            Set.of(WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING_WALL, PACKING, HU_ASSEMBLY, SHIPPING),
+            VIEW_DATE_INSTANT
+        )
+    );
   }
 }

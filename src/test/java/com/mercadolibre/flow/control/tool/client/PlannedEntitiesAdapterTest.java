@@ -1,23 +1,40 @@
 package com.mercadolibre.flow.control.tool.client;
 
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.BATCH_SORTER;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING_WALL;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WALL_IN;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.WAVING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.GLOBAL;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS_OUTBOUND;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient.Throughput;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter.PlannedEntitiesAdapter;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.restclient.Response;
+import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -122,6 +139,39 @@ class PlannedEntitiesAdapterTest {
 
     assertEquals(throughputExpected.size(), result.size());
     assertEquals(throughputExpected, result);
+  }
+
+  @Test
+  void testTphNotFound() throws JsonProcessingException {
+    // GIVEN
+    final ClientException ce = new ClientException(
+        "PLANNING_MODEL_API",
+        HttpRequest.builder()
+            .url("URL")
+            .build(),
+        new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("projection_inputs_exception"))
+    );
+
+    when(planningModelApiClient.getThroughputByPPAndProcessAndDate(
+        WORKFLOW,
+        LOGISTIC_CENTER_ID,
+        DATE_FROM,
+        DATE_TO,
+        Set.of(WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING_WALL, PACKING, HU_ASSEMBLY, SHIPPING),
+        Set.of(GLOBAL)
+    ))
+        .thenThrow(ce);
+
+    assertThrows(
+        ProjectionInputsNotFoundException.class,
+        () -> plannedEntitiesAdapter.getThroughputByDateAndProcess(
+            WORKFLOW,
+            LOGISTIC_CENTER_ID,
+            DATE_FROM,
+            DATE_TO,
+            Set.of(WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING_WALL, PACKING, HU_ASSEMBLY, SHIPPING)
+        )
+    );
   }
 
   @Test
