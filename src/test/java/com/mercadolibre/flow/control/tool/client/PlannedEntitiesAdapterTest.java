@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,6 +31,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Outbo
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
+import com.mercadolibre.flow.control.tool.exception.ThroughputNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -142,6 +144,29 @@ class PlannedEntitiesAdapterTest {
   }
 
   @Test
+  void testGetThroughputException() {
+    lenient().when(planningModelApiClient.getThroughputByPPAndProcessAndDate(
+        FBM_WMS_OUTBOUND,
+        LOGISTIC_CENTER_ID,
+        SLA_1,
+        SLA_2,
+        PROCESSES,
+        Set.of(GLOBAL))
+    ).thenThrow(new ThroughputNotFoundException("Global ProcessPathName not found"));
+
+    assertThrows(
+        ThroughputNotFoundException.class,
+        () -> plannedEntitiesAdapter.getThroughputByDateAndProcess(
+            WORKFLOW,
+            LOGISTIC_CENTER_ID,
+            SLA_1,
+            SLA_2,
+            PROCESSES
+        )
+    );
+  }
+
+  @Test
   void testTphNotFound() throws JsonProcessingException {
     // GIVEN
     final ClientException ce = new ClientException(
@@ -193,10 +218,10 @@ class PlannedEntitiesAdapterTest {
             Collectors.groupingBy(
                 planned -> planned.group().processPath(),
                 Collectors.groupingBy(planned -> planned.group().dateIn(),
-                                      Collectors.groupingBy(planned -> planned.group().dateOut(),
-                                                            Collectors.summingInt(planned -> Math.toIntExact(Math.round(planned.total()))
-                                                            )
-                                      )
+                    Collectors.groupingBy(planned -> planned.group().dateOut(),
+                        Collectors.summingInt(planned -> Math.toIntExact(Math.round(planned.total()))
+                        )
+                    )
                 )
             ));
 

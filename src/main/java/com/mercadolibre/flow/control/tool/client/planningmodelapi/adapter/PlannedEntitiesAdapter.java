@@ -12,6 +12,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Plann
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
+import com.mercadolibre.flow.control.tool.exception.ThroughputNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
@@ -75,21 +76,30 @@ public class PlannedEntitiesAdapter implements PlannedEntitiesGateway {
               PROCESS_PATH_GLOBAL
           );
 
-    return throughput.get(ProcessPathName.GLOBAL)
-        .entrySet()
-        .stream()
-        .flatMap(tphSlaByProcessNameEntry -> tphSlaByProcessNameEntry.getValue()
-            .entrySet()
-            .stream()
-            .map(tphSla -> new ThroughputAux(
-                tphSla.getKey(),
-                tphSlaByProcessNameEntry.getKey().translateProcessName(),
-                tphSla.getValue().quantity())
-            )
-        )
-        .collect(Collectors.groupingBy(ThroughputAux::date, Collectors.groupingBy(
-            ThroughputAux::processName, Collectors.summingInt(ThroughputAux::total)))
-        );
+      final var throughputGlobal = throughput.entrySet().stream()
+          .filter(p -> p.getKey().equals(ProcessPathName.GLOBAL))
+          .findAny()
+          .orElseThrow(
+              () -> new ThroughputNotFoundException("Global ProcessPathName not found")
+          );
+
+      return throughputGlobal.getValue()
+          .entrySet()
+          .stream()
+          .flatMap(tphSlaByProcessNameEntry -> tphSlaByProcessNameEntry.getValue()
+              .entrySet()
+              .stream()
+              .map(tphSla -> new ThroughputAux(
+                  tphSla.getKey(),
+                  tphSlaByProcessNameEntry.getKey().translateProcessName(),
+                  tphSla.getValue().quantity())
+              )
+          )
+          .collect(
+              Collectors.groupingBy(ThroughputAux::date,
+                  Collectors.groupingBy(ThroughputAux::processName,
+                      Collectors.summingInt(ThroughputAux::total)))
+          );
     } catch (ClientException ce) {
       final String throughput = "Throughput";
       throw new ProjectionInputsNotFoundException(throughput, logisticCenterId, workflow.getName(), ce);

@@ -16,6 +16,7 @@ import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundExcep
 import com.mercadolibre.flow.control.tool.exception.NoUnitsPerOrderRatioFound;
 import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.RealMetricsException;
+import com.mercadolibre.flow.control.tool.exception.ThroughputNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.TotalProjectionException;
 import com.mercadolibre.flow.control.tool.feature.PingController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
@@ -52,6 +53,12 @@ class ControllerExceptionHandlerTest extends ControllerTest {
       + "?workflow=FBM_WMS_OUTBOUND"
       + "&processes=&slas="
       + "&backlog_processes=waving,picking,batch_sorter,wall_in,packing,packing_wall,hu_assembly,shipping"
+      + "&view_date=2023-03-28T08:00:00Z&date_from=2023-03-28T08:00:00Z&date_to=2023-03-28T15:00:00Z";
+
+  private static final String PROJECTION_BACKLOG_URL_THRUOGHPUT = "/control_tool/logistic_center/ARTW01/backlog/projections"
+      + "?workflow=FBM_WMS_OUTBOUND"
+      + "&slas=&process_paths="
+      + "&processes=waving,picking,batch_sorter,wall_in,packing,packing_wall,hu_assembly,shipping"
       + "&view_date=2023-03-28T08:00:00Z&date_from=2023-03-28T08:00:00Z&date_to=2023-03-28T15:00:00Z";
 
   private static final String NOT_SUPPORTED_URL = "/control_tool/logistic_center/ARTW01/backlog"
@@ -381,5 +388,45 @@ class ControllerExceptionHandlerTest extends ControllerTest {
 
     //THEN
     assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+  }
+
+  @Test
+  void testThroughputException() {
+    //GIVEN
+    final Instant dateFrom = Instant.parse("2023-03-28T08:00:00Z");
+    final Instant dateTo = Instant.parse("2023-03-28T15:00:00Z");
+    final Instant viewDate = Instant.parse("2023-03-28T08:00:00Z");
+    final Set<ProcessName> backlogProcesses = Set.of(
+        ProcessName.WAVING,
+        ProcessName.PICKING,
+        ProcessName.BATCH_SORTER,
+        ProcessName.WALL_IN,
+        ProcessName.PACKING,
+        ProcessName.PACKING_WALL,
+        HU_ASSEMBLY,
+        SHIPPING
+    );
+
+    doThrow(new ThroughputNotFoundException("Global ProcessPathName not found"))
+        .when(monitorController).getBacklogProjections(
+            LOGISTIC_CENTER_ID,
+            Workflow.FBM_WMS_OUTBOUND,
+            backlogProcesses,
+            Set.of(),
+            Set.of(),
+            dateFrom,
+            dateTo,
+            viewDate);
+
+    //WHEN
+    final ResponseEntity<ApiError> responseEntity = this.testRestTemplate.exchange(
+        PROJECTION_BACKLOG_URL_THRUOGHPUT,
+        HttpMethod.GET,
+        this.getDefaultRequestEntity(),
+        ApiError.class
+    );
+
+    //THEN
+    assertEquals(HttpStatus.FAILED_DEPENDENCY, responseEntity.getStatusCode());
   }
 }

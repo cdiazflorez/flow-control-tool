@@ -211,7 +211,7 @@ public class BacklogProjectedTotalUseCase {
   }
 
   private TotalBacklogMonitor fillMissingTotalDateMonitors(final List<TotalBacklogMonitor> totalBacklogMonitors,
-                                                                  final Instant hour) {
+                                                           final Instant hour) {
     return totalBacklogMonitors.stream()
         .filter(monitor -> monitor.date().equals(hour))
         .findAny()

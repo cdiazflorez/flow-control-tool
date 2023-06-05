@@ -181,6 +181,27 @@ public class ControllerExceptionHandler {
   }
 
   /**
+   * Handler for Throughput exceptions.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 204 status code and description indicating a no content.
+   */
+  @ExceptionHandler(ThroughputNotFoundException.class)
+  public ResponseEntity<ApiError> handlerThroughputException(
+      ThroughputNotFoundException ex) {
+    LOGGER.error("Global throughput dependency failure", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "failed_dependency",
+        ex.getMessage(),
+        HttpStatus.FAILED_DEPENDENCY.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
    * Handler for when enums Process don't match.
    *
    * @param req the incoming request.
