@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.exception;
 
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter;
 import com.newrelic.api.agent.NewRelic;
 import java.time.DateTimeException;
 import java.util.Arrays;
@@ -295,6 +296,27 @@ public class ControllerExceptionHandler {
         "total_projection_exception",
         ex.getMessage(),
         ex.getStatus()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for when enums don't match.
+   *
+   * @param req the incoming request.
+   * @return {@link ResponseEntity} with 400 status code .
+   */
+  @ExceptionHandler(FilterNotSupportedException.class)
+  public ResponseEntity<ApiError> handleFilterNotSupportedException(final HttpServletRequest req) {
+    final List<String> allowedValues = Arrays.stream(Filter.values())
+        .map(Enum::name)
+        .toList();
+
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        String.format("bad request %s. Allowed values are: %s", req.getRequestURI(), allowedValues),
+        HttpStatus.BAD_REQUEST.value()
     );
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
