@@ -13,17 +13,35 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MULTI_BATCH;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_FROM;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_TO;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process.ProcessPathByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process.ProcessPathByDateOut.QuantityByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Throughput;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Throughput.QuantityByProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
+import com.mercadolibre.restclient.Response;
+import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -115,6 +133,149 @@ class BacklogProjectionAdapterTest {
   @Mock
   private PlanningModelApiClient planningModelApiClient;
 
+  private static Stream<Arguments> argumentProviderBacklogProjection() {
+
+    return Stream.of(
+        Arguments.of((Object) null),
+        Arguments.of(emptyList())
+    );
+  }
+
+  private static Map<Instant, Map<ProcessName, Map<Instant, Integer>>> expectedAdaptedResponse() {
+    Map<Instant, Map<ProcessName, Map<Instant, Integer>>> projectionAdapted = new ConcurrentHashMap<>();
+    projectionAdapted.computeIfAbsent(DATE_FROM, k -> new ConcurrentHashMap<>())
+        .computeIfAbsent(ProcessName.PICKING, k -> new ConcurrentHashMap<>())
+        .put(DATE_FROM, PICKING_UNITS);
+    return projectionAdapted;
+  }
+
+  private static Backlog mockBacklogForProjectionRequest() {
+    return new Backlog(Set.of(
+        new Process(
+            PICKING,
+            Set.of(
+                new ProcessPathByDateOut(
+                    TOT_MONO,
+                    Set.of(
+                        new QuantityByDateOut(
+                            DATE_OUT,
+                            PICKING_UNITS
+                        ),
+                        new QuantityByDateOut(
+                            DATE_OUT2,
+                            PACKING_UNITS
+                        )
+                    )
+                ),
+                new ProcessPathByDateOut(
+                    TOT_MULTI_BATCH,
+                    Set.of(
+                        new QuantityByDateOut(
+                            DATE_OUT,
+                            PICKING_UNITS
+                        ),
+                        new QuantityByDateOut(
+                            DATE_OUT2,
+                            PACKING_UNITS
+                        )
+                    )
+                )
+            )
+        )
+    ));
+  }
+
+  private static PlannedUnit mockPlannedUnitForProjectionRequest() {
+    return new PlannedUnit(
+        Set.of(
+            new ProcessPathByDateInOut(
+                TOT_MONO,
+                Set.of(
+                    new QuantityByDateInOut(
+                        DATE_IN,
+                        DATE_OUT,
+                        PICKING_UNITS
+                    ),
+                    new QuantityByDateInOut(
+                        DATE_IN2,
+                        DATE_OUT2,
+                        PACKING_UNITS
+                    )
+                )
+            ),
+            new ProcessPathByDateInOut(
+                TOT_MULTI_BATCH,
+                Set.of(
+                    new QuantityByDateInOut(
+                        DATE_IN,
+                        DATE_OUT,
+                        PICKING_UNITS
+                    ),
+                    new QuantityByDateInOut(
+                        DATE_IN2,
+                        DATE_OUT2,
+                        PACKING_UNITS
+                    )
+                )
+            )
+        )
+    );
+  }
+
+  private static Set<Throughput> mockThroughputForProjectionRequest() {
+    return Set.of(
+        new Throughput(
+            DATE_OUT,
+            Set.of(
+                new QuantityByProcessName(
+                    PICKING,
+                    PICKING_UNITS
+                )
+            )
+        ),
+        new BacklogProjectionRequest.Throughput(
+            DATE_OUT2,
+            Set.of(
+                new QuantityByProcessName(
+                    PACKING,
+                    PACKING_UNITS
+                )
+            )
+        )
+    );
+  }
+
+  @Test
+  void testExecuteBacklogProjectionError() throws JsonProcessingException {
+    // GIVEN
+    final ClientException ce = new ClientException(
+        "PLANNING_MODEL_API",
+        HttpRequest.builder()
+            .url("URL")
+            .build(),
+        new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("projection_inputs_exception"))
+    );
+
+    when(planningModelApiClient.getBacklogProjection(
+        eq(LOGISTIC_CENTER_ID),
+        any(BacklogProjectionRequest.class)
+    ))
+        .thenThrow(ce);
+
+    assertThrows(
+        ProjectionInputsNotFoundException.class,
+        () -> backlogProjectionAdapter.executeBacklogProjection(
+            LOGISTIC_CENTER_ID,
+            DATE_FROM,
+            DATE_TO,
+            ALL_PROCESSES_SET,
+            CURRENT_BACKLOG,
+            PLANNED_BACKLOGS,
+            THROUGHPUT
+        )
+    );
+  }
+
   @Test
   void testBacklogProjectionAdapter() {
     // GIVEN
@@ -165,22 +326,6 @@ class BacklogProjectionAdapterTest {
     assertEquals(emptyMap(), backlogProjection);
   }
 
-  private static Stream<Arguments> argumentProviderBacklogProjection() {
-
-    return Stream.of(
-        Arguments.of((Object) null),
-        Arguments.of(emptyList())
-    );
-  }
-
-  private static Map<Instant, Map<ProcessName, Map<Instant, Integer>>> expectedAdaptedResponse() {
-    Map<Instant, Map<ProcessName, Map<Instant, Integer>>> projectionAdapted = new ConcurrentHashMap<>();
-    projectionAdapted.computeIfAbsent(DATE_FROM, k -> new ConcurrentHashMap<>())
-        .computeIfAbsent(ProcessName.PICKING, k -> new ConcurrentHashMap<>())
-        .put(DATE_FROM, PICKING_UNITS);
-    return projectionAdapted;
-  }
-
   private BacklogProjectionRequest mockBacklogProjectionRequest() {
 
     final var requestBacklog = mockBacklogForProjectionRequest();
@@ -196,110 +341,6 @@ class BacklogProjectionAdapterTest {
         DATE_FROM,
         DATE_TO,
         FBM_WMS_OUTBOUND
-    );
-  }
-
-  private static BacklogProjectionRequest.Backlog mockBacklogForProjectionRequest() {
-    return new BacklogProjectionRequest.Backlog(Set.of(
-        new BacklogProjectionRequest.Process(
-            PICKING,
-            Set.of(
-                new BacklogProjectionRequest.ProcessPath(
-                    TOT_MONO,
-                    Set.of(
-                        new BacklogProjectionRequest.Quantity(
-                            null,
-                            DATE_OUT,
-                            PICKING_UNITS
-                        ),
-                        new BacklogProjectionRequest.Quantity(
-                            null,
-                            DATE_OUT2,
-                            PACKING_UNITS
-                        )
-                    )
-                ),
-                new BacklogProjectionRequest.ProcessPath(
-                    TOT_MULTI_BATCH,
-                    Set.of(
-                        new BacklogProjectionRequest.Quantity(
-                            null,
-                            DATE_OUT,
-                            PICKING_UNITS
-                        ),
-                        new BacklogProjectionRequest.Quantity(
-                            null,
-                            DATE_OUT2,
-                            PACKING_UNITS
-                        )
-                    )
-
-                )
-            ),
-            null
-        )
-    ));
-  }
-
-  private static BacklogProjectionRequest.PlannedUnit mockPlannedUnitForProjectionRequest() {
-    return new BacklogProjectionRequest.PlannedUnit(
-        Set.of(
-            new BacklogProjectionRequest.ProcessPath(
-                TOT_MONO,
-                Set.of(
-                    new BacklogProjectionRequest.Quantity(
-                        DATE_IN,
-                        DATE_OUT,
-                        PICKING_UNITS
-                    ),
-                    new BacklogProjectionRequest.Quantity(
-                        DATE_IN2,
-                        DATE_OUT2,
-                        PACKING_UNITS
-                    )
-                )
-            ),
-            new BacklogProjectionRequest.ProcessPath(
-                TOT_MULTI_BATCH,
-                Set.of(
-                    new BacklogProjectionRequest.Quantity(
-                        DATE_IN,
-                        DATE_OUT,
-                        PICKING_UNITS
-                    ),
-                    new BacklogProjectionRequest.Quantity(
-                        DATE_IN2,
-                        DATE_OUT2,
-                        PACKING_UNITS
-                    )
-                )
-            )
-        )
-    );
-  }
-
-  private static Set<BacklogProjectionRequest.Throughput> mockThroughputForProjectionRequest() {
-    return Set.of(
-        new BacklogProjectionRequest.Throughput(
-            DATE_OUT,
-            Set.of(
-                new BacklogProjectionRequest.Process(
-                    PICKING,
-                    emptySet(),
-                    PICKING_UNITS
-                )
-            )
-        ),
-        new BacklogProjectionRequest.Throughput(
-            DATE_OUT2,
-            Set.of(
-                new BacklogProjectionRequest.Process(
-                    PACKING,
-                    emptySet(),
-                    PACKING_UNITS
-                )
-            )
-        )
     );
   }
 

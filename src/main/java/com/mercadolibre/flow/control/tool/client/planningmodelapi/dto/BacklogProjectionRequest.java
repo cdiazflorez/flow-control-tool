@@ -17,36 +17,49 @@ public record BacklogProjectionRequest(
   public record Backlog(
       Set<Process> process
   ) {
+    public record Process(
+        OutboundProcessName name,
+        Set<ProcessPathByDateOut> processPath
+    ) {
+      public record ProcessPathByDateOut(
+          ProcessPathName name,
+          Set<QuantityByDateOut> quantity
+      ) {
+        public record QuantityByDateOut(
+            Instant dateOut,
+            int total
+        ) {
+        }
+      }
+    }
   }
 
   public record PlannedUnit(
-      Set<ProcessPath> processPath
+      Set<ProcessPathByDateInOut> processPath
   ) {
+    public record ProcessPathByDateInOut(
+        ProcessPathName name,
+        Set<QuantityByDateInOut> quantity
+    ) {
+      public record QuantityByDateInOut(
+          Instant dateIn,
+          Instant dateOut,
+          Integer total
+      ) {
+      }
+    }
   }
 
   public record Throughput(
       Instant operationHour,
-      Set<Process> quantityByProcessName
+      Set<QuantityByProcessName> quantityByProcessName
   ) {
-  }
-
-  public record Process(
-      OutboundProcessName name,
-      Set<ProcessPath> processPath,
-      Integer total
-  ) {
-  }
-
-  public record ProcessPath(
-      ProcessPathName name,
-      Set<Quantity> quantity
-  ) {
-  }
-
-  public record Quantity(
-      Instant dateIn,
-      Instant dateOut,
-      Integer total
-  ) {
+    public record QuantityByProcessName(
+        OutboundProcessName name,
+        Integer total
+    ) {
+    }
   }
 }
+
+

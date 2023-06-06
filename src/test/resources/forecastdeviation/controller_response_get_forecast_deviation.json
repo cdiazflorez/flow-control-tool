@@ -1,0 +1,36 @@
+{
+  "totalPlanned": 260,
+  "totalReal": 420,
+  "totalDeviation": 40,
+  "totalPercentageDeviation": 1.016,
+  "details": [
+    {
+      "date": "2023-03-23T07:00:00Z",
+      "real": 100,
+      "planned": 60,
+      "totalDeviation": 40,
+      "percentageDeviation": 0.4
+    },
+    {
+      "date": "2023-03-23T08:00:00Z",
+      "real": 150,
+      "planned": 60,
+      "totalDeviation": 90,
+      "percentageDeviation": 0.6
+    },
+    {
+      "date": "2023-03-23T09:00:00Z",
+      "real": 50,
+      "planned": 70,
+      "totalDeviation": -20,
+      "percentageDeviation": -0.4
+    },
+    {
+      "date": "2023-03-23T10:00:00Z",
+      "real": 120,
+      "planned": 70,
+      "totalDeviation": 50,
+      "percentageDeviation": 0.416
+    }
+  ]
+}

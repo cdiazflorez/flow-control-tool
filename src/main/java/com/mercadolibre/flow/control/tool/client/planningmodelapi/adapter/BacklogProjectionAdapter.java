@@ -1,10 +1,19 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process.ProcessPathByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process.ProcessPathByDateOut.QuantityByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Throughput;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Throughput.QuantityByProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
@@ -22,6 +31,7 @@ import org.springframework.stereotype.Component;
 public class BacklogProjectionAdapter implements BacklogProjectedUseCase.BacklogProjectionGateway {
 
   private final PlanningModelApiClient planningModelApiClient;
+
 
   /**
    * This method use each given map to build a BacklogProjectionRequest DTO which is used to ask PAPI Client,
@@ -57,23 +67,27 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
 
     final Set<BacklogProjectionRequest.Throughput> throughputForProjection = getThroughputSetForProjectionRequest(throughput);
 
-    final List<BacklogProjectionResponse> backlogProjection = planningModelApiClient.getBacklogProjection(
-        logisticCenterId,
-        new BacklogProjectionRequest(
-            backlogForProjection,
-            plannedUnitForProjection,
-            throughputForProjection,
-            dateFrom,
-            dateTo,
-            PlanningWorkflow.FBM_WMS_OUTBOUND
-        )
-    );
+    try {
+      final List<BacklogProjectionResponse> backlogProjection = planningModelApiClient.getBacklogProjection(
+          logisticCenterId,
+          new BacklogProjectionRequest(
+              backlogForProjection,
+              plannedUnitForProjection,
+              throughputForProjection,
+              dateFrom,
+              dateTo,
+              PlanningWorkflow.FBM_WMS_OUTBOUND
+          )
+      );
 
-    if (backlogProjection == null) {
-      return Collections.emptyMap();
+      if (backlogProjection == null) {
+        return Collections.emptyMap();
+      }
+
+      return getMapByOperationHourProcessAndDateOutFromBacklogProjection(backlogProjection);
+    } catch (ClientException ce) {
+      throw new ProjectionInputsNotFoundException("Projection", logisticCenterId, PlanningWorkflow.FBM_WMS_OUTBOUND.getName(), ce);
     }
-
-    return getMonitorMapFromBacklogProjection(backlogProjection);
   }
 
   /**
@@ -82,7 +96,7 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
    * @param currentBacklogs map of backlogs by process, pp and date_out
    * @return Set of BacklogProjectionRequest.Process
    */
-  private static Set<BacklogProjectionRequest.Process> getProcessesSetForBacklogInProjectionRequest(
+  private static Set<Process> getProcessesSetForBacklogInProjectionRequest(
       final Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> currentBacklogs
   ) {
 
@@ -102,25 +116,25 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
    * @param processPathMap map of backlogs by pp and date_out
    * @return BacklogProjectionRequest.Process where Process(total=null)
    */
-  private static BacklogProjectionRequest.Process getProcessForBacklogInProjectionRequest(
+  private static Process getProcessForBacklogInProjectionRequest(
       final ProcessName processName,
       final Map<ProcessPathName, Map<Instant, Integer>> processPathMap
   ) {
-    return new BacklogProjectionRequest.Process(
+    return new BacklogProjectionRequest.Backlog.Process(
         OutboundProcessName.fromProcessName(processName),
-        getProcessPathsSetForBacklogInProjectionRequest(processPathMap),
-        null
+        getProcessPathsSetForBacklogInProjectionRequest(processPathMap)
     );
   }
 
   /**
-   * This method creates the Set of BacklogProjectionRequest.ProcessPath needed to build BacklogProjectionRequest.Backlog,
+   * This method creates the Set of BacklogProjectionRequest.Backlog.Process.ProcessPathDetail,
+   * needed to build BacklogProjectionRequest.Backlog,
    * based on PAPI contract definition.
    *
    * @param processPathMap map of backlog by PP Date out
    * @return Set of BacklogProjectionRequest.ProcessPath
    */
-  private static Set<BacklogProjectionRequest.ProcessPath> getProcessPathsSetForBacklogInProjectionRequest(
+  private static Set<ProcessPathByDateOut> getProcessPathsSetForBacklogInProjectionRequest(
       final Map<ProcessPathName, Map<Instant, Integer>> processPathMap
   ) {
     return processPathMap.entrySet().stream().map(
@@ -132,22 +146,22 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
   }
 
   /**
-   * This method creates BacklogProjectionRequest.ProcessPath needed to build BacklogProjectionRequest.Backlog (date_in=null),
+   * This method creates BacklogProjectionRequest.Backlog.Process.ProcessPathDetail,
+   * needed to build BacklogProjectionRequest.Backlog (date_in=null),
    * based on PAPI contract definition.
    *
    * @param processPathName name for BacklogProjectionRequest.ProcessPath
    * @param quantityMap     Map of backlog quantities by date_out
-   * @return BacklogProjectionRequest.ProcessPath
+   * @return BacklogProjectionRequest.Backlog.Process.ProcessPathDetail
    */
-  private static BacklogProjectionRequest.ProcessPath getProcessPathForProcessInProjectionRequest(
+  private static ProcessPathByDateOut getProcessPathForProcessInProjectionRequest(
       final ProcessPathName processPathName,
       final Map<Instant, Integer> quantityMap
   ) {
-    return new BacklogProjectionRequest.ProcessPath(
+    return new ProcessPathByDateOut(
         processPathName,
         quantityMap.entrySet().stream().map(
-            dateEntry -> getQuantityInBacklogProjectionRequest(
-                null,
+            dateEntry -> getQuantityByDateInBacklogProjectionRequest(
                 dateEntry.getKey(),
                 dateEntry.getValue()
             )
@@ -156,20 +170,17 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
   }
 
   /**
-   * This method creates a BacklogProjectionRequest.Quantity.
+   * This method creates a BacklogProjectionRequest.Backlog.Process.ProcessPathDetail.QuantityByDate
    *
-   * @param dateIn  date in
    * @param dateOut date out
    * @param total   total
-   * @return BacklogProjectionRequest.Quantity
+   * @return BacklogProjectionRequest.Backlog.Process.ProcessPathDetail.QuantityByDate
    */
-  private static BacklogProjectionRequest.Quantity getQuantityInBacklogProjectionRequest(
-      final Instant dateIn,
+  private static QuantityByDateOut getQuantityByDateInBacklogProjectionRequest(
       final Instant dateOut,
       final Integer total
   ) {
-    return new BacklogProjectionRequest.Quantity(
-        dateIn,
+    return new QuantityByDateOut(
         dateOut,
         total
     );
@@ -179,9 +190,9 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
    * This method creates a Set of ProcessPaths for PlannedUnit in BacklogProjectionRequest.
    *
    * @param plannedUnit map of backlogs by pp, date_in and date_out
-   * @return Set of BacklogProjectionRequest.ProcessPath
+   * @return Set of BacklogProjectionRequest.PlannedUnit.ProcessPathRequest
    */
-  private static Set<BacklogProjectionRequest.ProcessPath> getProcessPathsSetForPlannedUnitInProjectionRequest(
+  private static Set<ProcessPathByDateInOut> getProcessPathsSetForPlannedUnitInProjectionRequest(
       final Map<ProcessPathName, Map<Instant, Map<Instant, Integer>>> plannedUnit
   ) {
 
@@ -194,18 +205,18 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
   }
 
   /**
-   * This method creates BacklogProjectionRequest.ProcessPath needed to build BacklogProjectionRequest.PlannedUnit,
+   * This method creates BacklogProjectionRequest.PlannedUnit.ProcessPathRequest needed to build BacklogProjectionRequest.PlannedUnit,
    * based on PAPI contract definition.
    *
-   * @param processPathName      name for BacklogProjectionRequest.ProcessPath
+   * @param processPathName      name for BacklogProjectionRequest.PlannedUnit.ProcessPathRequest
    * @param dateInOutQuantityMap Map of backlog quantities by date_in and date_out
-   * @return BacklogProjectionRequest.ProcessPath
+   * @return BacklogProjectionRequest.PlannedUnit.ProcessPathRequest
    */
-  private static BacklogProjectionRequest.ProcessPath getProcessPathForPlannedUnitInProjectionRequest(
+  private static ProcessPathByDateInOut getProcessPathForPlannedUnitInProjectionRequest(
       final ProcessPathName processPathName,
       final Map<Instant, Map<Instant, Integer>> dateInOutQuantityMap
   ) {
-    return new BacklogProjectionRequest.ProcessPath(
+    return new ProcessPathByDateInOut(
         processPathName,
         dateInOutQuantityMap.entrySet().stream()
             .flatMap(
@@ -221,17 +232,37 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
   }
 
   /**
+   * This method creates a BacklogProjectionRequest.PlannedUnit.ProcessPathRequest.Quantity
+   *
+   * @param dateIn  date in
+   * @param dateOut date out
+   * @param total   total
+   * @return BacklogProjectionRequest.PlannedUnit.ProcessPathRequest.Quantity
+   */
+  private static QuantityByDateInOut getQuantityInBacklogProjectionRequest(
+      final Instant dateIn,
+      final Instant dateOut,
+      final Integer total
+  ) {
+    return new QuantityByDateInOut(
+        dateIn,
+        dateOut,
+        total
+    );
+  }
+
+  /**
    * This method creates a Set of Throughput for BacklogProjectionRequest.
    *
    * @param throughput map of backlogs tph by operation_hour and process
    * @return Set of BacklogProjectionRequest.Throughput
    */
-  private static Set<BacklogProjectionRequest.Throughput> getThroughputSetForProjectionRequest(
+  private static Set<Throughput> getThroughputSetForProjectionRequest(
       final Map<Instant, Map<ProcessName, Integer>> throughput
   ) {
 
     return throughput.entrySet().stream().map(
-        tphEntry -> new BacklogProjectionRequest.Throughput(
+        tphEntry -> new Throughput(
             tphEntry.getKey(),
             getProcessesSetForThroughputInProjectionRequest(tphEntry.getValue())
         )
@@ -239,40 +270,23 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
   }
 
   /**
-   * This method creates a BacklogProjectionRequest.Process needed to build BacklogProjectionRequest.Throughput
-   * (without Process.processPath), based on PAPI contract definition.
+   * This method creates a BacklogProjectionRequest.Throughput.QuantityByProcessName,
+   * needed to build BacklogProjectionRequest.Throughput,
+   * based on PAPI contract definition.
    *
    * @param tphByProcess map of tph by process
-   * @return Set of BacklogProjectionRequest.Process where Process(processPath=null)
+   * @return Set of BacklogProjectionRequest.Throughput.QuantityByProcessName
    */
-  private static Set<BacklogProjectionRequest.Process> getProcessesSetForThroughputInProjectionRequest(
+  private static Set<QuantityByProcessName> getProcessesSetForThroughputInProjectionRequest(
       final Map<ProcessName, Integer> tphByProcess
   ) {
     return tphByProcess.entrySet().stream().map(
-        processEntry -> new BacklogProjectionRequest.Process(
+        processEntry -> new QuantityByProcessName(
             OutboundProcessName.fromProcessName(processEntry.getKey()),
-            Collections.emptySet(),
             processEntry.getValue()
         )
     ).collect(Collectors.toSet());
 
-  }
-
-  /**
-   * This method creates a Map by operation_hour, process and date_out, used to build a BacklogMonitor.
-   *
-   * @param backlogProjection List of BacklogProjectionResponse
-   * @return Map of operationHour, processName and date_out
-   */
-  private Map<Instant, Map<ProcessName, Map<Instant, Integer>>> getMonitorMapFromBacklogProjection(
-      final List<BacklogProjectionResponse> backlogProjection
-  ) {
-
-    return backlogProjection.stream()
-        .collect(Collectors.toMap(
-            BacklogProjectionResponse::operationHour,
-            backlogEntry -> getBacklogByProcessDateOutFromProjectionResponseBacklog(backlogEntry.backlog())
-        ));
   }
 
   /**
@@ -294,6 +308,23 @@ public class BacklogProjectionAdapter implements BacklogProjectedUseCase.Backlog
                     BacklogProjectionResponse.Sla::dateOut,
                     BacklogProjectionResponse.Sla::quantity
                 ))
+        ));
+  }
+
+  /**
+   * This method creates a Map by operation_hour, process and date_out, used to build a BacklogMonitor.
+   *
+   * @param backlogProjection List of BacklogProjectionResponse
+   * @return Map of operationHour, processName and date_out
+   */
+  private Map<Instant, Map<ProcessName, Map<Instant, Integer>>> getMapByOperationHourProcessAndDateOutFromBacklogProjection(
+      final List<BacklogProjectionResponse> backlogProjection
+  ) {
+
+    return backlogProjection.stream()
+        .collect(Collectors.toMap(
+            BacklogProjectionResponse::operationHour,
+            backlogEntry -> getBacklogByProcessDateOutFromProjectionResponseBacklog(backlogEntry.backlog())
         ));
   }
 }

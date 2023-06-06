@@ -1,6 +1,7 @@
 package com.mercadolibre.flow.control.tool.exception;
 
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter;
 import com.newrelic.api.agent.NewRelic;
 import java.time.DateTimeException;
 import java.util.Arrays;
@@ -118,6 +119,27 @@ public class ControllerExceptionHandler {
   }
 
   /**
+   * Handler for when projection inputs cannot be obtained.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 404 status code and description indicating an internal error.
+   */
+  @ExceptionHandler(ProjectionInputsNotFoundException.class)
+  public ResponseEntity<ApiError> handlerProjectionInputsNotFoundException(
+      ProjectionInputsNotFoundException ex) {
+    LOGGER.error("Projection inputs not found", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "not_found",
+        ex.getMessage(),
+        HttpStatus.NOT_FOUND.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
    * Handler for ForecastNotFound exceptions.
    *
    * @param ex the exception thrown during request processing.
@@ -154,6 +176,27 @@ public class ControllerExceptionHandler {
         "no_content",
         ex.getMessage(),
         HttpStatus.NO_CONTENT.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for Throughput exceptions.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 204 status code and description indicating a no content.
+   */
+  @ExceptionHandler(ThroughputNotFoundException.class)
+  public ResponseEntity<ApiError> handlerThroughputException(
+      ThroughputNotFoundException ex) {
+    LOGGER.error("Global throughput dependency failure", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "failed_dependency",
+        ex.getMessage(),
+        HttpStatus.FAILED_DEPENDENCY.value()
     );
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
@@ -253,6 +296,27 @@ public class ControllerExceptionHandler {
         "total_projection_exception",
         ex.getMessage(),
         ex.getStatus()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for when enums don't match.
+   *
+   * @param req the incoming request.
+   * @return {@link ResponseEntity} with 400 status code .
+   */
+  @ExceptionHandler(FilterNotSupportedException.class)
+  public ResponseEntity<ApiError> handleFilterNotSupportedException(final HttpServletRequest req) {
+    final List<String> allowedValues = Arrays.stream(Filter.values())
+        .map(Enum::name)
+        .toList();
+
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        String.format("bad request %s. Allowed values are: %s", req.getRequestURI(), allowedValues),
+        HttpStatus.BAD_REQUEST.value()
     );
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
