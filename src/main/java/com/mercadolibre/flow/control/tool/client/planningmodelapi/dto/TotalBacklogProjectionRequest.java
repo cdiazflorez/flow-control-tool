@@ -2,42 +2,49 @@ package com.mercadolibre.flow.control.tool.client.planningmodelapi.dto;
 
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
-import java.util.List;
+import java.util.Set;
 
 public record TotalBacklogProjectionRequest(
     Instant dateFrom,
     Instant dateTo,
     Backlog backlog,
     PlannedUnit plannedUnit,
-    List<Throughput> throughput
+    Set<Throughput> throughput
 ) {
   public record Backlog(
-      List<ProcessPath> processPath
+      Set<ProcessPathByDateOut> processPath
   ) {
+    public record ProcessPathByDateOut(
+        ProcessPathName name,
+        Set<QuantityByDateOut> quantity
+    ) {
+      public record QuantityByDateOut(
+          Instant dateOut,
+          int quantity
+      ) {
+      }
+    }
   }
 
   public record PlannedUnit(
-      List<ProcessPath> processPath
+      Set<ProcessPathByDateInOut> processPath
   ) {
-  }
-
-  public record ProcessPath(
-      ProcessPathName name,
-      List<Quantity> quantity
-  ) {
-  }
-
-  public record Quantity(
-      Instant dateIn,
-      Instant dateOut,
-      Integer quantity
-  ) {
+    public record ProcessPathByDateInOut(
+        ProcessPathName name,
+        Set<QuantityByDateInOut> quantity
+    ) {
+      public record QuantityByDateInOut(
+          Instant dateIn,
+          Instant dateOut,
+          int quantity
+      ) {
+      }
+    }
   }
 
   public record Throughput(
       Instant date,
-      Integer quantity
+      int quantity
   ) {
   }
 }
-

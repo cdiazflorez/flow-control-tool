@@ -14,6 +14,11 @@ import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
 import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Backlog.ProcessPathByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Backlog.ProcessPathByDateOut.QuantityByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Throughput;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.exception.TotalProjectionException;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.ProjectionTotal;
@@ -27,6 +32,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -45,7 +51,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TotalBacklogProjectionAdapterTest {
 
   private static final Instant DATE_FROM = Instant.parse("2023-03-28T07:00:00Z");
+
   private static final Instant DATE_TO = Instant.parse("2023-03-28T10:00:00Z");
+
   private static final Instant DATE_IN = Instant.parse("2023-03-27T03:00:00Z");
 
   @Mock
@@ -88,12 +96,12 @@ class TotalBacklogProjectionAdapterTest {
 
     if (hasProcessPath) {
 
-      assertQuantityByProcessPath(inputRequestCaptured.backlog().processPath(), ProcessPathName.NON_TOT_MONO, null);
-      assertQuantityByProcessPath(inputRequestCaptured.backlog().processPath(), ProcessPathName.TOT_MULTI_BATCH, null);
-      assertQuantityByProcessPath(inputRequestCaptured.backlog().processPath(), ProcessPathName.NON_TOT_MULTI_BATCH, null);
-      assertQuantityByProcessPath(inputRequestCaptured.plannedUnit().processPath(), ProcessPathName.NON_TOT_MONO, DATE_IN);
-      assertQuantityByProcessPath(inputRequestCaptured.plannedUnit().processPath(), ProcessPathName.TOT_MULTI_BATCH, DATE_IN);
-      assertQuantityByProcessPath(inputRequestCaptured.plannedUnit().processPath(), ProcessPathName.NON_TOT_MULTI_BATCH, DATE_IN);
+      assertBacklogQuantityByProcessPath(inputRequestCaptured.backlog().processPath(), ProcessPathName.NON_TOT_MONO);
+      assertBacklogQuantityByProcessPath(inputRequestCaptured.backlog().processPath(), ProcessPathName.TOT_MULTI_BATCH);
+      assertBacklogQuantityByProcessPath(inputRequestCaptured.backlog().processPath(), ProcessPathName.NON_TOT_MULTI_BATCH);
+      assertPlannedQuantityByProcessPath(inputRequestCaptured.plannedUnit().processPath(), ProcessPathName.NON_TOT_MONO, DATE_IN);
+      assertPlannedQuantityByProcessPath(inputRequestCaptured.plannedUnit().processPath(), ProcessPathName.TOT_MULTI_BATCH, DATE_IN);
+      assertPlannedQuantityByProcessPath(inputRequestCaptured.plannedUnit().processPath(), ProcessPathName.NON_TOT_MULTI_BATCH, DATE_IN);
 
       assertEquals(
           expectedThroughput(),
@@ -132,17 +140,28 @@ class TotalBacklogProjectionAdapterTest {
     );
   }
 
-  private void assertQuantityByProcessPath(final List<TotalBacklogProjectionRequest.ProcessPath> processPath,
-                                           final ProcessPathName processPathName,
-                                           final Instant dateIn) {
+  private void assertBacklogQuantityByProcessPath(final Set<ProcessPathByDateOut> processPath,
+                                                  final ProcessPathName processPathName) {
     assertEquals(
-        buildExpectedProcessPathToRequest(processPathName, dateIn).quantity(),
+        buildExpectedBacklogProcessPathToRequest(processPathName).quantity(),
         processPath.stream()
             .filter(pp -> pp.name().equals(processPathName))
-            .map(TotalBacklogProjectionRequest.ProcessPath::quantity)
+            .map(ProcessPathByDateOut::quantity)
             .flatMap(Collection::stream)
-            .sorted(Comparator.comparing(TotalBacklogProjectionRequest.Quantity::dateOut))
-            .collect(Collectors.toList())
+            .collect(Collectors.toSet())
+    );
+  }
+
+  private void assertPlannedQuantityByProcessPath(final Set<ProcessPathByDateInOut> processPath,
+                                                  final ProcessPathName processPathName,
+                                                  final Instant dateIn) {
+    assertEquals(
+        buildExpectedPlannedUnitProcessPathToRequest(processPathName, dateIn).quantity(),
+        processPath.stream()
+            .filter(pp -> pp.name().equals(processPathName))
+            .map(ProcessPathByDateInOut::quantity)
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet())
     );
   }
 
@@ -201,24 +220,36 @@ class TotalBacklogProjectionAdapterTest {
     return new TotalBacklogProjectionResponse.Sla(date, 20, processPath);
   }
 
-  private List<TotalBacklogProjectionRequest.Throughput> expectedThroughput() {
+  private List<Throughput> expectedThroughput() {
     return List.of(
-        new TotalBacklogProjectionRequest.Throughput(DATE_FROM, 10),
-        new TotalBacklogProjectionRequest.Throughput(DATE_FROM.plus(1, ChronoUnit.HOURS), 5),
-        new TotalBacklogProjectionRequest.Throughput(DATE_FROM.plus(2, ChronoUnit.HOURS), 20),
-        new TotalBacklogProjectionRequest.Throughput(DATE_FROM.plus(3, ChronoUnit.HOURS), 15)
+        new Throughput(DATE_FROM, 10),
+        new Throughput(DATE_FROM.plus(1, ChronoUnit.HOURS), 5),
+        new Throughput(DATE_FROM.plus(2, ChronoUnit.HOURS), 20),
+        new Throughput(DATE_FROM.plus(3, ChronoUnit.HOURS), 15)
     );
   }
 
-  private TotalBacklogProjectionRequest.ProcessPath buildExpectedProcessPathToRequest(
+  private ProcessPathByDateOut buildExpectedBacklogProcessPathToRequest(
+      final ProcessPathName processPath
+  ) {
+    return new ProcessPathByDateOut(
+        processPath,
+        Set.of(
+            new QuantityByDateOut(DATE_FROM.plus(1, ChronoUnit.HOURS), 10),
+            new QuantityByDateOut(DATE_FROM.plus(3, ChronoUnit.HOURS), 10)
+        )
+    );
+  }
+
+  private ProcessPathByDateInOut buildExpectedPlannedUnitProcessPathToRequest(
       final ProcessPathName processPath,
       final Instant dateIn
   ) {
-    return new TotalBacklogProjectionRequest.ProcessPath(
+    return new ProcessPathByDateInOut(
         processPath,
-        List.of(
-            new TotalBacklogProjectionRequest.Quantity(dateIn, DATE_FROM.plus(1, ChronoUnit.HOURS), 10),
-            new TotalBacklogProjectionRequest.Quantity(dateIn, DATE_FROM.plus(3, ChronoUnit.HOURS), 10)
+        Set.of(
+            new QuantityByDateInOut(dateIn, DATE_FROM.plus(1, ChronoUnit.HOURS), 10),
+            new QuantityByDateInOut(dateIn, DATE_FROM.plus(3, ChronoUnit.HOURS), 10)
         )
     );
   }

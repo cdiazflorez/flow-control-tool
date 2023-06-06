@@ -5,8 +5,6 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelA
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Backlog;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.PlannedUnit;
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.ProcessPath;
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Quantity;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Throughput;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.exception.TotalProjectionException;
@@ -17,6 +15,8 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -38,8 +38,8 @@ public class TotalBacklogProjectionAdapter implements BacklogProjectedTotalUseCa
     final TotalBacklogProjectionRequest request = new TotalBacklogProjectionRequest(
         dateFrom,
         dateTo,
-        new Backlog(buildProcessPath(backlog, true)),
-        new PlannedUnit(buildProcessPath(plannedUnits, false)),
+        new Backlog(buildBacklogProcessPath(backlog)),
+        new PlannedUnit(buildPlannedUnitProcessPath(plannedUnits)),
         buildThroughputInput(throughput)
     );
 
@@ -69,27 +69,37 @@ public class TotalBacklogProjectionAdapter implements BacklogProjectedTotalUseCa
 
   }
 
-  private List<Throughput> buildThroughputInput(final Map<Instant, Integer> throughput) {
+  private Set<Throughput> buildThroughputInput(final Map<Instant, Integer> throughput) {
     return throughput.entrySet().stream()
         .map(entry -> new Throughput(entry.getKey(), entry.getValue()))
-        .toList();
+        .collect(Collectors.toSet());
   }
 
-  private List<ProcessPath> buildProcessPath(final Map<ProcessPathName, List<SlaQuantity>> slaByProcessName, final boolean hasBacklog) {
+  private Set<Backlog.ProcessPathByDateOut> buildBacklogProcessPath(final Map<ProcessPathName, List<SlaQuantity>> slaByProcessName) {
     return slaByProcessName.entrySet().stream().map(slaByProcessPath ->
-        new ProcessPath(
+        new Backlog.ProcessPathByDateOut(
             slaByProcessPath.getKey(),
             slaByProcessPath.getValue().stream()
-                .map(slaQuantity -> {
-                      final Instant dateIn = hasBacklog ? null : slaQuantity.getDateIn();
-                      return new Quantity(
-                          dateIn,
-                          slaQuantity.getDateOut(),
-                          slaQuantity.getQuantity()
-                      );
-                    }
-                )
-                .toList()
-        )).toList();
+                .map(slaQuantity -> new Backlog.ProcessPathByDateOut.QuantityByDateOut(
+                        slaQuantity.getDateOut(),
+                        slaQuantity.getQuantity()
+                    )
+                ).collect(Collectors.toSet()))
+    ).collect(Collectors.toSet());
+  }
+
+  private Set<PlannedUnit.ProcessPathByDateInOut> buildPlannedUnitProcessPath(
+      final Map<ProcessPathName, List<SlaQuantity>> slaByProcessName) {
+    return slaByProcessName.entrySet().stream().map(slaByProcessPath ->
+        new PlannedUnit.ProcessPathByDateInOut(
+            slaByProcessPath.getKey(),
+            slaByProcessPath.getValue().stream()
+                .map(slaQuantity -> new PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut(
+                        slaQuantity.getDateIn(),
+                        slaQuantity.getDateOut(),
+                        slaQuantity.getQuantity()
+                    )
+                ).collect(Collectors.toSet()))
+    ).collect(Collectors.toSet());
   }
 }
