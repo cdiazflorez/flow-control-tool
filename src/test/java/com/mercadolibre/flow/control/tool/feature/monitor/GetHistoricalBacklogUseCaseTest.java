@@ -17,13 +17,19 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonito
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,7 +45,8 @@ class GetHistoricalBacklogUseCaseTest {
       ProcessPathName.TOT_MONO,
       20
   );
-  private static final int NO_PROCESS = 0;
+
+  private static final int N_PROCESSES = ProcessName.values().length;
 
   private static final Instant CPT1 = Instant.parse("2023-04-15T18:00:00Z");
 
@@ -86,10 +93,15 @@ class GetHistoricalBacklogUseCaseTest {
 
   private static final Instant DATE2 = Instant.parse("2023-05-03T08:00:00Z");
 
+  private static final Instant DATE_FROM = Instant.parse("2023-04-14T18:00:00Z");
+
+  private static final Instant DATE_TO = Instant.parse("2023-04-14T20:00:00Z");
+
   private static final String LOGISTIC_CENTER_ID = "ARTW01";
 
   private static final Set<ProcessName> PROCESS_NAMES =
       Set.of(ProcessName.PICKING, ProcessName.PACKING, ProcessName.HU_ASSEMBLY, ProcessName.SHIPPING);
+
   private static final Set<ProcessName> PROCESS_NAMES_2 =
       Set.of(ProcessName.PICKING, ProcessName.PACKING);
 
@@ -102,10 +114,17 @@ class GetHistoricalBacklogUseCaseTest {
   @Mock
   private UnitsPerOrderRatioGateway unitsPerOrderRatioGateway;
 
+  private static List<ProcessesMonitor> createEmptyProcessesList() {
+
+    return Arrays.stream(ProcessName.values())
+        .map(processName -> new ProcessesMonitor(processName, 0, emptyList()))
+        .collect(Collectors.toList());
+  }
+
   @Test
   void obtainBacklogHistorical() {
-    final var dateFrom = DATE1;
-    final var dateTo = DATE2;
+    final var dateFrom = DATE_FROM;
+    final var dateTo = DATE_TO;
 
     when(backlogGateway.getBacklogByDateProcessAndPP(
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
@@ -123,8 +142,10 @@ class GetHistoricalBacklogUseCaseTest {
 
   @Test
   void obtainBacklogHistoricalEmpty() {
-    final var dateFrom = DATE1;
-    final var dateTo = DATE2;
+    final var dateFrom = DATE_FROM;
+    final var dateTo = DATE_TO;
+
+    final var expectedEntries = Duration.between(dateFrom, dateTo).toHours() + 1;
 
     when(backlogGateway.getBacklogByDateProcessAndPP(
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo))
@@ -136,7 +157,9 @@ class GetHistoricalBacklogUseCaseTest {
     var res = backlogHistoricalUseCase.backlogHistoricalMonitor(
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES, dateFrom, dateTo, VIEW_DATE);
 
-    assertEquals(emptyList(), res);
+    assertEquals(expectedEntries, res.size());
+    assertEquals(N_PROCESSES, res.get(0).processes().size());
+    assertEquals(0, res.get(0).processes().get(0).quantity());
   }
 
   @Test
@@ -160,9 +183,9 @@ class GetHistoricalBacklogUseCaseTest {
   @Test
   void obtainBacklogHistoricalException() {
     // GIVEN
-    final var dateFrom = DATE1;
-    final var dateTo = DATE2;
-    final var expected = List.of(new BacklogMonitor(DATE1, List.of()), new BacklogMonitor(DATE2, List.of()));
+    final var dateFrom = DATE_FROM;
+    final var dateTo = DATE_TO;
+    final var expected = emptyBacklogMonitorsResponseMock();
     when(backlogGateway.getBacklogByDateProcessAndPP(
         Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, PROCESS_NAMES_2, dateFrom, dateTo))
         .thenReturn(backlogNullProcessMock());
@@ -190,8 +213,8 @@ class GetHistoricalBacklogUseCaseTest {
         .map(backlog -> backlog.processes().size())
         .orElseThrow();
 
-    assertEquals(NO_PROCESS, processSize1);
-    assertEquals(NO_PROCESS, processSize2);
+    assertEquals(N_PROCESSES, processSize1);
+    assertEquals(N_PROCESSES, processSize2);
   }
 
   private void assertionsBacklogMonitor(final List<BacklogMonitor> expected, final List<BacklogMonitor> response) {
@@ -238,7 +261,10 @@ class GetHistoricalBacklogUseCaseTest {
   }
 
   private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogMock() {
-    return Map.of(DATE1, BACKLOG, DATE2, BACKLOG);
+
+    return Stream.iterate(DATE_FROM.truncatedTo(ChronoUnit.HOURS), instant -> instant.plus(Duration.ofHours(1)))
+        .limit(Duration.between(DATE_FROM, DATE_TO).toHours() + 1)
+        .collect(Collectors.toMap(Function.identity(), hour -> BACKLOG));
   }
 
   private Map<Instant, Map<ProcessName, Map<Instant, Map<ProcessPathName, Integer>>>> backlogNullProcessMock() {
@@ -248,26 +274,36 @@ class GetHistoricalBacklogUseCaseTest {
   }
 
   private List<BacklogMonitor> backlogMonitorsResponseMock() {
-    final var backlogMonitors = new ArrayList<BacklogMonitor>(2);
-    backlogMonitors.add(
-        new BacklogMonitor(
-            DATE1,
-            processesMonitors()
-        )
-    );
 
-    backlogMonitors.add(
-        new BacklogMonitor(
-            DATE2,
-            processesMonitors()
-        )
-    );
+    return Stream.iterate(DATE_FROM.truncatedTo(ChronoUnit.HOURS), instant -> instant.plus(Duration.ofHours(1)))
+        .limit(Duration.between(DATE_FROM, DATE_TO).toHours() + 1)
+        .map(hour -> new BacklogMonitor(
+                hour,
+                processesMonitors()
+            )
+        ).collect(Collectors.toList());
+  }
 
-    return backlogMonitors;
+  private List<BacklogMonitor> emptyBacklogMonitorsResponseMock() {
+
+    return Stream.iterate(DATE_FROM.truncatedTo(ChronoUnit.HOURS), instant -> instant.plus(Duration.ofHours(1)))
+        .limit(Duration.between(DATE_FROM, DATE_TO).toHours() + 1)
+        .map(hour -> new BacklogMonitor(
+                hour,
+                createEmptyProcessesList()
+            )
+        ).collect(Collectors.toList());
   }
 
   private List<ProcessesMonitor> processesMonitors() {
     final var processMonitors = new ArrayList<ProcessesMonitor>(4);
+
+    processMonitors.add(new ProcessesMonitor(
+        ProcessName.WAVING,
+        0,
+        emptyList()
+    ));
+
     processMonitors.add(new ProcessesMonitor(
         ProcessName.PICKING,
         60,
@@ -275,9 +311,27 @@ class GetHistoricalBacklogUseCaseTest {
     ));
 
     processMonitors.add(new ProcessesMonitor(
+        ProcessName.BATCH_SORTER,
+        0,
+        emptyList()
+    ));
+
+    processMonitors.add(new ProcessesMonitor(
+        ProcessName.WALL_IN,
+        0,
+        emptyList()
+    ));
+
+    processMonitors.add(new ProcessesMonitor(
         ProcessName.PACKING,
         60,
         slasMonitors()
+    ));
+
+    processMonitors.add(new ProcessesMonitor(
+        ProcessName.PACKING_WALL,
+        0,
+        emptyList()
     ));
 
     processMonitors.add(new ProcessesMonitor(
@@ -327,5 +381,4 @@ class GetHistoricalBacklogUseCaseTest {
 
     return slaMonitors;
   }
-
 }

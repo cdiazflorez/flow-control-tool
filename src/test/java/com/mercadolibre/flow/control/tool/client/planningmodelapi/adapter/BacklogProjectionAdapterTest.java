@@ -13,17 +13,27 @@ import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.TOT_MULTI_BATCH;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_FROM;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.DATE_TO;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
+import com.mercadolibre.restclient.Response;
+import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +124,37 @@ class BacklogProjectionAdapterTest {
 
   @Mock
   private PlanningModelApiClient planningModelApiClient;
+
+  @Test
+  void testExecuteBacklogProjectionError() throws JsonProcessingException {
+    // GIVEN
+    final ClientException ce = new ClientException(
+        "PLANNING_MODEL_API",
+        HttpRequest.builder()
+            .url("URL")
+            .build(),
+        new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("projection_inputs_exception"))
+    );
+
+    when(planningModelApiClient.getBacklogProjection(
+        eq(LOGISTIC_CENTER_ID),
+        any(BacklogProjectionRequest.class)
+    ))
+        .thenThrow(ce);
+
+    assertThrows(
+        ProjectionInputsNotFoundException.class,
+        () -> backlogProjectionAdapter.executeBacklogProjection(
+            LOGISTIC_CENTER_ID,
+            DATE_FROM,
+            DATE_TO,
+            ALL_PROCESSES_SET,
+            CURRENT_BACKLOG,
+            PLANNED_BACKLOGS,
+            THROUGHPUT
+        )
+    );
+  }
 
   @Test
   void testBacklogProjectionAdapter() {

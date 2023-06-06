@@ -4,12 +4,15 @@ import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constan
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.DATE_OUT;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.PROCESS_PATH;
 
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
+import com.mercadolibre.flow.control.tool.exception.ProjectionInputsNotFoundException;
+import com.mercadolibre.flow.control.tool.exception.ThroughputNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
@@ -18,6 +21,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -61,31 +65,45 @@ public class PlannedEntitiesAdapter implements PlannedEntitiesGateway {
       final Set<ProcessName> process
   ) {
 
-    final Map<ProcessPathName, Map<OutboundProcessName, Map<Instant, PlanningModelApiClient.Throughput>>> throughput =
-        planningModelApiClient.getThroughputByPPAndProcessAndDate(
-            workflow,
-            logisticCenterId,
-            dateFrom,
-            dateTo,
-            process,
-            PROCESS_PATH_GLOBAL
-        );
+    try {
+      final Map<ProcessPathName, Map<OutboundProcessName, Map<Instant, PlanningModelApiClient.Throughput>>> throughput =
+          planningModelApiClient.getThroughputByPPAndProcessAndDate(
+              workflow,
+              logisticCenterId,
+              dateFrom,
+              dateTo,
+              process,
+              PROCESS_PATH_GLOBAL
+          );
 
-    return throughput.get(ProcessPathName.GLOBAL)
-        .entrySet()
-        .stream()
-        .flatMap(tphSlaByProcessNameEntry -> tphSlaByProcessNameEntry.getValue()
-            .entrySet()
-            .stream()
-            .map(tphSla -> new ThroughputAux(
-                tphSla.getKey(),
-                tphSlaByProcessNameEntry.getKey().translateProcessName(),
-                tphSla.getValue().quantity())
-            )
-        )
-        .collect(Collectors.groupingBy(ThroughputAux::date, Collectors.groupingBy(
-            ThroughputAux::processName, Collectors.summingInt(ThroughputAux::total)))
-        );
+      final var throughputGlobal = throughput.entrySet().stream()
+          .filter(p -> p.getKey().equals(ProcessPathName.GLOBAL))
+          .findAny()
+          .orElseThrow(
+              () -> new ThroughputNotFoundException("Global ProcessPathName not found")
+          );
+
+      return throughputGlobal.getValue()
+          .entrySet()
+          .stream()
+          .flatMap(tphSlaByProcessNameEntry -> tphSlaByProcessNameEntry.getValue()
+              .entrySet()
+              .stream()
+              .map(tphSla -> new ThroughputAux(
+                  tphSla.getKey(),
+                  tphSlaByProcessNameEntry.getKey().translateProcessName(),
+                  tphSla.getValue().quantity())
+              )
+          )
+          .collect(
+              Collectors.groupingBy(ThroughputAux::date,
+                  Collectors.groupingBy(ThroughputAux::processName,
+                      Collectors.summingInt(ThroughputAux::total)))
+          );
+    } catch (ClientException ce) {
+      final String throughput = "Throughput";
+      throw new ProjectionInputsNotFoundException(throughput, logisticCenterId, workflow.getName(), ce);
+    }
   }
 
   @Override
@@ -96,27 +114,33 @@ public class PlannedEntitiesAdapter implements PlannedEntitiesGateway {
       final Instant dateTo
   ) {
 
-    final List<BacklogPlannedResponse> backlogPlannedResponses = planningModelApiClient.getBacklogPlanned(new BacklogPlannedRequest(
-        logisticCenterId,
-        PlanningWorkflow.from(workflow.getName()),
-        PROCESS_PATH_NAMES,
-        dateFrom,
-        dateTo,
-        PLANNED_GROUPERS));
+    try {
+      final List<BacklogPlannedResponse> backlogPlannedResponses = planningModelApiClient.getBacklogPlanned(new BacklogPlannedRequest(
+          logisticCenterId,
+          PlanningWorkflow.from(workflow.getName()),
+          PROCESS_PATH_NAMES,
+          dateFrom,
+          dateTo,
+          Optional.empty(),
+          Optional.empty(),
+          PLANNED_GROUPERS));
 
-    return backlogPlannedResponses.stream().collect(
-        Collectors.groupingBy(
-            grouper -> grouper.group().processPath(),
-            Collectors.groupingBy(
-                grouper -> grouper.group().dateIn(),
-                Collectors.groupingBy(
-                    grouper -> grouper.group().dateOut(),
-                    Collectors.summingInt(response -> Math.toIntExact(Math.round(response.total()))
-                    )
-                )
-            )
-        )
-    );
+      return backlogPlannedResponses.stream().collect(
+          Collectors.groupingBy(
+              grouper -> grouper.group().processPath(),
+              Collectors.groupingBy(
+                  grouper -> grouper.group().dateIn(),
+                  Collectors.groupingBy(
+                      grouper -> grouper.group().dateOut(),
+                      Collectors.summingInt(response -> Math.toIntExact(Math.round(response.total()))
+                      )
+                  )
+              )
+          )
+      );
+    } catch (ClientException ce) {
+      throw new ProjectionInputsNotFoundException("Forecast sales", logisticCenterId, workflow.getName(), ce);
+    }
   }
 
   public record ThroughputAux(

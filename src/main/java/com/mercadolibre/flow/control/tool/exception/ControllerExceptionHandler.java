@@ -118,6 +118,27 @@ public class ControllerExceptionHandler {
   }
 
   /**
+   * Handler for when projection inputs cannot be obtained.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 404 status code and description indicating an internal error.
+   */
+  @ExceptionHandler(ProjectionInputsNotFoundException.class)
+  public ResponseEntity<ApiError> handlerProjectionInputsNotFoundException(
+      ProjectionInputsNotFoundException ex) {
+    LOGGER.error("Projection inputs not found", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "not_found",
+        ex.getMessage(),
+        HttpStatus.NOT_FOUND.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
    * Handler for ForecastNotFound exceptions.
    *
    * @param ex the exception thrown during request processing.
@@ -154,6 +175,27 @@ public class ControllerExceptionHandler {
         "no_content",
         ex.getMessage(),
         HttpStatus.NO_CONTENT.value()
+    );
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
+  /**
+   * Handler for Throughput exceptions.
+   *
+   * @param ex the exception thrown during request processing.
+   * @return {@link ResponseEntity} with 204 status code and description indicating a no content.
+   */
+  @ExceptionHandler(ThroughputNotFoundException.class)
+  public ResponseEntity<ApiError> handlerThroughputException(
+      ThroughputNotFoundException ex) {
+    LOGGER.error("Global throughput dependency failure", ex);
+    NewRelic.noticeError(ex);
+
+    ApiError apiError = new ApiError(
+        "failed_dependency",
+        ex.getMessage(),
+        HttpStatus.FAILED_DEPENDENCY.value()
     );
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);

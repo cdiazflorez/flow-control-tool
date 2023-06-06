@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
+import static com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectionUtil.fillBacklogMonitorsMissingDatesAndProcesses;
 import static com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectionUtil.validateUnitsPerOrderRatio;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
@@ -7,7 +8,9 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMon
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -36,6 +39,12 @@ public class BacklogProjectedUseCase {
       final Set<ProcessName> processes,
       final Instant viewDate
   ) {
+    final var plannedBacklog = plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(
+        workflow,
+        logisticCenterId,
+        dateFrom,
+        dateTo
+    );
 
     final var currentBacklog = backlogProjectedGateway.getBacklogTotalsByProcessAndPPandSla(
         logisticCenterId,
@@ -50,13 +59,6 @@ public class BacklogProjectedUseCase {
         dateFrom,
         dateTo,
         processes
-    );
-
-    final var plannedBacklog = plannedEntitiesGateway.getPlannedUnitByPPDateInAndDateOut(
-        workflow,
-        logisticCenterId,
-        dateFrom,
-        dateTo
     );
 
     final var backlogProjection = backlogProjectionGateway.executeBacklogProjection(
@@ -77,11 +79,13 @@ public class BacklogProjectedUseCase {
 
     final Double unitsPerOrderRatio = validateUnitsPerOrderRatio(getUnitsPerOrderRatio, logisticCenterId);
 
-    final List<BacklogMonitor> backlogMonitors = BacklogProjectionUtil.sumBacklogProjectionNullPP(backlogProjection, unitsPerOrderRatio);
+    final List<BacklogMonitor> backlogMonitors = fillBacklogMonitorsMissingDatesAndProcesses(
+        BacklogProjectionUtil.sumBacklogProjectionEmptyPP(backlogProjection, unitsPerOrderRatio),
+        dateFrom.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1)),
+        dateTo
+    );
 
-    BacklogProjectionUtil.order(backlogMonitors);
-
-    return backlogMonitors;
+    return BacklogProjectionUtil.orderMonitorsByDate(backlogMonitors);
   }
 
   /**

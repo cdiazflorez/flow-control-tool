@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.flatMapping;
 import static java.util.stream.Collectors.groupingBy;
@@ -16,10 +17,14 @@ import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -81,7 +86,7 @@ public class BacklogProjectedTotalUseCase {
         plannedSlaQuantityByProcessPath,
         throughputByDate);
 
-    return projection.stream()
+    final List<TotalBacklogMonitor> totalBacklogMonitors = projection.stream()
         .map(
             projectionTotal -> new TotalBacklogMonitor(
                 projectionTotal.dateOperation(),
@@ -92,7 +97,16 @@ public class BacklogProjectedTotalUseCase {
                 getSlaMonitor(projectionTotal.slas(),
                     unitsPerOrderRatio,
                     valueType)
-            )).toList();
+            ))
+        .toList();
+
+    final Stream<TotalBacklogMonitor> responseTotalBacklogMonitor = completeTotalBacklogMonitors(totalBacklogMonitors,
+        dateFrom.truncatedTo(ChronoUnit.HOURS).plus(Duration.ofHours(1)),
+        dateTo.truncatedTo(ChronoUnit.HOURS));
+
+    return responseTotalBacklogMonitor
+        .sorted(Comparator.comparing(TotalBacklogMonitor::date, Comparator.nullsLast(Comparator.naturalOrder())))
+        .toList();
   }
 
   private Map<ProcessPathName, List<SlaQuantity>> getBacklogSlaQuantityByProcessPath(final String logisticCenterId,
@@ -183,6 +197,25 @@ public class BacklogProjectedTotalUseCase {
 
   private int convertUnitsToOrders(final int units, final double ratio, final ValueType valueType) {
     return valueType == ValueType.UNITS ? units : Math.toIntExact(Math.round(units / ratio));
+  }
+
+  public Stream<TotalBacklogMonitor> completeTotalBacklogMonitors(
+      final List<TotalBacklogMonitor> totalBacklogMonitors,
+      final Instant dateFrom,
+      final Instant dateTo
+  ) {
+
+    return Stream.iterate(dateFrom, instant -> instant.plus(Duration.ofHours(1)))
+        .limit(Duration.between(dateFrom, dateTo).toHours() + 1)
+        .map(hour -> fillMissingTotalDateMonitors(totalBacklogMonitors, hour));
+  }
+
+  private TotalBacklogMonitor fillMissingTotalDateMonitors(final List<TotalBacklogMonitor> totalBacklogMonitors,
+                                                           final Instant hour) {
+    return totalBacklogMonitors.stream()
+        .filter(monitor -> monitor.date().equals(hour))
+        .findAny()
+        .orElseGet(() -> new TotalBacklogMonitor(hour, 0, emptyList()));
   }
 
   /**
