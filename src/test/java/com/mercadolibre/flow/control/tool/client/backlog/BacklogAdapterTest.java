@@ -35,6 +35,7 @@ import com.mercadolibre.flow.control.tool.client.backlog.dto.LastPhotoRequest;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.PhotoResponse;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoGrouper;
 import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoStep;
+import com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoWorkflow;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import java.time.Instant;
@@ -72,13 +73,13 @@ class BacklogAdapterTest {
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "pending"), 700)
         ));
 
-    final LastPhotoRequest request = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
-        Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoStep.PICKED, TO_PACK),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest request = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)))
+        .groupBy(Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH))
+        .steps(Set.of(PENDING, TO_ROUTE, TO_SORT, PhotoStep.PICKED, TO_PACK))
+        .photoDateTo(PHOTO_DATE)
+        .build();
 
     when(backlogApiClient.getLastPhoto(request)).thenReturn(mockBacklogsAPI);
 
@@ -112,14 +113,14 @@ class BacklogAdapterTest {
             new PhotoResponse.Group(Map.of(PATH, TOT_MULTI_BATCH, STEP, "grouping"), 10)
         ));
 
-    final LastPhotoRequest request = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
-        Set.of(PENDING, TO_PICK, PICKING, PhotoStep.PICKED, TO_GROUP, GROUPING, GROUPED, TO_ROUTE, TO_SORT, SORTED,
-            TO_PACK, PhotoStep.PACKING, PACKED, TO_DOCUMENT, DOCUMENTED, TO_DISPATCH, TO_OUT),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest request = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(FBM_WMS_OUTBOUND))
+        .groupBy(Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH))
+        .steps(Set.of(PENDING, TO_PICK, PICKING, PhotoStep.PICKED, TO_GROUP, GROUPING, GROUPED, TO_ROUTE, TO_SORT, SORTED,
+            TO_PACK, PhotoStep.PACKING, PACKED, TO_DOCUMENT, DOCUMENTED, TO_DISPATCH, TO_OUT))
+        .photoDateTo(PHOTO_DATE)
+        .build();
 
     when(backlogApiClient.getLastPhoto(request)).thenReturn(mockBacklogsAPI);
 
@@ -158,13 +159,13 @@ class BacklogAdapterTest {
             new PhotoResponse.Group(Map.of(PATH, "TOT_MULTI_BATCH_DOS", STEP, PICKED), 500)
         ));
 
-    final LastPhotoRequest request = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.PATH, PhotoGrouper.STEP),
-        Set.of(PENDING, TO_ROUTE),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest request = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(FBM_WMS_OUTBOUND))
+        .groupBy(Set.of(PhotoGrouper.PATH, PhotoGrouper.STEP))
+        .steps(Set.of(PENDING, TO_ROUTE))
+        .photoDateTo(PHOTO_DATE)
+        .build();
 
     when(backlogApiClient.getLastPhoto(request)).thenReturn(mockBacklogsAPI);
 
@@ -182,13 +183,14 @@ class BacklogAdapterTest {
 
   @Test
   void backlogByProcessWhenBacklogsIsNull() {
-    final LastPhotoRequest request = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.PATH, PhotoGrouper.STEP),
-        Set.of(PENDING, TO_ROUTE),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest request = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(FBM_WMS_OUTBOUND))
+        .groupBy(Set.of(PhotoGrouper.PATH, PhotoGrouper.STEP))
+        .steps(Set.of(PENDING, TO_ROUTE))
+        .photoDateTo(PHOTO_DATE)
+        .build();
+
     when(backlogApiClient.getLastPhoto(request)).thenReturn(null);
     final var response = backlogAdapter.getBacklogTotalsByProcess(
         LOGISTIC_CENTER_ID,
@@ -202,11 +204,11 @@ class BacklogAdapterTest {
   @Test
   void exhaustiveTest() throws JsonProcessingException {
 
-    final LastPhotoRequest request = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(FBM_WMS_OUTBOUND),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH),
-        Set.of(
+    final LastPhotoRequest request = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(FBM_WMS_OUTBOUND))
+        .groupBy(Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH))
+        .steps(Set.of(
             TO_PICK,
             TO_PACK,
             SORTED,
@@ -224,9 +226,9 @@ class BacklogAdapterTest {
             TO_DOCUMENT,
             DOCUMENTED,
             GROUPED
-        ),
-        Instant.parse("2023-03-15T10:00:00Z")
-    );
+        ))
+        .photoDateTo(Instant.parse("2023-03-15T10:00:00Z"))
+        .build();
 
     final String jsonResponseBacklogPhotosLast = getResourceAsString(
         "client/response_get_backlog_api_photos_last.json"

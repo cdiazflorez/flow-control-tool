@@ -41,7 +41,7 @@ public class BacklogApiClient extends HttpClient {
   @Trace
   public PhotoResponse getLastPhoto(final LastPhotoRequest lastPhotoRequest) {
     final HttpRequest httpRequest = HttpRequest.builder()
-        .url(format(BACKLOG_PHOTO_LAST_URL, lastPhotoRequest.logisticCenterId()))
+        .url(format(BACKLOG_PHOTO_LAST_URL, lastPhotoRequest.getLogisticCenterId()))
         .GET()
         .queryParams(lastPhotoRequest.getQueryParams())
         .acceptedHttpStatuses(Set.of(OK))

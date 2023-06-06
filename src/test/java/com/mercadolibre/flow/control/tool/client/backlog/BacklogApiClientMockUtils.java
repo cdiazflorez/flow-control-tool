@@ -46,13 +46,13 @@ public class BacklogApiClientMockUtils {
    * @return an example of BacklogPhotosLastRequest using common logistic_center in TestUtils.
    */
   public static LastPhotoRequest mockBacklogPhotosLastRequest() {
-    return new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(FBM_WMS_OUTBOUND),
-        Set.of(STEP, AREA, PATH),
-        mockListOfBacklogPhotoSteps(),
-        VIEW_DATE_INSTANT
-    );
+    return LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(FBM_WMS_OUTBOUND))
+        .groupBy(Set.of(STEP, AREA, PATH))
+        .steps(mockListOfBacklogPhotoSteps())
+        .photoDateTo(VIEW_DATE_INSTANT)
+        .build();
   }
 
   /**

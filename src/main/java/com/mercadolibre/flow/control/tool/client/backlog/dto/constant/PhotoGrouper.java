@@ -14,6 +14,7 @@ public enum PhotoGrouper {
   AREA,
   STEP,
   PATH,
+  DATE_IN,
   DATE_OUT;
 
   public static PhotoGrouper from(final String value) {

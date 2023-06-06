@@ -5,31 +5,25 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Plann
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Builder;
+import lombok.Data;
 
-public record BacklogPlannedRequest(
-
-    String logisticCenter,
-
-    PlanningWorkflow planningWorkflow,
-
-    Set<ProcessPathName> processPathNames,
-
-    Instant dateInFrom,
-
-    Instant dateInTo,
-
-    Optional<Instant> dateOutFrom,
-
-    Optional<Instant> dateOutTo,
-
-    Set<PlannedGrouper> groupBy
-
-) {
+@Data
+@Builder
+public class BacklogPlannedRequest {
 
   private static final String DELIMITER = ",";
+
+  private String logisticCenter;
+  private PlanningWorkflow planningWorkflow;
+  private Set<ProcessPathName> processPathNames;
+  private Instant dateInFrom;
+  private Instant dateInTo;
+  private Instant dateOutFrom;
+  private Instant dateOutTo;
+  private Set<PlannedGrouper> groupBy;
 
   public Map<String, String> getQueryParams() {
     final Map<String, String> queryParams = new ConcurrentHashMap<>();
@@ -40,7 +34,7 @@ public record BacklogPlannedRequest(
     queryParams.put("view_date", dateInTo.toString());
     queryParams.put("group_by", String.join(DELIMITER, groupBy.stream().map(PlannedGrouper::getName).toList()));
 
-    if (dateOutFrom.isPresent() && dateOutTo.isPresent()) {
+    if (dateOutFrom != null && dateOutTo != null) {
       queryParams.put("date_out_from", dateOutFrom.toString());
       queryParams.put("date_out_to", dateOutTo.toString());
     }
@@ -51,4 +45,5 @@ public record BacklogPlannedRequest(
 
     return queryParams;
   }
+
 }

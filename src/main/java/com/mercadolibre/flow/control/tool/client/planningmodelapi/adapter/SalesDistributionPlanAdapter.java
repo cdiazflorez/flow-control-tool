@@ -1,7 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.DATE_IN;
-import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.DATE_OUT;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
@@ -12,11 +11,10 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPla
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -30,41 +28,41 @@ import org.springframework.stereotype.Component;
 @Component
 public class SalesDistributionPlanAdapter {
 
-  private static final int DAYS = 7;
-
   private final PlanningModelApiClient planningModelApiClient;
 
   /**
    * Retrieve the sales distribution plan grouped by date_in or date_out.
    *
-   * @param workflow         The workflow for which to retrieve the sales distribution.
    * @param logisticCenterId The ID of the logistic center.
-   * @param dateFrom         The start date of the time period.
-   * @param dateTo           The end date of the time period.
-   * @param groupBy          The grouping value date_in/date_out
+   * @param workflow         The workflow for which to retrieve the sales distribution.
+   * @param filter          The grouping value date_in/date_out
+   * @param dateInFrom       The start date of the time period to get sales.
+   * @param dateInTo         The end date of the time period to get sales.
+   * @param dateOutFrom      The start date of the time period to get CPTs
+   * @param dateOutTo        The end date of the time period to get CPTs
    * @return A map of instant and total value.
    */
   public Map<Instant, Double> getSalesDistributionPlanned(
-      final Workflow workflow,
       final String logisticCenterId,
-      final Instant dateFrom,
-      final Instant dateTo,
-      final PlannedGrouper groupBy
+      final Workflow workflow,
+      final Filter filter,
+      final Instant dateInFrom,
+      final Instant dateInTo,
+      final Instant dateOutFrom,
+      final Instant dateOutTo
   ) {
 
-    final Instant dateInFrom = DATE_OUT == groupBy ? dateFrom.minus(DAYS, ChronoUnit.DAYS) : dateFrom;
-    final Instant dateOutTo = DATE_IN == groupBy ? dateTo.plus(DAYS, ChronoUnit.DAYS) : dateTo;
+    final PlannedGrouper groupBy = PlannedGrouper.from(filter.getName());
 
-    final BacklogPlannedRequest request = new BacklogPlannedRequest(
-        logisticCenterId,
-        PlanningWorkflow.from(workflow.getName()),
-        Set.of(),
-        dateInFrom,
-        dateTo,
-        Optional.of(dateFrom),
-        Optional.of(dateOutTo),
-        Set.of(groupBy)
-    );
+    final BacklogPlannedRequest request = BacklogPlannedRequest.builder()
+        .logisticCenter(logisticCenterId)
+        .planningWorkflow(PlanningWorkflow.from(workflow.getName()))
+        .groupBy(Set.of(groupBy))
+        .dateInFrom(dateInFrom)
+        .dateInTo(dateInTo)
+        .dateOutFrom(dateOutFrom)
+        .dateOutTo(dateOutTo)
+        .build();
 
     try {
 
@@ -73,7 +71,7 @@ public class SalesDistributionPlanAdapter {
       return plannedSales.stream()
           .collect(
               Collectors.groupingBy(
-                  grouper -> DATE_IN.equals(groupBy) ? grouper.group().dateIn() : grouper.group().dateOut(),
+                  grouper -> DATE_IN == groupBy ? grouper.group().dateIn() : grouper.group().dateOut(),
                   Collectors.summingDouble(BacklogPlannedResponse::total)
               )
           );
