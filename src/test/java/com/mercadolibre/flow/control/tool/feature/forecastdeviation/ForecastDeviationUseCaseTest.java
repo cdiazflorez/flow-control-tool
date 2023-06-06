@@ -160,23 +160,22 @@ class ForecastDeviationUseCaseTest {
                                                                                                    TOTAL_REAL_ONE,
                                                                                                    TOTAL_DEVIATION_ONE,
                                                                                                    TOTAL_DEVIATION_PERCENTAGE_ONE);
-    final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = Map.of(
-        DATE_ONE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_ONE,
-                                                REAL_SALES_ONE,
-                                                DEVIATION_ONE,
-                                                DEVIATION_PERCENTAGE_ONE),
-        DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO,
-                                                REAL_SALES_TWO,
-                                                DEVIATION_TWO,
-                                                DEVIATION_PERCENTAGE_TWO),
-        DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE,
-                                                  REAL_SALES_THREE,
-                                                  DEVIATION_THREE,
-                                                  DEVIATION_PERCENTAGE_THREE)
-    );
     return new ForecastDeviationData(
         totalForecastDeviationQuantity,
-        forecastDeviationQuantityByDate
+        Map.of(
+            DATE_ONE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_ONE,
+                                                    REAL_SALES_ONE,
+                                                    DEVIATION_ONE,
+                                                    DEVIATION_PERCENTAGE_ONE),
+            DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO,
+                                                    REAL_SALES_TWO,
+                                                    DEVIATION_TWO,
+                                                    DEVIATION_PERCENTAGE_TWO),
+            DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE,
+                                                      REAL_SALES_THREE,
+                                                      DEVIATION_THREE,
+                                                      DEVIATION_PERCENTAGE_THREE)
+        )
     );
   }
 
@@ -186,33 +185,32 @@ class ForecastDeviationUseCaseTest {
                                                                                                    TOTAL_REAL_TWO,
                                                                                                    TOTAL_DEVIATION_TWO,
                                                                                                    TOTAL_DEVIATION_PERCENTAGE_TWO);
-    final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = Map.of(
-        DATE_ONE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_ONE,
-                                                REAL_SALES_ONE,
-                                                DEVIATION_ONE,
-                                                DEVIATION_PERCENTAGE_ONE),
-        DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO,
-                                                REAL_SALES_TWO,
-                                                DEVIATION_TWO,
-                                                DEVIATION_PERCENTAGE_TWO),
-        DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE)
-    );
+
     return new ForecastDeviationData(
         totalForecastDeviationQuantity,
-        forecastDeviationQuantityByDate
+        Map.of(
+            DATE_ONE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_ONE,
+                                                    REAL_SALES_ONE,
+                                                    DEVIATION_ONE,
+                                                    DEVIATION_PERCENTAGE_ONE),
+            DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO,
+                                                    REAL_SALES_TWO,
+                                                    DEVIATION_TWO,
+                                                    DEVIATION_PERCENTAGE_TWO),
+            DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE)
+        )
     );
   }
 
   private static ForecastDeviationData expectedOnlyPlannedForecastDeviation() {
     final ForecastDeviationQuantity totalForecastDeviationQuantity = new ForecastDeviationQuantity(TOTAL_PLANNED_ONE);
-    final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = Map.of(
-        DATE_ONE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_ONE),
-        DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO),
-        DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE)
-    );
     return new ForecastDeviationData(
         totalForecastDeviationQuantity,
-        forecastDeviationQuantityByDate
+        Map.of(
+            DATE_ONE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_ONE),
+            DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO),
+            DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE)
+        )
     );
   }
 

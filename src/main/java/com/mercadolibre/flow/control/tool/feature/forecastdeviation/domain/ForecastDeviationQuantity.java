@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class ForecastDeviationQuantity {
-    private final Integer planned;
-    private final Integer real;
-    private final Integer deviation;
-    private final Double deviationPercentage;
+    private Integer planned;
+    private Integer real;
+    private Integer deviation;
+    private Double deviationPercentage;
 
     public ForecastDeviationQuantity(final Integer planned, final Integer real, final Integer deviation, final Double deviationPercentage) {
         this.planned = planned;
@@ -16,10 +16,7 @@ public class ForecastDeviationQuantity {
         this.deviationPercentage = deviationPercentage;
     }
 
-    public ForecastDeviationQuantity(Integer planned) {
+    public ForecastDeviationQuantity(final Integer planned) {
         this.planned = planned;
-        this.real = null;
-        this.deviation = null;
-        this.deviationPercentage = null;
     }
 }
