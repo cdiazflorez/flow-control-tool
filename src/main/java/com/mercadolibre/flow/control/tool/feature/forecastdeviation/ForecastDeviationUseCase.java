@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ForecastDeviationUseCase {
 
-  private static final int DAYS_TO_SEARCH = 7;
-
   private final SalesDistributionPlanGateway salesDistributionPlanGateway;
 
   private final RealSalesGateway realSalesGateway;
