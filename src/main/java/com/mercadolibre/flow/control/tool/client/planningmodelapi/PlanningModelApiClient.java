@@ -176,7 +176,7 @@ public class PlanningModelApiClient extends HttpClient {
   @Trace
   public List<BacklogPlannedResponse> getBacklogPlanned(final BacklogPlannedRequest backlogPlannedRequest) {
     final HttpRequest request = HttpRequest.builder()
-        .url(format(GET_BACKLOG_PLANNED_URL, backlogPlannedRequest.logisticCenter()))
+        .url(format(GET_BACKLOG_PLANNED_URL, backlogPlannedRequest.getLogisticCenter()))
         .GET()
         .queryParams(backlogPlannedRequest.getQueryParams())
         .acceptedHttpStatuses(Set.of(OK))

@@ -37,13 +37,13 @@ public class BacklogProjectedAdapter implements BacklogProjectedGateway {
   public Map<ProcessName, Map<ProcessPathName, Map<Instant, Integer>>> getBacklogTotalsByProcessAndPPandSla(
       final String logisticCenterId, final Workflow workflow, final Set<ProcessName> processes, final Instant viewDate) {
 
-    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
-        logisticCenterId,
-        Set.of(PhotoWorkflow.from(workflow)),
-        Set.of(STEP, PATH, DATE_OUT),
-        toSteps(processes),
-        viewDate
-    );
+    final LastPhotoRequest backlogPhotosLastRequest = LastPhotoRequest.builder()
+        .logisticCenterId(logisticCenterId)
+        .workflows(Set.of(PhotoWorkflow.from(workflow)))
+        .groupBy(Set.of(STEP, PATH, DATE_OUT))
+        .steps(toSteps(processes))
+        .photoDateTo(viewDate)
+        .build();
 
     try {
       final PhotoResponse lastPhoto = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);

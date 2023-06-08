@@ -13,7 +13,11 @@ public enum PhotoQueryParam {
   PHOTO_DATE_TO,
   STEPS,
   DATE_FROM,
-  DATE_TO;
+  DATE_TO,
+  DATE_IN_FROM,
+  DATE_IN_TO,
+  DATE_OUT_FROM,
+  DATE_OUT_TO;
 
   public static PhotoQueryParam from(final String value) {
     return valueOf(value.toUpperCase(Locale.getDefault()));

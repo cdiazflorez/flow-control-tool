@@ -144,13 +144,13 @@ class BacklogHistoricalAdapterTest {
 
     final Set<ProcessName> processes = Set.of(WAVING, BATCH_SORTER, PACKING_WALL);
 
-    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)),
-        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
-        toSteps(processes),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest backlogPhotosLastRequest = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)))
+        .groupBy(Set.of(STEP, PATH, PhotoGrouper.DATE_OUT))
+        .steps(toSteps(processes))
+        .photoDateTo(PHOTO_DATE)
+        .build();
 
     when(backlogApiClient.getLastPhoto(backlogPhotosLastRequest)).thenReturn(mockBacklogsAPI);
 
@@ -227,13 +227,13 @@ class BacklogHistoricalAdapterTest {
   void lastBacklogByDateProcessDateOutAndProcessPathPWhenGetsNullResponse() {
     final Set<ProcessName> processes = Set.of(WAVING, BATCH_SORTER, PACKING_WALL);
 
-    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)),
-        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
-        toSteps(processes),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest backlogPhotosLastRequest = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)))
+        .groupBy(Set.of(STEP, PATH, PhotoGrouper.DATE_OUT))
+        .steps(toSteps(processes))
+        .photoDateTo(PHOTO_DATE)
+        .build();
 
     when(backlogApiClient.getLastPhoto(backlogPhotosLastRequest)).thenReturn(null);
 
@@ -274,13 +274,13 @@ class BacklogHistoricalAdapterTest {
   void lastBacklogByDateProcessDateOutAndProcessPathWhenGetsEmptyResponse() {
     final Set<ProcessName> processes = Set.of(WAVING, BATCH_SORTER, PACKING_WALL);
 
-    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
-        LOGISTIC_CENTER_ID,
-        Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)),
-        Set.of(STEP, PATH, PhotoGrouper.DATE_OUT),
-        toSteps(processes),
-        PHOTO_DATE
-    );
+    final LastPhotoRequest backlogPhotosLastRequest = LastPhotoRequest.builder()
+        .logisticCenterId(LOGISTIC_CENTER_ID)
+        .workflows(Set.of(PhotoWorkflow.from(Workflow.FBM_WMS_OUTBOUND)))
+        .groupBy(Set.of(STEP, PATH, PhotoGrouper.DATE_OUT))
+        .steps(toSteps(processes))
+        .photoDateTo(PHOTO_DATE)
+        .build();
 
     when(backlogApiClient.getLastPhoto(backlogPhotosLastRequest)).thenReturn(new PhotoResponse(PHOTO_DATE, List.of()));
 

@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlannedGrouper.DATE_IN;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -14,13 +15,13 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPla
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.exception.ForecastNotFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter;
 import com.mercadolibre.restclient.Response;
 import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -54,8 +55,8 @@ class SalesDistributionPlanAdapterTest {
 
   private static Stream<Arguments> grouperArgumentsTest() {
     return Stream.of(
-        Arguments.of(PlannedGrouper.DATE_IN),
-        Arguments.of(PlannedGrouper.DATE_OUT)
+        Arguments.of(Filter.DATE_IN, DATE_FROM, 3),
+        Arguments.of(Filter.DATE_OUT, DATE_TO, 2)
     );
   }
 
@@ -87,38 +88,27 @@ class SalesDistributionPlanAdapterTest {
   @ParameterizedTest
   @MethodSource("grouperArgumentsTest")
   @DisplayName("Test get sales distribution.")
-  void salesDistributionPlannedTest(final PlannedGrouper groupBy) {
+  void salesDistributionPlannedTest(final Filter filter, final Instant expectedDate, final int expectedSize) {
     //GIVE
-    final Instant expectedDateInFrom = PlannedGrouper.DATE_IN.equals(groupBy)
-        ? DATE_FROM
-        : DATE_FROM.minus(7, ChronoUnit.DAYS);
-
-    final Optional<Instant> expectedDateOutTo = PlannedGrouper.DATE_IN.equals(groupBy)
-        ? Optional.of(DATE_TO.plus(7, ChronoUnit.DAYS))
-        : Optional.of(DATE_TO);
-
-    final List<BacklogPlannedResponse> response = mockPlannedSales(groupBy, expectedDateInFrom);
-
+    final PlannedGrouper groupBy = PlannedGrouper.from(filter.getName());
+    final List<BacklogPlannedResponse> response = mockPlannedSales(groupBy);
 
     //WHEN
     when(planningModelApiClient.getBacklogPlanned(any(BacklogPlannedRequest.class))).thenReturn(response);
 
     //THEN
     final Map<Instant, Double> result = salesDistributionPlanAdapter.getSalesDistributionPlanned(
-        Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_FROM, DATE_TO, groupBy
+        LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, filter, DATE_FROM, DATE_TO, DATE_FROM, DATE_TO
     );
 
     verify(planningModelApiClient).getBacklogPlanned(backlogPlannedRequestArgumentCaptor.capture());
     final BacklogPlannedRequest inputs = backlogPlannedRequestArgumentCaptor.getValue();
 
-    Assertions.assertEquals(3, result.size());
-    Assertions.assertTrue(result.containsKey(expectedDateInFrom));
-    Assertions.assertTrue(result.containsKey(expectedDateInFrom.plus(1, ChronoUnit.HOURS)));
-    Assertions.assertTrue(result.containsKey(expectedDateInFrom.plus(2, ChronoUnit.HOURS)));
-    Assertions.assertEquals(PlannedGrouper.DATE_IN.equals(groupBy) ? 10 : 12, result.get(expectedDateInFrom));
 
-    Assertions.assertEquals(expectedDateInFrom, inputs.dateInFrom());
-    Assertions.assertEquals(expectedDateOutTo, inputs.dateOutTo());
+    Assertions.assertTrue(inputs.getGroupBy().stream().anyMatch(grouper -> groupBy == grouper));
+    Assertions.assertEquals(expectedSize, result.size());
+    Assertions.assertTrue(result.containsKey(expectedDate));
+
 
   }
 
@@ -134,24 +124,24 @@ class SalesDistributionPlanAdapterTest {
     Assertions.assertThrows(
         exceptionClass,
         () -> salesDistributionPlanAdapter
-            .getSalesDistributionPlanned(Workflow.FBM_WMS_OUTBOUND, LOGISTIC_CENTER_ID, DATE_FROM, DATE_TO, PlannedGrouper.DATE_IN)
+            .getSalesDistributionPlanned(LOGISTIC_CENTER_ID, Workflow.FBM_WMS_OUTBOUND, Filter.DATE_IN, DATE_FROM, DATE_TO,
+                DATE_FROM, DATE_TO)
     );
 
 
   }
 
-  private List<BacklogPlannedResponse> mockPlannedSales(final PlannedGrouper groupBy, final Instant date) {
+  private List<BacklogPlannedResponse> mockPlannedSales(final PlannedGrouper groupBy) {
 
-    return PlannedGrouper.DATE_IN.equals(groupBy)
+    return DATE_IN.equals(groupBy)
         ? List.of(
-        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, date, null), 10),
-        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, date.plus(1, ChronoUnit.HOURS), null), 10),
-        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, date.plus(2, ChronoUnit.HOURS), null), 10)
+        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, DATE_FROM, null), 10),
+        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, DATE_FROM.plus(1, ChronoUnit.HOURS), null), 10),
+        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, DATE_FROM.plus(2, ChronoUnit.HOURS), null), 10)
     )
         : List.of(
-        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, null, date), 12),
-        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, null, date.plus(1, ChronoUnit.HOURS)), 12),
-        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, null, date.plus(2, ChronoUnit.HOURS)), 12)
+        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, null, DATE_TO), 12),
+        new BacklogPlannedResponse(new BacklogPlannedResponse.GroupKey(null, null, DATE_TO.plus(1, ChronoUnit.HOURS)), 12)
     );
   }
 

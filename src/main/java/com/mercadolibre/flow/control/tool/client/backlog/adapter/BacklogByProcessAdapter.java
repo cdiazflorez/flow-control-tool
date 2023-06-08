@@ -35,13 +35,14 @@ public class BacklogByProcessAdapter implements BacklogStatusUseCase.BacklogGate
       final Set<ProcessName> processes,
       final Instant viewDate
   ) {
-    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
-        logisticCenterId,
-        Set.of(PhotoWorkflow.from(workflow)),
-        Set.of(STEP, PATH),
-        toSteps(processes),
-        viewDate
-    );
+    final LastPhotoRequest backlogPhotosLastRequest = LastPhotoRequest.builder()
+        .logisticCenterId(logisticCenterId)
+        .workflows(Set.of(PhotoWorkflow.from(workflow)))
+        .groupBy(Set.of(STEP, PATH))
+        .steps(toSteps(processes))
+        .photoDateTo(viewDate)
+        .build();
+
     final PhotoResponse groups = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);
 
     if (groups == null) {
