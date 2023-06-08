@@ -8,7 +8,6 @@ import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Fil
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationData;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationQuantity;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
