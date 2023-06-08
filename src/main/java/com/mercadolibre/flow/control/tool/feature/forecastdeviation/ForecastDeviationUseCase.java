@@ -8,6 +8,7 @@ import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Fil
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationData;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationQuantity;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -27,7 +28,10 @@ public class ForecastDeviationUseCase {
                                                     final Instant viewDate,
                                                     final Filter filter) {
 
-    final Filter.DateFilter dateFilter = filter.dateFilterFunction.apply(dateFrom, dateTo);
+    final Instant dateFromTruncated = dateFrom.truncatedTo(HOURS);
+    final Instant dateToTruncated = dateTo.truncatedTo(HOURS);
+
+    final Filter.DateFilter dateFilter = filter.dateFilterFunction.apply(dateFromTruncated, dateToTruncated);
 
     final Map<Instant, Integer> plannedUnits = salesDistributionPlanGateway.getSalesDistributionPlanned(
         logisticCenterId,
@@ -48,13 +52,16 @@ public class ForecastDeviationUseCase {
                                                                           dateFilter.dateOutTo(),
                                                                           dateTo);
 
-    final Map<Instant, ForecastDeviationQuantity> deviationDetailByDate = buildDeviationQuantityByDate(dateFrom,
-                                                                                                       dateTo,
+    final Map<Instant, ForecastDeviationQuantity> deviationDetailByDate = buildDeviationQuantityByDate(dateFromTruncated,
+                                                                                                       dateToTruncated,
                                                                                                        viewDate,
                                                                                                        plannedUnits,
                                                                                                        realUnits);
 
-    return new ForecastDeviationData(buildDeviationTotalQuantity(deviationDetailByDate, dateFrom, viewDate), deviationDetailByDate);
+    return new ForecastDeviationData(
+        buildDeviationTotalQuantity(deviationDetailByDate, dateFromTruncated, viewDate),
+        deviationDetailByDate
+    );
 
   }
 
