@@ -1,6 +1,6 @@
 package com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant;
 
-import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.Instant;
@@ -34,11 +34,11 @@ public enum Filter {
   }
 
   private static DateFilter buildDateInFilter(final Instant dateFrom, final Instant dateTo) {
-    return new DateFilter(dateFrom, dateTo, dateFrom, dateTo.plus(DAYS_TO_SEARCH, HOURS));
+    return new DateFilter(dateFrom, dateTo, dateFrom, dateTo.plus(DAYS_TO_SEARCH, DAYS));
   }
 
   private static DateFilter buildDateOutFilter(final Instant dateFrom, final Instant dateTo) {
-    return new DateFilter(dateFrom.minus(DAYS_TO_SEARCH, HOURS), dateTo, dateFrom, dateTo);
+    return new DateFilter(dateFrom.minus(DAYS_TO_SEARCH, DAYS), dateTo, dateFrom, dateTo);
   }
 
   public record DateFilter(Instant dateInFrom, Instant dateInTo, Instant dateOutFrom, Instant dateOutTo) {

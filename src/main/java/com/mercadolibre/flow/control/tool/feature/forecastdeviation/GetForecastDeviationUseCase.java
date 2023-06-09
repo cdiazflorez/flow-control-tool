@@ -1,7 +1,7 @@
 package com.mercadolibre.flow.control.tool.feature.forecastdeviation;
 
-import static java.lang.Math.toIntExact;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter;
@@ -9,23 +9,77 @@ import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.Forec
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationQuantity;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class ForecastDeviationUseCase {
+public class GetForecastDeviationUseCase {
 
   private final SalesDistributionPlanGateway salesDistributionPlanGateway;
 
   private final RealSalesGateway realSalesGateway;
 
-  public ForecastDeviationData getForecastDeviation(final String logisticCenterId,
-                                                    final Workflow workflow,
-                                                    final Instant dateFrom,
-                                                    final Instant dateTo,
-                                                    final Instant viewDate,
-                                                    final Filter filter) {
+  private static Map<Instant, ForecastDeviationQuantity> buildDeviationQuantityByDate(final Instant dateFrom,
+                                                                                      final Instant dateTo,
+                                                                                      final Instant viewDate,
+                                                                                      final Map<Instant, Integer> plannedUnits,
+                                                                                      final Map<Instant, Integer> realUnits) {
+
+    return LongStream.rangeClosed(0, HOURS.between(dateFrom, dateTo))
+        .mapToObj(hour -> dateFrom.plus(hour, HOURS))
+        .collect(
+            Collectors.toMap(
+                Function.identity(),
+                hourInstant -> buildDeviationQuantity(
+                    calculatePlannedQuantity(hourInstant, viewDate, plannedUnits.getOrDefault(hourInstant, 0)),
+                    realUnits.getOrDefault(hourInstant, 0),
+                    !hourInstant.isAfter(viewDate)
+                )
+            )
+        );
+  }
+
+  private static ForecastDeviationQuantity buildDeviationQuantity(final int planned,
+                                                                  final int real,
+                                                                  final boolean isNecessaryToFillRealInfo) {
+    final int deviation = real - planned;
+    final double deviationPercentage = calculateDeviationPercentage(planned, deviation);
+
+    return isNecessaryToFillRealInfo
+        ? new ForecastDeviationQuantity(planned, real, deviation, deviationPercentage)
+        : new ForecastDeviationQuantity(planned);
+  }
+
+  private static int calculatePlannedQuantity(final Instant date,
+                                              final Instant viewDate,
+                                              final int plannedQuantity) {
+    if (!date.isAfter(viewDate)) {
+      long minutes = MINUTES.between(date, viewDate);
+      if (minutes < 60) {
+        final double ratio = (double) minutes / 60;
+        return Math.toIntExact(Math.round(plannedQuantity * ratio));
+      }
+    }
+    return plannedQuantity;
+  }
+
+  private static double calculateDeviationPercentage(final int plannedQuantity,
+                                                     final int deviationQuantity) {
+    if (plannedQuantity == 0) {
+      return deviationQuantity == 0 ? 0 : 1d;
+    }
+    return deviationQuantity / (double) plannedQuantity;
+  }
+
+  public ForecastDeviationData execute(final String logisticCenterId,
+                                       final Workflow workflow,
+                                       final Instant dateFrom,
+                                       final Instant dateTo,
+                                       final Instant viewDate,
+                                       final Filter filter) {
 
     final Instant dateFromTruncated = dateFrom.truncatedTo(HOURS);
     final Instant dateToTruncated = dateTo.truncatedTo(HOURS);
@@ -39,7 +93,8 @@ public class ForecastDeviationUseCase {
         dateFilter.dateInFrom(),
         dateFilter.dateInTo(),
         dateFilter.dateOutFrom(),
-        dateFilter.dateOutTo()
+        dateFilter.dateOutTo(),
+        viewDate
     );
 
     final Map<Instant, Integer> realUnits = realSalesGateway.getRealSales(logisticCenterId,
@@ -64,58 +119,35 @@ public class ForecastDeviationUseCase {
 
   }
 
-  private Map<Instant, ForecastDeviationQuantity> buildDeviationQuantityByDate(final Instant dateFrom,
-                                                                               final Instant dateTo,
-                                                                               final Instant viewDate,
-                                                                               final Map<Instant, Integer> plannedUnits,
-                                                                               final Map<Instant, Integer> realUnits) {
-
-    return IntStream.rangeClosed(0, toIntExact(HOURS.between(dateFrom, dateTo)))
-        .mapToObj(hour -> dateFrom.plus(hour, HOURS))
-        .collect(
-            Collectors.toMap(
-                hourInstant -> hourInstant,
-                hourInstant -> buildDeviationQuantity(
-                    plannedUnits.getOrDefault(hourInstant, 0),
-                    realUnits.getOrDefault(hourInstant, 0),
-                    !hourInstant.isAfter(viewDate)
-                )
-            )
-        );
-  }
-
-  private ForecastDeviationQuantity buildDeviationQuantity(final int planned,
-                                                           final int real,
-                                                           final boolean isNecessaryToFillRealInfo) {
-    final int deviation = real - planned;
-    final double deviationPercentage = planned == 0 ? 1 : deviation / (double) planned;
-
-    return isNecessaryToFillRealInfo
-        ? new ForecastDeviationQuantity(planned, real, deviation, deviationPercentage)
-        : new ForecastDeviationQuantity(planned);
-  }
 
   private ForecastDeviationQuantity buildDeviationTotalQuantity(final Map<Instant, ForecastDeviationQuantity> deviationDetailByDate,
                                                                 final Instant dateFrom,
                                                                 final Instant viewDate) {
 
-    final int totalPlanned = !dateFrom.isAfter(viewDate)
-        ? deviationDetailByDate.entrySet().stream()
-        .filter(entry -> !entry.getKey().isAfter(viewDate))
-        .mapToInt(entry -> entry.getValue().getPlanned())
+
+    final int totalPlanned = dateFrom.isAfter(viewDate)
+        ? deviationDetailByDate.values().stream()
+        .mapToInt(ForecastDeviationQuantity::getPlanned)
         .sum()
-        : deviationDetailByDate.values().stream()
+        : deviationDetailByDate.keySet()
+        .stream()
+        .filter(date -> !date.isAfter(viewDate))
+        .map(deviationDetailByDate::get)
+        .filter(Objects::nonNull)
         .mapToInt(ForecastDeviationQuantity::getPlanned)
         .sum();
 
-    final int totalReal = deviationDetailByDate.entrySet().stream()
-        .filter(entry -> !entry.getKey().isAfter(viewDate) && entry.getValue().getReal() != null)
-        .mapToInt(entry -> entry.getValue().getReal())
+    final int totalReal = deviationDetailByDate.keySet()
+        .stream()
+        .filter(date -> !date.isAfter(viewDate))
+        .map(deviationDetailByDate::get)
+        .filter(Objects::nonNull)
+        .mapToInt(ForecastDeviationQuantity::getReal)
         .sum();
 
     final int deviation = totalReal - totalPlanned;
 
-    final double deviationPercentage = totalPlanned == 0 ? 1 : deviation / (double) totalPlanned;
+    final double deviationPercentage = calculateDeviationPercentage(totalPlanned, deviation);
 
     return !dateFrom.isAfter(viewDate)
         ? new ForecastDeviationQuantity(totalPlanned, totalReal, deviation, deviationPercentage)
@@ -146,7 +178,8 @@ public class ForecastDeviationUseCase {
         Instant dateInFrom,
         Instant dateInTo,
         Instant dateOutFrom,
-        Instant dateOutTo
+        Instant dateOutTo,
+        Instant viewDate
     );
 
   }

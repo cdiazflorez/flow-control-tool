@@ -4,13 +4,12 @@ import static com.mercadolibre.flow.control.tool.feature.entity.Workflow.FBM_WMS
 import static com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter.DATE_IN;
 import static com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter.DATE_OUT;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
+import static java.lang.String.format;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.constant.Filter;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationData;
 import com.mercadolibre.flow.control.tool.feature.forecastdeviation.domain.ForecastDeviationQuantity;
@@ -27,7 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ForecastDeviationUseCaseTest {
+class GetForecastDeviationUseCaseTest {
 
   private static final Instant DATE_ONE = Instant.parse("2023-06-02T12:00:00Z");
 
@@ -35,11 +34,21 @@ class ForecastDeviationUseCaseTest {
 
   private static final Instant DATE_THREE = Instant.parse("2023-06-02T14:00:00Z");
 
+  private static final Instant VIEW_DATE_ONE = DATE_THREE.plus(1, DAYS);
+
+  private static final Instant VIEW_DATE_TWO = DATE_TWO.plus(30, MINUTES);
+
+  private static final Instant VIEW_DATE_THREE = DATE_ONE.minus(1, DAYS);
+
+  private static final int DAYS_TO_SEARCH = 7;
+
   private static final int SALES_DISTRIBUTION_ONE = 5;
 
-  private static final int SALES_DISTRIBUTION_TWO = 0;
+  private static final int SALES_DISTRIBUTION_TWO = 10;
 
   private static final int SALES_DISTRIBUTION_THREE = 15;
+
+  private static final int PARTIAL_SALES_DISTRIBUTION = 5;
 
   private static final int REAL_SALES_ONE = 10;
 
@@ -53,15 +62,19 @@ class ForecastDeviationUseCaseTest {
 
   private static final int DEVIATION_THREE = REAL_SALES_THREE - SALES_DISTRIBUTION_THREE;
 
+  private static final int DEVIATION_WITH_PARTIAL_SALES = REAL_SALES_TWO - PARTIAL_SALES_DISTRIBUTION;
+
   private static final double DEVIATION_PERCENTAGE_ONE = DEVIATION_ONE / (double) SALES_DISTRIBUTION_ONE;
 
-  private static final double DEVIATION_PERCENTAGE_TWO = 1;
+  private static final double DEVIATION_PERCENTAGE_TWO = DEVIATION_TWO / (double) SALES_DISTRIBUTION_TWO;
 
   private static final double DEVIATION_PERCENTAGE_THREE = DEVIATION_THREE / (double) SALES_DISTRIBUTION_THREE;
 
+  private static final double DEVIATION_PERCENTAGE_WITH_PARTIAL_SALES = DEVIATION_WITH_PARTIAL_SALES / (double) PARTIAL_SALES_DISTRIBUTION;
+
   private static final int TOTAL_PLANNED_ONE = SALES_DISTRIBUTION_ONE + SALES_DISTRIBUTION_TWO + SALES_DISTRIBUTION_THREE;
 
-  private static final int TOTAL_PLANNED_TWO = SALES_DISTRIBUTION_ONE + SALES_DISTRIBUTION_TWO;
+  private static final int TOTAL_PLANNED_TWO = SALES_DISTRIBUTION_ONE + PARTIAL_SALES_DISTRIBUTION;
 
   private static final int TOTAL_REAL_ONE = REAL_SALES_ONE + REAL_SALES_TWO + REAL_SALES_THREE;
 
@@ -77,83 +90,15 @@ class ForecastDeviationUseCaseTest {
 
 
   @Mock
-  private ForecastDeviationUseCase.SalesDistributionPlanGateway salesDistributionPlanGateway;
+  private GetForecastDeviationUseCase.SalesDistributionPlanGateway salesDistributionPlanGateway;
 
   @Mock
-  private ForecastDeviationUseCase.RealSalesGateway realSalesGateway;
+  private GetForecastDeviationUseCase.RealSalesGateway realSalesGateway;
 
   @InjectMocks
-  private ForecastDeviationUseCase forecastDeviationUseCase;
+  private GetForecastDeviationUseCase getForecastDeviationUseCase;
 
-  @ParameterizedTest
-  @MethodSource("provideArgumentsAndExpectedToForecastDeviation")
-  @DisplayName("Forecast deviation is ok")
-  void testForecastDeviationOk(final Instant viewDate,
-                               final Filter filter,
-                               final Map<Instant, Integer> mockSalesDistribution,
-                               final Map<Instant, Integer> mockRealSales,
-                               final ForecastDeviationQuantity expectedForecastQuantityTotal,
-                               final Map<Instant, ForecastDeviationQuantity> expectedForecastQuantityDetails) {
-    //GIVEN
-    when(salesDistributionPlanGateway.getSalesDistributionPlanned(anyString(),
-                                                                  any(Workflow.class),
-                                                                  any(Filter.class),
-                                                                  any(Instant.class),
-                                                                  any(Instant.class),
-                                                                  any(Instant.class),
-                                                                  any(Instant.class))).thenReturn(mockSalesDistribution);
 
-    when(realSalesGateway.getRealSales(anyString(),
-                                       any(Workflow.class),
-                                       any(Filter.class),
-                                       any(Instant.class),
-                                       any(Instant.class),
-                                       any(Instant.class),
-                                       any(Instant.class),
-                                       any(Instant.class))).thenReturn(mockRealSales);
-
-    //WHEN
-    final ForecastDeviationData forecastDeviationData = forecastDeviationUseCase.getForecastDeviation(LOGISTIC_CENTER_ID,
-                                                                                                      FBM_WMS_OUTBOUND,
-                                                                                                      DATE_ONE,
-                                                                                                      DATE_THREE,
-                                                                                                      viewDate,
-                                                                                                      filter);
-    //THEN
-    final ForecastDeviationQuantity total = forecastDeviationData.totalForecastDeviationQuantity();
-    final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = forecastDeviationData
-        .forecastDeviationQuantityByDate();
-
-    assertEquals(expectedForecastQuantityTotal.getPlanned(),
-                 total.getPlanned(),
-                 "Total planned is not equal");
-    assertEquals(expectedForecastQuantityTotal.getReal(),
-                 total.getReal(),
-                 "Total real is not equal");
-    assertEquals(expectedForecastQuantityTotal.getDeviation(),
-                 total.getDeviation(),
-                 "Total deviation is not equal");
-    assertEquals(expectedForecastQuantityTotal.getDeviationPercentage(),
-                 total.getDeviationPercentage(),
-                 "Total deviation percentage is not equal");
-
-    assertEquals(expectedForecastQuantityDetails.size(), forecastDeviationQuantityByDate.size());
-    forecastDeviationQuantityByDate.forEach((date, forecastDeviationQuantity) -> {
-      assertEquals(expectedForecastQuantityDetails.get(date).getPlanned(),
-                   forecastDeviationQuantity.getPlanned(),
-                   "Planned is not equal");
-      assertEquals(expectedForecastQuantityDetails.get(date).getReal(),
-                   forecastDeviationQuantity.getReal(),
-                   "Real is not equal");
-      assertEquals(expectedForecastQuantityDetails.get(date).getDeviation(),
-                   forecastDeviationQuantity.getDeviation(),
-                   "Deviation is not equal");
-      assertEquals(expectedForecastQuantityDetails.get(date).getDeviationPercentage(),
-                   forecastDeviationQuantity.getDeviationPercentage(),
-                   "Deviation percentage is not equal");
-    });
-
-  }
 
   private static ForecastDeviationData expectedAllForecastDeviation() {
     final ForecastDeviationQuantity totalForecastDeviationQuantity = new ForecastDeviationQuantity(TOTAL_PLANNED_ONE,
@@ -193,10 +138,10 @@ class ForecastDeviationUseCaseTest {
                                                     REAL_SALES_ONE,
                                                     DEVIATION_ONE,
                                                     DEVIATION_PERCENTAGE_ONE),
-            DATE_TWO, new ForecastDeviationQuantity(SALES_DISTRIBUTION_TWO,
+            DATE_TWO, new ForecastDeviationQuantity(PARTIAL_SALES_DISTRIBUTION,
                                                     REAL_SALES_TWO,
-                                                    DEVIATION_TWO,
-                                                    DEVIATION_PERCENTAGE_TWO),
+                                                    DEVIATION_WITH_PARTIAL_SALES,
+                                                    DEVIATION_PERCENTAGE_WITH_PARTIAL_SALES),
             DATE_THREE, new ForecastDeviationQuantity(SALES_DISTRIBUTION_THREE)
         )
     );
@@ -232,42 +177,66 @@ class ForecastDeviationUseCaseTest {
 
   private static Stream<Arguments> provideArgumentsAndExpectedToForecastDeviation() {
     return Stream.of(
-        Arguments.of(DATE_THREE,
+        Arguments.of(DATE_ONE,
+                     DATE_THREE,
+                     DATE_ONE,
+                     DATE_THREE.plus(DAYS_TO_SEARCH, DAYS),
+                     VIEW_DATE_ONE,
                      DATE_IN,
                      mockSalesDistribution(),
                      mockRealSales(),
                      expectedAllForecastDeviation().totalForecastDeviationQuantity(),
                      expectedAllForecastDeviation().forecastDeviationQuantityByDate()
         ),
-        Arguments.of(DATE_TWO,
+        Arguments.of(DATE_ONE,
+                     DATE_THREE,
+                     DATE_ONE,
+                     DATE_THREE.plus(DAYS_TO_SEARCH, DAYS),
+                     VIEW_DATE_TWO,
                      DATE_IN,
                      mockSalesDistribution(),
                      mockRealSales(),
                      expectedPartialRealForecastDeviation().totalForecastDeviationQuantity(),
                      expectedPartialRealForecastDeviation().forecastDeviationQuantityByDate()
         ),
-        Arguments.of(DATE_ONE.minus(1, DAYS),
+        Arguments.of(DATE_ONE,
+                     DATE_THREE,
+                     DATE_ONE,
+                     DATE_THREE.plus(DAYS_TO_SEARCH, DAYS),
+                     VIEW_DATE_THREE,
                      DATE_IN,
                      mockSalesDistribution(),
                      mockRealSales(),
                      expectedOnlyPlannedForecastDeviation().totalForecastDeviationQuantity(),
                      expectedOnlyPlannedForecastDeviation().forecastDeviationQuantityByDate()
         ),
-        Arguments.of(DATE_THREE,
+        Arguments.of(DATE_ONE.minus(DAYS_TO_SEARCH, DAYS),
+                     DATE_THREE,
+                     DATE_ONE,
+                     DATE_THREE,
+                     VIEW_DATE_ONE,
                      DATE_OUT,
                      mockSalesDistribution(),
                      mockRealSales(),
                      expectedAllForecastDeviation().totalForecastDeviationQuantity(),
                      expectedAllForecastDeviation().forecastDeviationQuantityByDate()
         ),
-        Arguments.of(DATE_TWO,
+        Arguments.of(DATE_ONE.minus(DAYS_TO_SEARCH, DAYS),
+                     DATE_THREE,
+                     DATE_ONE,
+                     DATE_THREE,
+                     VIEW_DATE_TWO,
                      DATE_OUT,
                      mockSalesDistribution(),
                      mockRealSales(),
                      expectedPartialRealForecastDeviation().totalForecastDeviationQuantity(),
                      expectedPartialRealForecastDeviation().forecastDeviationQuantityByDate()
         ),
-        Arguments.of(DATE_ONE.minus(1, DAYS),
+        Arguments.of(DATE_ONE.minus(DAYS_TO_SEARCH, DAYS),
+                     DATE_THREE,
+                     DATE_ONE,
+                     DATE_THREE,
+                     VIEW_DATE_THREE,
                      DATE_OUT,
                      mockSalesDistribution(),
                      mockRealSales(),
@@ -277,4 +246,78 @@ class ForecastDeviationUseCaseTest {
     );
   }
 
+  @ParameterizedTest
+  @MethodSource("provideArgumentsAndExpectedToForecastDeviation")
+  @DisplayName("Forecast deviation is ok")
+  void testForecastDeviationOk(final Instant dateInFrom,
+                               final Instant dateInTo,
+                               final Instant dateOutFrom,
+                               final Instant dateOutTo,
+                               final Instant viewDate,
+                               final Filter filter,
+                               final Map<Instant, Integer> mockSalesDistribution,
+                               final Map<Instant, Integer> mockRealSales,
+                               final ForecastDeviationQuantity expectedForecastQuantityTotal,
+                               final Map<Instant, ForecastDeviationQuantity> expectedForecastQuantityDetails) {
+    //GIVEN
+    when(salesDistributionPlanGateway.getSalesDistributionPlanned(LOGISTIC_CENTER_ID,
+                                                                  FBM_WMS_OUTBOUND,
+                                                                  filter,
+                                                                  dateInFrom,
+                                                                  dateInTo,
+                                                                  dateOutFrom,
+                                                                  dateOutTo,
+                                                                  viewDate)).thenReturn(mockSalesDistribution);
+
+    when(realSalesGateway.getRealSales(LOGISTIC_CENTER_ID,
+                                       FBM_WMS_OUTBOUND,
+                                       filter,
+                                       dateInFrom,
+                                       dateInTo,
+                                       dateOutFrom,
+                                       dateOutTo,
+                                       DATE_THREE)).thenReturn(mockRealSales);
+
+    //WHEN
+    final ForecastDeviationData forecastDeviationData = getForecastDeviationUseCase.execute(LOGISTIC_CENTER_ID,
+                                                                                            FBM_WMS_OUTBOUND,
+                                                                                            DATE_ONE,
+                                                                                            DATE_THREE,
+                                                                                            viewDate,
+                                                                                            filter);
+    //THEN
+    final ForecastDeviationQuantity total = forecastDeviationData.totalForecastDeviationQuantity();
+    final Map<Instant, ForecastDeviationQuantity> forecastDeviationQuantityByDate = forecastDeviationData
+        .forecastDeviationQuantityByDate();
+
+    assertEquals(expectedForecastQuantityTotal.getPlanned(),
+                 total.getPlanned(),
+                 "Total planned is not equal");
+    assertEquals(expectedForecastQuantityTotal.getReal(),
+                 total.getReal(),
+                 "Total real is not equal");
+    assertEquals(expectedForecastQuantityTotal.getDeviation(),
+                 total.getDeviation(),
+                 "Total deviation is not equal");
+    assertEquals(expectedForecastQuantityTotal.getDeviationPercentage(),
+                 total.getDeviationPercentage(),
+                 "Total deviation percentage is not equal");
+
+    assertEquals(expectedForecastQuantityDetails.size(), forecastDeviationQuantityByDate.size());
+    forecastDeviationQuantityByDate.forEach((date, forecastDeviationQuantity) -> {
+      assertEquals(expectedForecastQuantityDetails.get(date).getPlanned(),
+                   forecastDeviationQuantity.getPlanned(),
+                   format("Date: %s, Planned is not equal", date));
+      assertEquals(expectedForecastQuantityDetails.get(date).getReal(),
+                   forecastDeviationQuantity.getReal(),
+                   format("Date: %s, Real is not equal", date));
+      assertEquals(expectedForecastQuantityDetails.get(date).getDeviation(),
+                   forecastDeviationQuantity.getDeviation(),
+                   format("Date: %s, Deviation is not equal", date));
+      assertEquals(expectedForecastQuantityDetails.get(date).getDeviationPercentage(),
+                   forecastDeviationQuantity.getDeviationPercentage(),
+                   format("Date: %s, Deviation percentage is not equal", date));
+    });
+
+  }
 }
