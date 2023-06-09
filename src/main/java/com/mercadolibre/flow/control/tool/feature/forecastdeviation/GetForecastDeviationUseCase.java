@@ -18,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GetForecastDeviationUseCase {
 
+  private static final int MINUTES_IN_AN_HOUR = 60;
+
   private final SalesDistributionPlanGateway salesDistributionPlanGateway;
 
   private final RealSalesGateway realSalesGateway;
@@ -58,8 +60,8 @@ public class GetForecastDeviationUseCase {
                                               final int plannedQuantity) {
     if (!date.isAfter(viewDate)) {
       long minutes = MINUTES.between(date, viewDate);
-      if (minutes < 60) {
-        final double ratio = (double) minutes / 60;
+      if (minutes < MINUTES_IN_AN_HOUR) {
+        final double ratio = (double) minutes / MINUTES_IN_AN_HOUR;
         return Math.toIntExact(Math.round(plannedQuantity * ratio));
       }
     }
@@ -169,6 +171,7 @@ public class GetForecastDeviationUseCase {
      * @param dateInTo         date in to
      * @param dateOutFrom      date out from
      * @param dateOutTo        date out to
+     * @param viewDate         view date
      * @return sales distribution planned
      */
     Map<Instant, Integer> getSalesDistributionPlanned(
