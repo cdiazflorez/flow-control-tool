@@ -8,7 +8,6 @@ import static java.time.temporal.ChronoUnit.HOURS;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogLimit;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessLimit;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
@@ -48,12 +47,13 @@ public class MonitorController {
 
   private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
 
+  private BacklogLimitsUseCase backlogLimitsUseCase;
+
   private static Instant processDateTo(final Instant dateFrom, final Instant dateTo) {
     if (isDifferenceBetweenDateBiggestThan(dateFrom, dateTo, MAX_HOURS)) {
       return dateFrom.plus(MAX_HOURS, HOURS);
-    } else {
-      return dateTo;
     }
+    return dateTo;
   }
 
   @Trace
@@ -200,26 +200,9 @@ public class MonitorController {
       @RequestParam("date_from") final Instant dateFrom,
       @RequestParam("date_to") final Instant dateTo
   ) {
-
-
-    final List<BacklogLimit> backlogLimits = List.of(
-        new BacklogLimit(
-            Instant.parse("2023-03-21T08:00:00Z"),
-            List.of(
-                new ProcessLimit(
-                    ProcessName.PICKING,
-                    40L,
-                    100L
-                ),
-                new ProcessLimit(
-                    ProcessName.PACKING,
-                    50L,
-                    100L
-                )
-            )
-        )
+    return ResponseEntity.ok(
+        backlogLimitsUseCase.execute(logisticCenterId, workflow, processes, dateFrom, dateTo)
     );
-    return ResponseEntity.ok(backlogLimits);
   }
 
   @InitBinder

@@ -73,48 +73,6 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
 
   private final PlanningModelApiClient planningModelApiClient;
 
-  @Override
-  public Map<StaffingMetricType, List<StaffingPlannedData>> getCurrentStaffing(final Workflow workflow,
-                                                                               final String logisticCenter,
-                                                                               final Instant dateFrom,
-                                                                               final Instant dateTo) {
-
-    final PlanningWorkflow planningWorkflow = PlanningWorkflow.from(workflow.getName());
-
-    final EntityRequestDto entityRequest = new EntityRequestDto(
-        planningWorkflow,
-        ENTITY_TYPES,
-        logisticCenter,
-        dateFrom,
-        dateTo,
-        PROCESS_NAME_BY_PLANNING_WORKFLOW.get(planningWorkflow),
-        ENTITY_FILTERS
-    );
-
-    try {
-      final Map<EntityType, List<EntityDataDto>> entityResponse = planningModelApiClient.searchEntities(entityRequest);
-
-      return entityResponse.entrySet().stream()
-          .collect(
-              toMap(
-                  k -> StaffingMetricType.from(k.getKey().getName()),
-                  v -> buildStaffingPlannedData(v.getKey(), v.getValue())
-              )
-          );
-    } catch (ClientException ex) {
-      if (forecastNotFound(ex)) {
-        throw new ForecastNotFoundException(logisticCenter, workflow.getName(), ex);
-      } else {
-        throw ex;
-      }
-    }
-  }
-
-  private List<StaffingPlannedData> buildStaffingPlannedData(final EntityType entityType,
-                                                             final List<EntityDataDto> entitiesData) {
-    return GROUPER_STRATEGY_BY_ENTITY_TYPE.get(entityType).apply(entitiesData);
-  }
-
   private static List<StaffingPlannedData> headcountGrouper(final List<EntityDataDto> entitiesData) {
     final var entityDataByDateAndProcess = groupEntitiesByDateAndProcess(entitiesData);
     return entityDataByDateAndProcess.entrySet().stream()
@@ -200,11 +158,6 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
     return entityData -> entityData.getType().equals(processingType);
   }
 
-  private boolean forecastNotFound(ClientException ex) {
-    return ex.getResponseStatus() == NOT_FOUND.value()
-        && ex.getResponseBody().contains("forecast_not_found");
-  }
-
   private static Map<OutboundProcessName, Map<Instant, List<EntityDataDto>>> groupEntitiesByDateAndProcess(
       final List<EntityDataDto> entities
   ) {
@@ -215,6 +168,53 @@ public class StaffingPlanAdapter implements StaffingPlanUseCase.StaffingPlanGate
                 groupingBy(EntityDataDto::getDate)
             )
         );
+  }
+
+  @Override
+  public Map<StaffingMetricType, List<StaffingPlannedData>> getCurrentStaffing(final Workflow workflow,
+                                                                               final String logisticCenter,
+                                                                               final Instant dateFrom,
+                                                                               final Instant dateTo) {
+
+    final PlanningWorkflow planningWorkflow = PlanningWorkflow.from(workflow.getName());
+
+    final EntityRequestDto entityRequest = new EntityRequestDto(
+        planningWorkflow,
+        ENTITY_TYPES,
+        logisticCenter,
+        dateFrom,
+        dateTo,
+        PROCESS_NAME_BY_PLANNING_WORKFLOW.get(planningWorkflow),
+        ENTITY_FILTERS
+    );
+
+    try {
+      final Map<EntityType, List<EntityDataDto>> entityResponse = planningModelApiClient.searchEntities(entityRequest);
+
+      return entityResponse.entrySet().stream()
+          .collect(
+              toMap(
+                  k -> StaffingMetricType.from(k.getKey().getName()),
+                  v -> buildStaffingPlannedData(v.getKey(), v.getValue())
+              )
+          );
+    } catch (ClientException ex) {
+      if (forecastNotFound(ex)) {
+        throw new ForecastNotFoundException(logisticCenter, workflow.getName(), ex);
+      } else {
+        throw ex;
+      }
+    }
+  }
+
+  private List<StaffingPlannedData> buildStaffingPlannedData(final EntityType entityType,
+                                                             final List<EntityDataDto> entitiesData) {
+    return GROUPER_STRATEGY_BY_ENTITY_TYPE.get(entityType).apply(entitiesData);
+  }
+
+  private boolean forecastNotFound(ClientException ex) {
+    return ex.getResponseStatus() == NOT_FOUND.value()
+        && ex.getResponseBody().contains("forecast_not_found");
   }
 
 }

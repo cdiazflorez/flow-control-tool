@@ -245,7 +245,8 @@ class StaffingPlanAdapterTest {
                 LOGISTIC_CENTER_ID,
                 DATE_ONE,
                 DATE_ONE,
-                Arrays.stream(OutboundProcessName.values()).toList(),
+                Arrays.stream(OutboundProcessName.values())
+                    .toList(),
                 Map.of(
                     HEADCOUNT, Map.of(
                         PROCESSING_TYPE.getName(), List.of(
