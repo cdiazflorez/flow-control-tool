@@ -1,7 +1,9 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toMap;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.BACKLOG_LOWER_LIMIT;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.BACKLOG_LOWER_LIMIT_SHIPPING;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.BACKLOG_UPPER_LIMIT;
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.BACKLOG_UPPER_LIMIT_SHIPPING;
 
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
@@ -18,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,10 +28,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BacklogLimitAdapter implements GetBacklogLimitGateway {
 
-  public static final List<EntityType> ENTITY_TYPES = List.of(EntityType.BACKLOG_UPPER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT);
+  public static final List<EntityType> ENTITY_TYPES = List.of(
+      BACKLOG_UPPER_LIMIT, BACKLOG_LOWER_LIMIT, BACKLOG_LOWER_LIMIT_SHIPPING, BACKLOG_UPPER_LIMIT_SHIPPING);
+
+  private static final Map<ProcessingType, ProcessingType> BACKLOG_BY_SHIPPING = Map.of(
+      ProcessingType.BACKLOG_LOWER_LIMIT_SHIPPING, ProcessingType.BACKLOG_LOWER_LIMIT,
+      ProcessingType.BACKLOG_UPPER_LIMIT_SHIPPING, ProcessingType.BACKLOG_UPPER_LIMIT,
+      ProcessingType.BACKLOG_LOWER_LIMIT, ProcessingType.BACKLOG_LOWER_LIMIT,
+      ProcessingType.BACKLOG_UPPER_LIMIT, ProcessingType.BACKLOG_UPPER_LIMIT
+  );
 
   final PlanningModelApiClient planningModelApiClient;
-
 
   @Override
   public Map<Instant, Map<OutboundProcessName, Map<ProcessingType, Long>>> getBacklogLimitsEntityDataMap(
@@ -70,12 +80,12 @@ public class BacklogLimitAdapter implements GetBacklogLimitGateway {
   ) {
     return entityTypeListMap.entrySet().stream()
         .flatMap(entityEntry -> entityEntry.getValue().stream())
-        .collect(groupingBy(
+        .collect(Collectors.groupingBy(
             EntityDataDto::getDate,
-            groupingBy(
+            Collectors.groupingBy(
                 EntityDataDto::getProcessName,
-                toMap(
-                    EntityDataDto::getType,
+                Collectors.toMap(
+                    entity -> BACKLOG_BY_SHIPPING.get(entity.getType()),
                     EntityDataDto::getValue
                 )
             )

@@ -1,5 +1,6 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName.HU_ASSEMBLY;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Source.FORECAST;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
@@ -40,7 +41,8 @@ class BacklogLimitAdapterTest {
   private static final Instant DATE_TO = Instant.parse("2023-03-21T09:00:00Z");
 
   private static final List<EntityType> ENTITY_TYPES =
-      List.of(EntityType.BACKLOG_UPPER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT);
+      List.of(EntityType.BACKLOG_UPPER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT_SHIPPING,
+          EntityType.BACKLOG_UPPER_LIMIT_SHIPPING);
 
   private static final EntityRequestDto ENTITY_REQUEST =
       new EntityRequestDto(
@@ -90,6 +92,13 @@ class BacklogLimitAdapterTest {
                 3000L,
                 ProcessingType.BACKLOG_UPPER_LIMIT,
                 90000L
+            ),
+            HU_ASSEMBLY,
+            Map.of(
+                ProcessingType.BACKLOG_LOWER_LIMIT,
+                5000L,
+                ProcessingType.BACKLOG_UPPER_LIMIT,
+                6000L
             )
         ),
         DATE_TO,
@@ -126,6 +135,12 @@ class BacklogLimitAdapterTest {
     final EntityDataDto entityLowerPacking =
         buildEntity(OutboundProcessName.PACKING, ProcessingType.BACKLOG_LOWER_LIMIT, 3000L, DATE_FROM);
 
+    final EntityDataDto entityLowerHourHuAssembly =
+        buildEntity(HU_ASSEMBLY, ProcessingType.BACKLOG_LOWER_LIMIT_SHIPPING, 5000L, DATE_FROM);
+
+    final EntityDataDto entityUpperHourHuAssembly =
+        buildEntity(HU_ASSEMBLY, ProcessingType.BACKLOG_UPPER_LIMIT_SHIPPING, 6000L, DATE_FROM);
+
     final EntityDataDto entityUpperHourPicking =
         buildEntity(OutboundProcessName.PICKING, ProcessingType.BACKLOG_UPPER_LIMIT, 11000L, DATE_TO);
 
@@ -138,6 +153,7 @@ class BacklogLimitAdapterTest {
     final EntityDataDto entityLowerHourPacking =
         buildEntity(OutboundProcessName.PACKING, ProcessingType.BACKLOG_LOWER_LIMIT, 2000L, DATE_TO);
 
+
     final List<EntityDataDto> entityUpperDataDto = new ArrayList<>();
     final List<EntityDataDto> entityLowerDataDto = new ArrayList<>();
     entityUpperDataDto.add(entityUpperPacking);
@@ -149,9 +165,16 @@ class BacklogLimitAdapterTest {
     entityUpperDataDto.add(entityUpperHourPicking);
     entityLowerDataDto.add(entityLowerHourPicking);
 
+    final List<EntityDataDto> entityUpperDataDtoShipping = new ArrayList<>();
+    final List<EntityDataDto> entityLoweDataDtoShipping = new ArrayList<>();
+    entityUpperDataDtoShipping.add(entityUpperHourHuAssembly);
+    entityLoweDataDtoShipping.add(entityLowerHourHuAssembly);
+
     final Map<EntityType, List<EntityDataDto>> entityDataDtoMap = new ConcurrentHashMap<>();
     entityDataDtoMap.put(EntityType.BACKLOG_UPPER_LIMIT, entityUpperDataDto);
     entityDataDtoMap.put(EntityType.BACKLOG_LOWER_LIMIT, entityLowerDataDto);
+    entityDataDtoMap.put(EntityType.BACKLOG_UPPER_LIMIT_SHIPPING, entityUpperDataDtoShipping);
+    entityDataDtoMap.put(EntityType.BACKLOG_LOWER_LIMIT_SHIPPING, entityLoweDataDtoShipping);
 
     return entityDataDtoMap;
   }
