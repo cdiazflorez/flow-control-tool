@@ -54,11 +54,14 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPla
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogPlannedResponse;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process.ProcessPathByDateOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Backlog.Process.ProcessPathByDateOut.QuantityByDateOut;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit;
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Process;
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.ProcessPath;
-import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Quantity;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Throughput;
+import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionRequest.Throughput.QuantityByProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.BacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
@@ -583,18 +586,23 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
 
   private BacklogProjectionRequest mockBacklogProjectionRequest() {
 
-    final Quantity processQuantity = new Quantity(null, DATE_TO, PICKING_TOTAL);
-    final ProcessPath processPath = new ProcessPath(TOT_MONO, Set.of(processQuantity));
-    final Process process = new Process(OutboundProcessName.PICKING, Set.of(processPath), null);
+    final QuantityByDateOut processQuantity =
+        new QuantityByDateOut(DATE_TO, PICKING_TOTAL);
+    final ProcessPathByDateOut processPathByDateOut =
+        new ProcessPathByDateOut(TOT_MONO, Set.of(processQuantity));
+    final Process process =
+        new Process(OutboundProcessName.PICKING, Set.of(processPathByDateOut));
     final Backlog backlog = new Backlog(Set.of(process));
 
-    final Quantity processPathQuantity = new Quantity(DATE_FROM, DATE_TO, PICKING_TOTAL);
-    final ProcessPath plannedUnitProcessPath =
-        new ProcessPath(TOT_MONO, Set.of(processPathQuantity));
-    final PlannedUnit plannedUnit = new PlannedUnit(Set.of(plannedUnitProcessPath));
+    final QuantityByDateInOut quantityByDateInOut =
+        new QuantityByDateInOut(DATE_FROM, DATE_TO, PICKING_TOTAL);
+    final ProcessPathByDateInOut processPathByDateInOut =
+        new ProcessPathByDateInOut(TOT_MONO, Set.of(quantityByDateInOut));
+    final PlannedUnit plannedUnit = new PlannedUnit(Set.of(processPathByDateInOut));
 
-    final Process throughputProcess = new Process(OutboundProcessName.PICKING, null, PICKING_TOTAL);
-    final Throughput throughput = new Throughput(DATE_FROM, Set.of(throughputProcess));
+    final QuantityByProcessName throughputQuantity =
+        new QuantityByProcessName(OutboundProcessName.PICKING, PICKING_TOTAL);
+    final Throughput throughput = new Throughput(DATE_FROM, Set.of(throughputQuantity));
 
     return new BacklogProjectionRequest(
         backlog,
@@ -608,17 +616,18 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
 
   private TotalBacklogProjectionRequest mockTotalBacklogProjectionRequest() {
 
-    final TotalBacklogProjectionRequest.Quantity processQuantity = new TotalBacklogProjectionRequest.Quantity(null, DATE_TO, PICKING_TOTAL);
-    final TotalBacklogProjectionRequest.ProcessPath processPath =
-        new TotalBacklogProjectionRequest.ProcessPath(TOT_MONO, List.of(processQuantity));
-    final TotalBacklogProjectionRequest.Backlog backlog = new TotalBacklogProjectionRequest.Backlog(List.of(processPath));
+    final TotalBacklogProjectionRequest.Backlog.ProcessPathByDateOut.QuantityByDateOut processQuantity =
+        new TotalBacklogProjectionRequest.Backlog.ProcessPathByDateOut.QuantityByDateOut(DATE_TO, PICKING_TOTAL);
+    final TotalBacklogProjectionRequest.Backlog.ProcessPathByDateOut processPathByDateOut =
+        new TotalBacklogProjectionRequest.Backlog.ProcessPathByDateOut(TOT_MONO, Set.of(processQuantity));
+    final TotalBacklogProjectionRequest.Backlog backlog = new TotalBacklogProjectionRequest.Backlog(Set.of(processPathByDateOut));
 
-    final TotalBacklogProjectionRequest.Quantity processPathQuantity =
-        new TotalBacklogProjectionRequest.Quantity(DATE_FROM, DATE_TO, PICKING_TOTAL);
-    final TotalBacklogProjectionRequest.ProcessPath plannedUnitProcessPath =
-        new TotalBacklogProjectionRequest.ProcessPath(TOT_MONO, List.of(processPathQuantity));
+    final TotalBacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut quantityByDateInOut =
+        new TotalBacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut.QuantityByDateInOut(DATE_FROM, DATE_TO, PICKING_TOTAL);
+    final TotalBacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut processPathByDateInOut =
+        new TotalBacklogProjectionRequest.PlannedUnit.ProcessPathByDateInOut(TOT_MONO, Set.of(quantityByDateInOut));
     final TotalBacklogProjectionRequest.PlannedUnit plannedUnit =
-        new TotalBacklogProjectionRequest.PlannedUnit(List.of(plannedUnitProcessPath));
+        new TotalBacklogProjectionRequest.PlannedUnit(Set.of(processPathByDateInOut));
 
     final TotalBacklogProjectionRequest.Throughput throughput = new TotalBacklogProjectionRequest.Throughput(DATE_FROM, PICKING_TOTAL);
 
@@ -627,7 +636,7 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
         DATE_TO,
         backlog,
         plannedUnit,
-        List.of(throughput)
+        Set.of(throughput)
     );
   }
 
