@@ -8,7 +8,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBackl
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionRequest.Throughput;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.TotalBacklogProjectionResponse;
 import com.mercadolibre.flow.control.tool.exception.TotalProjectionException;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedTotalUseCase;
+import com.mercadolibre.flow.control.tool.feature.backlog.BacklogProjectedTotalUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.ProjectionTotal;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.SlaQuantity;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName;
