@@ -4,18 +4,26 @@ import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constan
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Source.FORECAST;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.ProcessingType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.restclient.Response;
+import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -192,6 +201,40 @@ class BacklogLimitAdapterTest {
         METRIC_UNIT,
         FORECAST,
         value);
+  }
+
+  @Test
+  public void testNoForecastMetadataFoundException() throws JsonProcessingException {
+
+    final ClientException ce = new ClientException(
+        "PLANNING_MODEL_API",
+        HttpRequest.builder()
+            .url("URL")
+            .build(),
+        new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("limits exception"))
+    );
+
+    when(backlogLimitAdapter.getBacklogLimitsEntityDataMap(
+        LOGISTIC_CENTER_ID,
+            Workflow.FBM_WMS_OUTBOUND,
+            Set.of(ProcessName.PICKING, ProcessName.PACKING),
+            DATE_FROM,
+            DATE_TO))
+        .thenThrow(ce);
+
+    // THEN
+    assertThrows(
+        NoForecastMetadataFoundException.class, () ->
+            backlogLimitAdapter.getBacklogLimitsEntityDataMap(
+                LOGISTIC_CENTER_ID,
+                Workflow.FBM_WMS_OUTBOUND,
+                Set.of(
+                    ProcessName.PICKING,
+                    ProcessName.PACKING
+                ),
+                DATE_FROM,
+                DATE_TO)
+    );
   }
 
   @ParameterizedTest

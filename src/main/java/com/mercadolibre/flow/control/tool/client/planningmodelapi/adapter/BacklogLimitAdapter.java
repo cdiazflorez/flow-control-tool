@@ -5,6 +5,7 @@ import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constan
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.BACKLOG_UPPER_LIMIT;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType.BACKLOG_UPPER_LIMIT_SHIPPING;
 
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
@@ -12,6 +13,7 @@ import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Plann
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.ProcessingType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogLimitsUseCase.GetBacklogLimitGateway;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
@@ -64,9 +66,14 @@ public class BacklogLimitAdapter implements GetBacklogLimitGateway {
             Collections.emptyMap()
         );
 
-    final Map<EntityType, List<EntityDataDto>> entityResponse = planningModelApiClient.searchEntities(entityRequestDto);
+    try {
+      final Map<EntityType, List<EntityDataDto>> entityResponse = planningModelApiClient.searchEntities(entityRequestDto);
 
-    return groupEntityDataByDateProcessAndType(entityResponse);
+      return groupEntityDataByDateProcessAndType(entityResponse);
+    } catch (ClientException ce) {
+      throw new NoForecastMetadataFoundException(logisticCenterId, ce);
+    }
+
   }
 
   /**
