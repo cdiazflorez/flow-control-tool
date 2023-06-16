@@ -77,7 +77,6 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,8 +100,6 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
   private static final Instant DATE_FROM = Instant.parse("2023-03-17T14:00:00Z");
 
   private static final Instant DATE_TO = Instant.parse("2023-03-17T15:00:00Z");
-
-  private static final Instant VIEW_DATE = DATE_FROM;
 
   private static final Instant DATE_IN = DATE_FROM;
 
@@ -457,16 +454,14 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
         PlannedGrouper.PROCESS_PATH
     );
 
-    final BacklogPlannedRequest request = new BacklogPlannedRequest(
-        LOGISTIC_CENTER_ID,
-        FBM_WMS_OUTBOUND,
-        processPathNames,
-        DATE_FROM,
-        DATE_TO,
-        Optional.empty(),
-        Optional.empty(),
-        plannedGroupers
-    );
+    final BacklogPlannedRequest request = BacklogPlannedRequest.builder()
+        .logisticCenter(LOGISTIC_CENTER_ID)
+        .planningWorkflow(FBM_WMS_OUTBOUND)
+        .processPathNames(processPathNames)
+        .dateInFrom(DATE_FROM)
+        .dateInTo(DATE_TO)
+        .groupBy(plannedGroupers)
+        .build();
 
     final List<BacklogPlannedResponse> expectedResponse = processPathNames.stream()
         .map(processPathName -> new BacklogPlannedResponse(
@@ -503,16 +498,15 @@ class PlanningModelApiClientTest extends RestClientTestUtils {
   @DisplayName("Test that obtains the total backlog projection.")
   void testGetBacklogPlannedException() {
     //GIVEN
-    final BacklogPlannedRequest request = new BacklogPlannedRequest(
-        LOGISTIC_CENTER_ID,
-        FBM_WMS_OUTBOUND,
-        Set.of(),
-        DATE_FROM,
-        DATE_TO,
-        Optional.empty(),
-        Optional.empty(),
-        Set.of()
-    );
+    final BacklogPlannedRequest request =
+        BacklogPlannedRequest.builder()
+            .logisticCenter(LOGISTIC_CENTER_ID)
+            .planningWorkflow(FBM_WMS_OUTBOUND)
+            .processPathNames(Set.of())
+            .dateInFrom(DATE_FROM)
+            .dateInTo(DATE_TO)
+            .groupBy(Set.of())
+            .build();
 
     MockResponse.builder()
         .withMethod(GET)

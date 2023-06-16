@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -115,15 +114,15 @@ public class PlannedEntitiesAdapter implements PlannedEntitiesGateway {
   ) {
 
     try {
-      final List<BacklogPlannedResponse> backlogPlannedResponses = planningModelApiClient.getBacklogPlanned(new BacklogPlannedRequest(
-          logisticCenterId,
-          PlanningWorkflow.from(workflow.getName()),
-          PROCESS_PATH_NAMES,
-          dateFrom,
-          dateTo,
-          Optional.empty(),
-          Optional.empty(),
-          PLANNED_GROUPERS));
+      final List<BacklogPlannedResponse> backlogPlannedResponses = planningModelApiClient.getBacklogPlanned(
+          BacklogPlannedRequest.builder()
+              .logisticCenter(logisticCenterId)
+              .planningWorkflow(PlanningWorkflow.from(workflow.getName()))
+              .processPathNames(PROCESS_PATH_NAMES)
+              .dateInFrom(dateFrom)
+              .dateInTo(dateTo)
+              .groupBy(PLANNED_GROUPERS)
+              .build());
 
       return backlogPlannedResponses.stream().collect(
           Collectors.groupingBy(

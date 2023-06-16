@@ -1,5 +1,9 @@
 package com.mercadolibre.flow.control.tool.client.backlog.dto;
 
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.DATE_IN_FROM;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.DATE_IN_TO;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.DATE_OUT_FROM;
+import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.DATE_OUT_TO;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.GROUP_BY;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.LOGISTIC_CENTER_ID;
 import static com.mercadolibre.flow.control.tool.client.backlog.dto.constant.PhotoQueryParam.PHOTO_DATE_TO;
@@ -15,23 +19,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import lombok.Builder;
+import lombok.Data;
 
-/**
- * DTO Class for Backlog photos/last request. Based on given filters/params.
- *
- * @param logisticCenterId warehouse
- * @param workflows        list of BacklogPhotoWorkflows
- * @param groupBy          list of BacklogPhotoGrouper
- * @param steps            list of BacklogPhotoSteps
- * @param photoDateTo      Instant date
- */
-public record LastPhotoRequest(
-    String logisticCenterId,
-    Set<PhotoWorkflow> workflows,
-    Set<PhotoGrouper> groupBy,
-    Set<PhotoStep> steps,
-    Instant photoDateTo
-) {
+@Data
+@Builder
+public class LastPhotoRequest {
+  String logisticCenterId;
+  Set<PhotoWorkflow> workflows;
+  Set<PhotoGrouper> groupBy;
+  Set<PhotoStep> steps;
+  Instant photoDateTo;
+  Instant dateInFrom;
+  Instant dateInTo;
+  Instant dateOutFrom;
+  Instant dateOutTo;
 
   /**
    * Get needed query params for photos/last GET request.
@@ -43,6 +45,17 @@ public record LastPhotoRequest(
     addAsQueryParam(queryParams, GROUP_BY.getName(), groupBy.stream().map(PhotoGrouper::getName).toList());
     addAsQueryParam(queryParams, STEPS.getName(), steps.stream().map(PhotoStep::getName).toList());
     addAsQueryParam(queryParams, PHOTO_DATE_TO.getName(), photoDateTo);
+
+    if (dateInFrom != null && dateInTo != null) {
+      queryParams.put(DATE_IN_FROM.getName(), ISO_INSTANT.format(dateInFrom));
+      queryParams.put(DATE_IN_TO.getName(), ISO_INSTANT.format(dateInTo));
+    }
+
+    if (dateOutFrom != null && dateOutTo != null) {
+      queryParams.put(DATE_OUT_FROM.getName(), ISO_INSTANT.format(dateOutFrom));
+      queryParams.put(DATE_OUT_TO.getName(), ISO_INSTANT.format(dateOutTo));
+    }
+
     return queryParams;
   }
 
@@ -59,7 +72,7 @@ public record LastPhotoRequest(
    * Add to the given map the given key-value.
    */
   private void addAsQueryParam(final Map<String, String> map, final String key, final List<String> value) {
-    if (value != null) {
+    if (value != null && !value.isEmpty()) {
       map.put(key, String.join(",", value));
     }
   }

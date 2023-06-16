@@ -82,13 +82,14 @@ public class BacklogHistoricalAdapter implements GetHistoricalBacklogUseCase.Bac
       final Set<ProcessName> processes,
       final Instant viewDate) {
 
-    final LastPhotoRequest backlogPhotosLastRequest = new LastPhotoRequest(
-        logisticCenter,
-        Set.of(PhotoWorkflow.from(workflow)),
-        Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH, PhotoGrouper.DATE_OUT),
-        toSteps(processes),
-        viewDate
-    );
+    final LastPhotoRequest backlogPhotosLastRequest =
+        LastPhotoRequest.builder()
+            .logisticCenterId(logisticCenter)
+            .workflows(Set.of(PhotoWorkflow.from(workflow)))
+            .groupBy(Set.of(PhotoGrouper.STEP, PhotoGrouper.PATH, PhotoGrouper.DATE_OUT))
+            .steps(toSteps(processes))
+            .photoDateTo(viewDate)
+            .build();
 
     final PhotoResponse lastPhoto = backlogApiClient.getLastPhoto(backlogPhotosLastRequest);
 
