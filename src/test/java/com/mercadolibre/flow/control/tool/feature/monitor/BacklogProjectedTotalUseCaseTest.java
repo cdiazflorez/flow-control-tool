@@ -24,9 +24,9 @@ import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.BacklogProjectedTotalUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedGateway;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedTotalUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.ProjectionTotal;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
@@ -163,6 +163,26 @@ class BacklogProjectedTotalUseCaseTest {
     );
   }
 
+  private static List<ProjectionTotal> mockProjectionTotal() {
+
+    final List<ProjectionTotal.Path> paths = ProcessPathName.allPaths().stream()
+        .map(path -> new ProjectionTotal.Path(path, QUANTITY_VALUES.get(ProcessPathName.allPaths().indexOf(path) % QUANTITY_VALUES.size())))
+        .toList();
+
+    final List<ProjectionTotal.SlaProjected> slasProjected = IntStream.rangeClosed(0, NUMBER_OF_HOURS_RESPONSE - 1)
+        .mapToObj(index -> new ProjectionTotal.SlaProjected(
+            DATE_FROM_RESPONSE_PROJECTION.plus(index, HOURS),
+            paths.stream().mapToInt(ProjectionTotal.Path::quantity).sum(),
+            paths))
+        .toList();
+
+    return IntStream.rangeClosed(0, NUMBER_OF_HOURS_RESPONSE)
+        .mapToObj(index -> NUMBER_OF_HOURS_RESPONSE == index
+            ? new ProjectionTotal(DATE_FROM_RESPONSE_PROJECTION.plus(index, HOURS), emptyList())
+            : new ProjectionTotal(DATE_FROM_RESPONSE_PROJECTION.plus(index, HOURS), slasProjected))
+        .toList();
+  }
+
   @ParameterizedTest
   @MethodSource("provideThroughputData")
   @DisplayName("Should get total backlog projection")
@@ -267,25 +287,5 @@ class BacklogProjectedTotalUseCaseTest {
       quantityByDateAndProcess.put(DATE_FROM.plus(i, HOURS), quantityByProcess);
     }
     return quantityByDateAndProcess;
-  }
-
-  private static List<ProjectionTotal> mockProjectionTotal() {
-
-    final List<ProjectionTotal.Path> paths = ProcessPathName.allPaths().stream()
-        .map(path -> new ProjectionTotal.Path(path, QUANTITY_VALUES.get(ProcessPathName.allPaths().indexOf(path) % QUANTITY_VALUES.size())))
-        .toList();
-
-    final List<ProjectionTotal.SlaProjected> slasProjected = IntStream.rangeClosed(0, NUMBER_OF_HOURS_RESPONSE - 1)
-        .mapToObj(index -> new ProjectionTotal.SlaProjected(
-            DATE_FROM_RESPONSE_PROJECTION.plus(index, HOURS),
-            paths.stream().mapToInt(ProjectionTotal.Path::quantity).sum(),
-            paths))
-        .toList();
-
-    return IntStream.rangeClosed(0, NUMBER_OF_HOURS_RESPONSE)
-        .mapToObj(index -> NUMBER_OF_HOURS_RESPONSE == index
-            ? new ProjectionTotal(DATE_FROM_RESPONSE_PROJECTION.plus(index, HOURS), emptyList())
-            : new ProjectionTotal(DATE_FROM_RESPONSE_PROJECTION.plus(index, HOURS), slasProjected))
-        .toList();
   }
 }

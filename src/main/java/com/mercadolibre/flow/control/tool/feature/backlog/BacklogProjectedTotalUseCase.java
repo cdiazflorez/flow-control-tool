@@ -1,4 +1,4 @@
-package com.mercadolibre.flow.control.tool.feature.backlog.monitor;
+package com.mercadolibre.flow.control.tool.feature.backlog;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.collectingAndThen;
@@ -8,6 +8,8 @@ import static java.util.stream.Collectors.summingInt;
 import static java.util.stream.Collectors.toMap;
 
 import com.mercadolibre.flow.control.tool.feature.backlog.genericgateway.UnitsPerOrderRatioGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedGateway;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.PlannedEntitiesGateway;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.ProjectionTotal;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.domain.SlaQuantity;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;

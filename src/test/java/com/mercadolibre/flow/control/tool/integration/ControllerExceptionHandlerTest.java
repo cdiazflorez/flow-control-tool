@@ -2,6 +2,8 @@ package com.mercadolibre.flow.control.tool.integration;
 
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.HU_ASSEMBLY;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PACKING;
+import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.PICKING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessName.SHIPPING;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MONO;
 import static com.mercadolibre.flow.control.tool.feature.entity.ProcessPathName.NON_TOT_MULTI_ORDER;
@@ -19,6 +21,7 @@ import com.mercadolibre.flow.control.tool.exception.RealMetricsException;
 import com.mercadolibre.flow.control.tool.exception.ThroughputNotFoundException;
 import com.mercadolibre.flow.control.tool.exception.TotalProjectionException;
 import com.mercadolibre.flow.control.tool.feature.PingController;
+import com.mercadolibre.flow.control.tool.feature.backlog.BacklogController;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
 import com.mercadolibre.flow.control.tool.feature.backlog.status.StatusController;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
@@ -85,6 +88,9 @@ class ControllerExceptionHandlerTest extends ControllerTest {
 
   @SpyBean
   private MonitorController monitorController;
+
+  @SpyBean
+  private BacklogController backlogController;
 
   @SpyBean
   private StaffingController staffingController;
@@ -279,6 +285,35 @@ class ControllerExceptionHandlerTest extends ControllerTest {
   }
 
   @Test
+  void testDateIntervalSizeException() {
+    // Given
+    doThrow(new DateTimeException("dateFrom must be less than dateTo"))
+        .when(backlogController)
+        .getTotalBacklogProjections(
+            "ARTW01",
+            Workflow.FBM_WMS_OUTBOUND,
+            Set.of(HU_ASSEMBLY, SHIPPING),
+            Set.of(PICKING, PACKING),
+            ValueType.UNITS,
+            Instant.parse("2023-02-23T08:00:00Z"),
+            Instant.parse("2023-02-23T08:25:00Z"),
+            Instant.parse("2023-03-23T08:00:00Z")
+        );
+
+    // When
+    final ResponseEntity<ApiError> responseEntity =
+        this.testRestTemplate.exchange(
+            HISTORICAL_ERROR,
+            HttpMethod.GET,
+            this.getDefaultRequestEntity(),
+            ApiError.class
+        );
+
+    // Then
+    assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+  }
+
+  @Test
   @DisplayName("A RealMetricsNotFound exception test")
   void testRealMetricsNotFound() {
     //GIVEN
@@ -368,7 +403,7 @@ class ControllerExceptionHandlerTest extends ControllerTest {
     final ValueType valueType = ValueType.UNITS;
 
     doThrow(new TotalProjectionException(LOGISTIC_CENTER_ID, new Throwable("Error"), 404))
-        .when(monitorController).getTotalBacklogProjections(
+        .when(backlogController).getTotalBacklogProjections(
             LOGISTIC_CENTER_ID,
             Workflow.FBM_WMS_OUTBOUND,
             backlogProcesses,

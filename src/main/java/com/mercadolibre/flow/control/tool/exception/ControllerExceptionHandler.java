@@ -270,6 +270,19 @@ public class ControllerExceptionHandler {
     return ResponseEntity.status(apiError.getStatus()).body(apiError);
   }
 
+  @ExceptionHandler(InvalidateDateDurationRangeException.class)
+  public ResponseEntity<ApiError> handleInvalidateDateDurationRangeException(final InvalidateDateDurationRangeException ex) {
+    final ApiError apiError = new ApiError(
+        "bad_request",
+        ex.getMessage(),
+        HttpStatus.BAD_REQUEST.value()
+    );
+
+    LOGGER.error(apiError.getError());
+
+    return ResponseEntity.status(apiError.getStatus()).body(apiError);
+  }
+
 
   @ExceptionHandler(MethodArgumentTypeMismatchException.class)
   public ResponseEntity<ApiError> handleConversionFailException(final MethodArgumentTypeMismatchException ex) {

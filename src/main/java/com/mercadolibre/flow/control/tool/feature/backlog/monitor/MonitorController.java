@@ -11,7 +11,6 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMon
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.TotalBacklogMonitor;
 import com.mercadolibre.flow.control.tool.feature.editor.ProcessNameEditor;
 import com.mercadolibre.flow.control.tool.feature.editor.ProcessPathEditor;
 import com.mercadolibre.flow.control.tool.feature.editor.ValueTypeEditor;
@@ -44,8 +43,6 @@ public class MonitorController {
   private GetHistoricalBacklogUseCase getHistoricalBacklogUseCase;
 
   private BacklogProjectedUseCase backlogProjectedUseCase;
-
-  private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
 
   private BacklogLimitsUseCase backlogLimitsUseCase;
 
@@ -104,33 +101,6 @@ public class MonitorController {
     );
 
     return ResponseEntity.ok(response);
-  }
-
-  @Trace
-  @GetMapping("/projections/total")
-  public ResponseEntity<List<TotalBacklogMonitor>> getTotalBacklogProjections(
-      @PathVariable final String logisticCenterId,
-      @RequestParam final Workflow workflow,
-      @RequestParam(name = "backlog_processes") final Set<ProcessName> processes,
-      @RequestParam(name = "throughput_processes") final Set<ProcessName> throughputProcesses,
-      @RequestParam(name = "value_type") final ValueType valueType,
-      @RequestParam(name = "date_from") final Instant dateFrom,
-      @RequestParam(name = "date_to") final Instant dateTo,
-      @RequestParam(name = "view_date") final Instant viewDate
-  ) {
-
-    validateDateRange(dateFrom, dateTo);
-
-    final List<TotalBacklogMonitor> totalBacklogResponse = backlogProjectedTotalUseCase.getTotalProjection(logisticCenterId,
-                                                                                                           workflow,
-                                                                                                           processes,
-                                                                                                           throughputProcesses,
-                                                                                                           valueType,
-                                                                                                           dateFrom,
-                                                                                                           dateTo,
-                                                                                                           viewDate);
-
-    return ResponseEntity.ok(totalBacklogResponse);
   }
 
   @Trace
