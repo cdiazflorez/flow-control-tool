@@ -1,29 +1,37 @@
 package com.mercadolibre.flow.control.tool.client.planningmodelapi.adapter;
 
+import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName.HU_ASSEMBLY;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.PlanningWorkflow.FBM_WMS_OUTBOUND;
 import static com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.Source.FORECAST;
 import static com.mercadolibre.flow.control.tool.util.TestUtils.LOGISTIC_CENTER_ID;
-import static java.util.Collections.emptyList;
+import static com.mercadolibre.flow.control.tool.util.TestUtils.objectMapper;
 import static java.util.Collections.emptyMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.HttpRequest;
+import com.mercadolibre.fbm.wms.outbound.commons.rest.exception.ClientException;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.PlanningModelApiClient;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.EntityType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.OutboundProcessName;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.constant.ProcessingType;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityDataDto;
 import com.mercadolibre.flow.control.tool.client.planningmodelapi.dto.EntityRequestDto;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogLimit;
-import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessLimit;
+import com.mercadolibre.flow.control.tool.exception.NoForecastMetadataFoundException;
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
+import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import com.mercadolibre.restclient.Response;
+import com.mercadolibre.restclient.http.Headers;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -42,19 +50,24 @@ class BacklogLimitAdapterTest {
   private static final Instant DATE_TO = Instant.parse("2023-03-21T09:00:00Z");
 
   private static final List<EntityType> ENTITY_TYPES =
-      List.of(EntityType.BACKLOG_UPPER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT);
+      List.of(EntityType.BACKLOG_UPPER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT, EntityType.BACKLOG_LOWER_LIMIT_SHIPPING,
+          EntityType.BACKLOG_UPPER_LIMIT_SHIPPING);
 
   private static final EntityRequestDto ENTITY_REQUEST =
-      new EntityRequestDto(FBM_WMS_OUTBOUND,
-          ENTITY_TYPES, LOGISTIC_CENTER_ID,
+      new EntityRequestDto(
+          FBM_WMS_OUTBOUND,
+          ENTITY_TYPES,
+          LOGISTIC_CENTER_ID,
           DATE_FROM,
           DATE_TO,
-          List.of(OutboundProcessName.PICKING,
+          List.of(
+              OutboundProcessName.PICKING,
               OutboundProcessName.PACKING),
           emptyMap());
 
   @InjectMocks
   private BacklogLimitAdapter backlogLimitAdapter;
+
   @Mock
   private PlanningModelApiClient planningModelApiClient;
 
@@ -62,43 +75,59 @@ class BacklogLimitAdapterTest {
     return Stream.of(
         Arguments.of(
             mockMetadata(),
-            getBacklogLimitsExpected()
+            getBacklogLimitsEntityDataMapExpected()
         ),
         Arguments.of(
             emptyMap(),
-            emptyList()
+            emptyMap()
         )
     );
   }
 
-  @ParameterizedTest
-  @MethodSource("parameterTest")
-  void testBacklogLimitAdapter(final Map<EntityType, List<EntityDataDto>> clientResponse, final List<BacklogLimit> expectedResponse) {
-    // GIVEN
-
-    when(planningModelApiClient.searchEntities(ENTITY_REQUEST)).thenReturn(clientResponse);
-
-    // WHEN
-    List<BacklogLimit> backlogLimits = backlogLimitAdapter.getBacklogLimits(LOGISTIC_CENTER_ID, FBM_WMS_OUTBOUND,
-        List.of(OutboundProcessName.PICKING, OutboundProcessName.PACKING), DATE_FROM, DATE_TO);
-    // THEN
-
-    assertEquals(expectedResponse.size(), backlogLimits.size());
-    assertion(expectedResponse, backlogLimits);
-  }
-
-  private static List<BacklogLimit> getBacklogLimitsExpected() {
-    final ProcessLimit processLimit2 = new ProcessLimit(ProcessName.PICKING, 5000L, 11000L);
-    final ProcessLimit processLimit4 = new ProcessLimit(ProcessName.PICKING, 4000L, 10000L);
-    final ProcessLimit processLimit3 = new ProcessLimit(ProcessName.PACKING, 3000L, 90000L);
-    final ProcessLimit processLimit1 = new ProcessLimit(ProcessName.PACKING, 2000L, 8000L);
-    final List<ProcessLimit> processLimits1 = List.of(processLimit1, processLimit2);
-    final List<ProcessLimit> processLimits2 = List.of(processLimit3, processLimit4);
-
-    final BacklogLimit backlogLimit1 = new BacklogLimit(DATE_TO, processLimits1);
-    final BacklogLimit backlogLimit2 = new BacklogLimit(DATE_FROM, processLimits2);
-
-    return List.of(backlogLimit1, backlogLimit2);
+  private static Map<Instant, Map<OutboundProcessName, Map<ProcessingType, Long>>> getBacklogLimitsEntityDataMapExpected() {
+    return Map.of(
+        DATE_FROM,
+        Map.of(
+            OutboundProcessName.PICKING,
+            Map.of(
+                ProcessingType.BACKLOG_LOWER_LIMIT,
+                4000L,
+                ProcessingType.BACKLOG_UPPER_LIMIT,
+                10000L
+            ),
+            OutboundProcessName.PACKING,
+            Map.of(
+                ProcessingType.BACKLOG_LOWER_LIMIT,
+                3000L,
+                ProcessingType.BACKLOG_UPPER_LIMIT,
+                90000L
+            ),
+            HU_ASSEMBLY,
+            Map.of(
+                ProcessingType.BACKLOG_LOWER_LIMIT,
+                5000L,
+                ProcessingType.BACKLOG_UPPER_LIMIT,
+                6000L
+            )
+        ),
+        DATE_TO,
+        Map.of(
+            OutboundProcessName.PICKING,
+            Map.of(
+                ProcessingType.BACKLOG_LOWER_LIMIT,
+                5000L,
+                ProcessingType.BACKLOG_UPPER_LIMIT,
+                11000L
+            ),
+            OutboundProcessName.PACKING,
+            Map.of(
+                ProcessingType.BACKLOG_LOWER_LIMIT,
+                2000L,
+                ProcessingType.BACKLOG_UPPER_LIMIT,
+                8000L
+            )
+        )
+    );
   }
 
   private static Map<EntityType, List<EntityDataDto>> mockMetadata() {
@@ -115,6 +144,12 @@ class BacklogLimitAdapterTest {
     final EntityDataDto entityLowerPacking =
         buildEntity(OutboundProcessName.PACKING, ProcessingType.BACKLOG_LOWER_LIMIT, 3000L, DATE_FROM);
 
+    final EntityDataDto entityLowerHourHuAssembly =
+        buildEntity(HU_ASSEMBLY, ProcessingType.BACKLOG_LOWER_LIMIT_SHIPPING, 5000L, DATE_FROM);
+
+    final EntityDataDto entityUpperHourHuAssembly =
+        buildEntity(HU_ASSEMBLY, ProcessingType.BACKLOG_UPPER_LIMIT_SHIPPING, 6000L, DATE_FROM);
+
     final EntityDataDto entityUpperHourPicking =
         buildEntity(OutboundProcessName.PICKING, ProcessingType.BACKLOG_UPPER_LIMIT, 11000L, DATE_TO);
 
@@ -127,6 +162,7 @@ class BacklogLimitAdapterTest {
     final EntityDataDto entityLowerHourPacking =
         buildEntity(OutboundProcessName.PACKING, ProcessingType.BACKLOG_LOWER_LIMIT, 2000L, DATE_TO);
 
+
     final List<EntityDataDto> entityUpperDataDto = new ArrayList<>();
     final List<EntityDataDto> entityLowerDataDto = new ArrayList<>();
     entityUpperDataDto.add(entityUpperPacking);
@@ -138,9 +174,16 @@ class BacklogLimitAdapterTest {
     entityUpperDataDto.add(entityUpperHourPicking);
     entityLowerDataDto.add(entityLowerHourPicking);
 
+    final List<EntityDataDto> entityUpperDataDtoShipping = new ArrayList<>();
+    final List<EntityDataDto> entityLoweDataDtoShipping = new ArrayList<>();
+    entityUpperDataDtoShipping.add(entityUpperHourHuAssembly);
+    entityLoweDataDtoShipping.add(entityLowerHourHuAssembly);
+
     final Map<EntityType, List<EntityDataDto>> entityDataDtoMap = new ConcurrentHashMap<>();
     entityDataDtoMap.put(EntityType.BACKLOG_UPPER_LIMIT, entityUpperDataDto);
     entityDataDtoMap.put(EntityType.BACKLOG_LOWER_LIMIT, entityLowerDataDto);
+    entityDataDtoMap.put(EntityType.BACKLOG_UPPER_LIMIT_SHIPPING, entityUpperDataDtoShipping);
+    entityDataDtoMap.put(EntityType.BACKLOG_LOWER_LIMIT_SHIPPING, entityLoweDataDtoShipping);
 
     return entityDataDtoMap;
   }
@@ -160,22 +203,61 @@ class BacklogLimitAdapterTest {
         value);
   }
 
-  private void assertion(final List<BacklogLimit> expecteds, final List<BacklogLimit> response) {
-    expecteds.forEach(expected -> {
-      assertTrue(response.stream().anyMatch(x -> x.date().equals(expected.date())));
-      var backlogLimitResponse = response.stream().filter(x -> x.date().equals(expected.date())).findAny().orElseThrow();
-      assertionProcessName(expected.processes(), backlogLimitResponse.processes());
-    });
+  @Test
+  public void testNoForecastMetadataFoundException() throws JsonProcessingException {
+
+    final ClientException ce = new ClientException(
+        "PLANNING_MODEL_API",
+        HttpRequest.builder()
+            .url("URL")
+            .build(),
+        new Response(404, new Headers(Map.of()), objectMapper().writeValueAsBytes("limits exception"))
+    );
+
+    when(backlogLimitAdapter.getBacklogLimitsEntityDataMap(
+        LOGISTIC_CENTER_ID,
+            Workflow.FBM_WMS_OUTBOUND,
+            Set.of(ProcessName.PICKING, ProcessName.PACKING),
+            DATE_FROM,
+            DATE_TO))
+        .thenThrow(ce);
+
+    // THEN
+    assertThrows(
+        NoForecastMetadataFoundException.class, () ->
+            backlogLimitAdapter.getBacklogLimitsEntityDataMap(
+                LOGISTIC_CENTER_ID,
+                Workflow.FBM_WMS_OUTBOUND,
+                Set.of(
+                    ProcessName.PICKING,
+                    ProcessName.PACKING
+                ),
+                DATE_FROM,
+                DATE_TO)
+    );
   }
 
-  private void assertionProcessName(final List<ProcessLimit> expected, final List<ProcessLimit> response) {
-    assertEquals(expected.size(), response.size());
-    expected.forEach(
-        processExpected -> {
-          var processLimitResponse = response.stream()
-              .filter(x -> x.name().equals(processExpected.name())).findAny().orElseThrow();
-          assertEquals(processExpected, processLimitResponse);
-        }
+  @ParameterizedTest
+  @MethodSource("parameterTest")
+  void testBacklogLimitAdapter(
+      final Map<EntityType, List<EntityDataDto>> clientResponse,
+      final Map<Instant, Map<OutboundProcessName, Map<ProcessingType, Long>>> expectedResponse
+  ) {
+    // GIVEN
+
+    when(planningModelApiClient.searchEntities(ENTITY_REQUEST)).thenReturn(clientResponse);
+
+    // WHEN
+    Map<Instant, Map<OutboundProcessName, Map<ProcessingType, Long>>> backlogLimits = backlogLimitAdapter.getBacklogLimitsEntityDataMap(
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        Set.of(ProcessName.PICKING, ProcessName.PACKING),
+        DATE_FROM,
+        DATE_TO
     );
+    // THEN
+
+    assertEquals(expectedResponse.size(), backlogLimits.size());
+    assertEquals(expectedResponse, backlogLimits);
   }
 }

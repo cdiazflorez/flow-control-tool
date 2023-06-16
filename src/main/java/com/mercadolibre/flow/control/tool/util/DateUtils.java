@@ -16,7 +16,7 @@ public final class DateUtils {
 
     final long differenceBetweenDates = Duration.between(dateFrom, dateTo).toHours();
 
-    return differenceBetweenDates > hours;
+    return differenceBetweenDates >= hours;
   }
 
   public static void validateDateRange(final Instant dateFrom, final Instant dateTo) {

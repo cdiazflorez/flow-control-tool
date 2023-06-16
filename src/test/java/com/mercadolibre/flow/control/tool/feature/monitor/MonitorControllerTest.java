@@ -12,11 +12,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogLimitsUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedTotalUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.BacklogProjectedUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.GetHistoricalBacklogUseCase;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.MonitorController;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogLimit;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.BacklogMonitor;
+import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessLimit;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessPathMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.ProcessesMonitor;
 import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.SlasMonitor;
@@ -24,8 +27,10 @@ import com.mercadolibre.flow.control.tool.feature.backlog.monitor.dto.TotalBackl
 import com.mercadolibre.flow.control.tool.feature.entity.ProcessName;
 import com.mercadolibre.flow.control.tool.feature.entity.ValueType;
 import com.mercadolibre.flow.control.tool.feature.entity.Workflow;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -103,6 +108,15 @@ public class MonitorControllerTest {
   private static final String ERROR = "error";
 
   private static final String UNITS = "units";
+
+  private static final Long PICKING_UPPER_LIMIT = 1000L;
+
+  private static final Long PICKING_LOWER_LIMIT = 200L;
+
+  private static final Long PACKING_UPPER_LIMIT = 500L;
+
+  private static final Long PACKING_LOWER_LIMIT = 100L;
+
 
   private static final Set<ProcessName> PROCESS_NAMES = Set.of(
       ProcessName.PICKING,
@@ -196,17 +210,36 @@ public class MonitorControllerTest {
   @MockBean
   private BacklogProjectedTotalUseCase backlogProjectedTotalUseCase;
 
+  @MockBean
+  private BacklogLimitsUseCase backlogLimitsUseCase;
+
+
   private static Stream<Arguments> backlogLimitsProvider() {
     return Stream.of(
         Arguments.of("FBM_WMS_OUTBOUND",
-                     Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
-                     DATE_FROM_STRING,
-                     DATE_TO_STRING),
+            Arrays.asList("picking1", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+            DATE_FROM_STRING,
+            DATE_TO_STRING),
         Arguments.of("FBM_WM_OUTBOUND",
-                     Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
-                     DATE_FROM_STRING,
-                     DATE_TO_STRING)
+            Arrays.asList("picking", "batch_sorter", "wall_in", "packing", "packing_wall", "hu_assembly", "shipped"),
+            DATE_FROM_STRING,
+            DATE_TO_STRING)
     );
+  }
+
+  private static List<BacklogLimit> expectedBacklogLimits(final Instant dateFrom, final Instant dateTo) {
+    final ProcessLimit processLimit2 = new ProcessLimit(ProcessName.PICKING, PICKING_LOWER_LIMIT, PICKING_UPPER_LIMIT);
+    final ProcessLimit processLimit1 = new ProcessLimit(ProcessName.PACKING, PACKING_LOWER_LIMIT, PACKING_UPPER_LIMIT);
+    final List<ProcessLimit> processLimits1 = List.of(processLimit1, processLimit2);
+
+    final BacklogLimit backlogLimitDateFrom = new BacklogLimit(dateFrom, processLimits1);
+    final BacklogLimit backlogLimitDateFrom1 = new BacklogLimit(dateFrom.plus(Duration.ofHours(1)), processLimits1);
+    final BacklogLimit backlogLimitDateFrom2 = new BacklogLimit(dateFrom.plus(Duration.ofHours(2)), processLimits1);
+    final BacklogLimit backlogLimitDateTo = new BacklogLimit(dateTo, processLimits1);
+
+    return Stream.of(backlogLimitDateTo, backlogLimitDateFrom, backlogLimitDateFrom1, backlogLimitDateFrom2)
+        .sorted(Comparator.comparing(BacklogLimit::date))
+        .toList();
   }
 
   @Test
@@ -436,18 +469,18 @@ public class MonitorControllerTest {
     // THEN
     result.andExpect(status().isBadRequest());
     result.andExpect(r ->
-                         Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
-                                                 Objects.requireNonNull(r.getResolvedException()).getMessage())
+        Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
+            Objects.requireNonNull(r.getResolvedException()).getMessage())
     );
   }
 
   private void whenBacklogProjectionUseCase() {
     when(backlogProjectedUseCase.getBacklogProjected(Instant.parse(DATE_FROM_STRING),
-                                                     Instant.parse(DATE_TO_STRING),
-                                                     LOGISTIC_CENTER_ID,
-                                                     Workflow.FBM_WMS_OUTBOUND,
-                                                     PROCESS_NAMES,
-                                                     Instant.parse(VIEW_DATE_STRING)
+        Instant.parse(DATE_TO_STRING),
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        PROCESS_NAMES,
+        Instant.parse(VIEW_DATE_STRING)
     )).thenReturn(BACKLOG_PROJECTED_MOCK);
   }
 
@@ -591,8 +624,8 @@ public class MonitorControllerTest {
     // THEN
     result.andExpect(status().isBadRequest());
     result.andExpect(r ->
-                         Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
-                                                 Objects.requireNonNull(r.getResolvedException()).getMessage())
+        Assertions.assertEquals(String.format("DateFrom [%s] is after dateTo [%s]", DATE_TO_STRING, DATE_FROM_STRING),
+            Objects.requireNonNull(r.getResolvedException()).getMessage())
     );
   }
 
@@ -670,13 +703,13 @@ public class MonitorControllerTest {
         .toList();
 
     when(backlogProjectedTotalUseCase.getTotalProjection(LOGISTIC_CENTER_ID,
-                                                         Workflow.FBM_WMS_OUTBOUND,
-                                                         processes,
-                                                         throughputProcess,
-                                                         ValueType.UNITS,
-                                                         dateFromValue,
-                                                         dateToValue,
-                                                         dateFromValue))
+        Workflow.FBM_WMS_OUTBOUND,
+        processes,
+        throughputProcess,
+        ValueType.UNITS,
+        dateFromValue,
+        dateToValue,
+        dateFromValue))
         .thenReturn(totalBacklogResponse);
 
     // WHEN
@@ -845,8 +878,8 @@ public class MonitorControllerTest {
     final String expectedMessage = new JSONObject()
         .put("error", "bad_request")
         .put("message",
-             "bad request /control_tool/logistic_center/ARTW01/backlog/historical. "
-                 + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPING]")
+            "bad request /control_tool/logistic_center/ARTW01/backlog/historical. "
+                + "Allowed values are: [WAVING, PICKING, BATCH_SORTER, WALL_IN, PACKING, PACKING_WALL, HU_ASSEMBLY, SHIPPING]")
         .put("status", 400)
         .toString();
 
@@ -885,6 +918,25 @@ public class MonitorControllerTest {
 
   @Test
   void testGetBacklogLimits() throws Exception {
+    //GIVEN
+    final Instant dateFrom = Instant.parse(DATE_FROM_STRING);
+    final Instant dateTo = dateFrom.plus(3, HOURS);
+    when(backlogLimitsUseCase.execute(
+        LOGISTIC_CENTER_ID,
+        Workflow.FBM_WMS_OUTBOUND,
+        Set.of(
+            ProcessName.WAVING,
+            ProcessName.PICKING,
+            ProcessName.BATCH_SORTER,
+            ProcessName.WALL_IN,
+            ProcessName.PACKING,
+            ProcessName.PACKING_WALL,
+            ProcessName.HU_ASSEMBLY,
+            ProcessName.SHIPPING
+        ),
+        dateFrom,
+        dateTo
+    )).thenReturn(expectedBacklogLimits(dateFrom, dateTo));
 
     // WHEN
     final var result = mvc.perform(
@@ -901,7 +953,7 @@ public class MonitorControllerTest {
                 "waving"
             )))
             .param(DATE_FROM, DATE_FROM_STRING)
-            .param(DATE_TO, DATE_TO_STRING)
+            .param(DATE_TO, "2023-03-23T10:00:00Z")
     );
 
     // THEN

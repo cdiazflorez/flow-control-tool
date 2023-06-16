@@ -133,7 +133,7 @@ public class ControllerExceptionHandler {
     ApiError apiError = new ApiError(
         "not_found",
         ex.getMessage(),
-        HttpStatus.NOT_FOUND.value()
+        HttpStatus.FAILED_DEPENDENCY.value()
     );
 
     return ResponseEntity.status(apiError.getStatus()).body(apiError);

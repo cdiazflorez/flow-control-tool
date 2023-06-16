@@ -346,7 +346,7 @@ class ControllerExceptionHandlerTest extends ControllerTest {
     );
 
     //THEN
-    assertEquals(HttpStatus.NOT_FOUND, responseEntity.getStatusCode());
+    assertEquals(HttpStatus.FAILED_DEPENDENCY, responseEntity.getStatusCode());
   }
 
   @Test
